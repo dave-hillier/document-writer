@@ -1,6 +1,7 @@
 import type { AppState, AppAction } from './types';
 
 export const initialState: AppState = {
+  currentDocumentId: null,
   documentConfig: {
     tone: 'professional',
     narrativeElements: {
@@ -17,7 +18,8 @@ export const initialState: AppState = {
   streamingContent: '',
   isStreaming: false,
   outlineCacheMetrics: undefined,
-  sectionCacheMetrics: {}
+  sectionCacheMetrics: {},
+  documentHistory: []
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -26,6 +28,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case 'RESET_DOCUMENT':
       return { 
         ...state, 
+        currentDocumentId: null,
         outline: null, 
         sections: [], 
         error: null,
@@ -36,6 +39,44 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         isGenerating: false,
         outlineCacheMetrics: undefined,
         sectionCacheMetrics: {}
+      };
+    
+    // Document management events
+    case 'DOCUMENT_ID_ASSIGNED':
+      return {
+        ...state,
+        currentDocumentId: action.payload.documentId
+      };
+    
+    case 'DOCUMENT_LOADED_FROM_HISTORY':
+      return {
+        ...state,
+        currentDocumentId: action.payload.document.id,
+        documentConfig: action.payload.document.config,
+        outline: action.payload.document.outline,
+        sections: action.payload.document.sections,
+        error: null
+      };
+    
+    case 'DOCUMENT_SAVED_TO_HISTORY':
+      return {
+        ...state,
+        documentHistory: [
+          action.payload.document,
+          ...state.documentHistory.filter(doc => doc.id !== action.payload.document.id)
+        ]
+      };
+    
+    case 'DOCUMENT_DELETED_FROM_HISTORY':
+      return {
+        ...state,
+        documentHistory: state.documentHistory.filter(doc => doc.id !== action.payload.documentId)
+      };
+    
+    case 'HISTORY_LOADED':
+      return {
+        ...state,
+        documentHistory: action.payload.documents
       };
     
     // Outline generation events

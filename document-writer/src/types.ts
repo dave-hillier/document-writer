@@ -26,7 +26,19 @@ export interface CacheMetrics {
   totalTokens: number;
 }
 
+export interface DocumentHistoryItem {
+  id: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+  config: DocumentConfig;
+  outline: DocumentOutline;
+  sections: Section[];
+  url: string;
+}
+
 export interface AppState {
+  currentDocumentId: string | null;
   documentConfig: DocumentConfig;
   outline: DocumentOutline | null;
   sections: Section[];
@@ -37,11 +49,19 @@ export interface AppState {
   isStreaming: boolean;
   outlineCacheMetrics?: CacheMetrics;
   sectionCacheMetrics: Record<string, CacheMetrics>;
+  documentHistory: DocumentHistoryItem[];
 }
 
 export type AppAction =
   // User settings and configuration
   | { type: 'RESET_DOCUMENT' }
+  
+  // Document management events
+  | { type: 'DOCUMENT_ID_ASSIGNED'; payload: { documentId: string } }
+  | { type: 'DOCUMENT_LOADED_FROM_HISTORY'; payload: { document: DocumentHistoryItem } }
+  | { type: 'DOCUMENT_SAVED_TO_HISTORY'; payload: { document: DocumentHistoryItem } }
+  | { type: 'DOCUMENT_DELETED_FROM_HISTORY'; payload: { documentId: string } }
+  | { type: 'HISTORY_LOADED'; payload: { documents: DocumentHistoryItem[] } }
   
   // Outline generation events
   | { type: 'OUTLINE_GENERATION_STARTED'; payload: { config: DocumentConfig } }
