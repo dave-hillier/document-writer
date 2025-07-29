@@ -1,22 +1,10 @@
 import { ChevronRight, FileText, Download, Play, Square, RotateCcw } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
+import { generateSection, generateAllSections } from '../business/documentOperations';
+import { exportDocumentAsMarkdown } from '../business/exportUtils';
 
-interface DocumentEditorProps {
-  onGenerateSection: (sectionId: string) => void;
-  onGenerateAllSections: () => void;
-  onStopBulkGeneration: () => void;
-  onRetryBulkGeneration: () => void;
-  onExport: () => void;
-}
-
-export function DocumentEditor({ 
-  onGenerateSection,
-  onGenerateAllSections,
-  onStopBulkGeneration,
-  onRetryBulkGeneration,
-  onExport
-}: DocumentEditorProps) {
-  const { state } = useAppContext();
+export function DocumentEditor() {
+  const { state, dispatch } = useAppContext();
   const { 
     outline, 
     sections, 
@@ -31,6 +19,94 @@ export function DocumentEditor({
   if (!outline) {
     return null;
   }
+
+  const handleGenerateSection = async (sectionId: string) => {
+    dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
+
+    try {
+      const result = await generateSection(
+        {
+          sectionId,
+          outline,
+          sections,
+          documentConfig: state.documentConfig,
+          responseId: state.responseId
+        },
+        {
+          onChunk: (chunk) => {
+            dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
+          }
+        }
+      );
+      
+      dispatch({ type: 'SECTION_GENERATED', payload: result });
+    } catch (error) {
+      dispatch({ 
+        type: 'SECTION_GENERATION_FAILED', 
+        payload: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+    }
+  };
+
+  const handleGenerateAllSections = async () => {
+    const incompleteSections = sections.filter(s => !s.content);
+    if (incompleteSections.length === 0) return;
+
+    dispatch({ type: 'BULK_GENERATION_STARTED' });
+
+    try {
+      await generateAllSections(
+        {
+          outline,
+          sections,
+          documentConfig: state.documentConfig,
+          responseId: state.responseId,
+          onSectionStart: (sectionIndex) => {
+            dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex } });
+          },
+          shouldStop: () => state.bulkGenerationStopped
+        },
+        {
+          onChunk: (chunk) => {
+            dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
+          },
+          onSectionGenerated: (result) => {
+            dispatch({ type: 'SECTION_GENERATED', payload: result });
+          },
+          onSectionStarted: (sectionId) => {
+            dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
+          }
+        }
+      );
+
+      if (state.bulkGenerationStopped) {
+        dispatch({ type: 'BULK_GENERATION_STOPPED' });
+      } else {
+        dispatch({ type: 'BULK_GENERATION_COMPLETED' });
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Generation stopped by user') {
+        dispatch({ type: 'BULK_GENERATION_STOPPED' });
+      } else {
+        dispatch({ 
+          type: 'BULK_GENERATION_FAILED', 
+          payload: error instanceof Error ? error.message : 'Unknown error occurred'
+        });
+      }
+    }
+  };
+
+  const handleStopBulkGeneration = () => {
+    dispatch({ type: 'BULK_GENERATION_STOPPED' });
+  };
+
+  const handleRetryBulkGeneration = () => {
+    handleGenerateAllSections();
+  };
+
+  const handleExport = () => {
+    exportDocumentAsMarkdown(outline, sections);
+  };
 
   const totalWordCount = sections.reduce((sum, s) => sum + (s.wordCount || 0), 0);
   const incompleteSections = sections.filter(s => !s.content);
@@ -78,7 +154,7 @@ export function DocumentEditor({
         </hgroup>
         <nav aria-label="Document actions" style={{ display: 'flex', gap: '12px' }}>
           <button
-            onClick={isBulkGenerating ? onStopBulkGeneration : (bulkGenerationStopped || bulkGenerationError) ? onRetryBulkGeneration : onGenerateAllSections}
+            onClick={isBulkGenerating ? handleStopBulkGeneration : (bulkGenerationStopped || bulkGenerationError) ? handleRetryBulkGeneration : handleGenerateAllSections}
             disabled={incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError}
             className="secondary"
             aria-label={isBulkGenerating ? "Stop bulk generation" : (bulkGenerationStopped || bulkGenerationError) ? "Retry bulk generation" : "Generate all incomplete sections"}
@@ -86,7 +162,7 @@ export function DocumentEditor({
             {getBulkGenerationButtonContent()}
           </button>
           <button
-            onClick={onExport}
+            onClick={handleExport}
             disabled={sections.every(s => !s.content)}
             className="contrast"
             aria-label="Export document as Markdown"
@@ -147,7 +223,7 @@ export function DocumentEditor({
                 </div>
               ) : (
                 <button
-                  onClick={() => onGenerateSection(section.id)}
+                  onClick={() => handleGenerateSection(section.id)}
                   disabled={isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
                   aria-busy={isGenerating}
                   aria-label={`Generate content for section: ${section.title}`}
