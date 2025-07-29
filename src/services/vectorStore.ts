@@ -55,13 +55,19 @@ export const uploadFile = async (
   vectorStoreId: string,
   file: File,
   attributes?: Record<string, unknown>
-): Promise<{ fileId: string }> => {
+): Promise<{ fileId: string; filename: string }> => {
   const openai = getOpenAIClient();
   try {
     const fileUpload = await openai.files.create({
       file,
       purpose: 'assistants'
     });
+
+    // Merge filename into attributes for metadata storage
+    const metadata = {
+      original_filename: file.name,
+      ...(attributes || {})
+    };
 
     const vectorStoreFile = await openai.vectorStores.files.createAndPoll(
       vectorStoreId,
@@ -70,18 +76,24 @@ export const uploadFile = async (
       }
     );
 
-    // Update attributes if provided
-    if (attributes && Object.keys(attributes).length > 0) {
-      await openai.vectorStores.files.update(
-        fileUpload.id,
-        {
-          vector_store_id: vectorStoreId,
-          attributes: attributes as Record<string, string | number | boolean>
-        }
-      );
+    // Note: metadata/attributes support may vary by OpenAI API version
+    // This is here for future compatibility when fully supported
+    if (Object.keys(metadata).length > 0) {
+      try {
+        await openai.vectorStores.files.update(
+          fileUpload.id,
+          {
+            vector_store_id: vectorStoreId,
+            attributes: metadata as Record<string, string | number | boolean>
+          }
+        );
+      } catch (error) {
+        console.warn('Failed to set file metadata/attributes:', error);
+        // Continue without metadata - the filename is still retrievable via files.retrieve
+      }
     }
 
-    return { fileId: vectorStoreFile.id };
+    return { fileId: vectorStoreFile.id, filename: file.name };
   } catch (error) {
     console.error('Failed to upload file:', error);
     throw new Error('Failed to upload file to knowledge base');
@@ -108,14 +120,34 @@ export const listFiles = async (vectorStoreId: string): Promise<Array<{
 }>> => {
   const openai = getOpenAIClient();
   try {
-    const files = await openai.vectorStores.files.list(vectorStoreId);
+    const vectorStoreFiles = await openai.vectorStores.files.list(vectorStoreId);
     
-    return files.data.map(file => ({
-      id: file.id,
-      filename: 'file_' + file.id, // OpenAI doesn't return filename in list
-      createdAt: file.created_at * 1000,
-      status: file.status
-    }));
+    // Retrieve actual filenames from the Files API
+    const filesWithNames = await Promise.all(
+      vectorStoreFiles.data.map(async (vsFile) => {
+        try {
+          // Retrieve the file details to get the original filename
+          const fileDetails = await openai.files.retrieve(vsFile.id);
+          return {
+            id: vsFile.id,
+            filename: fileDetails.filename,
+            createdAt: vsFile.created_at * 1000,
+            status: vsFile.status
+          };
+        } catch (error) {
+          console.error(`Failed to retrieve file details for ${vsFile.id}:`, error);
+          // Fallback to ID if file retrieval fails
+          return {
+            id: vsFile.id,
+            filename: 'file_' + vsFile.id,
+            createdAt: vsFile.created_at * 1000,
+            status: vsFile.status
+          };
+        }
+      })
+    );
+    
+    return filesWithNames;
   } catch (error) {
     console.error('Failed to list files:', error);
     throw new Error('Failed to list knowledge base files');

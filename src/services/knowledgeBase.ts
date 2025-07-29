@@ -102,26 +102,32 @@ export const uploadFile = async (
       throw new Error('Knowledge base not found');
     }
     
-    // Create file metadata
-    const knowledgeBaseFile: KnowledgeBaseFile = {
-      id: uuidv4(),
-      filename: file.name,
-      size: file.size,
-      uploadedAt: Date.now(),
-      attributes,
-      status: 'uploading'
-    };
-    
     // Upload to OpenAI
-    const { fileId } = await vectorStore.uploadFile(
+    const { fileId, filename } = await vectorStore.uploadFile(
       knowledgeBase.vectorStoreId,
       file,
       attributes
     );
     
-    // Update file with OpenAI ID
-    knowledgeBaseFile.id = fileId;
-    knowledgeBaseFile.status = 'completed';
+    // Store file metadata in IndexedDB for faster access
+    await indexedDBService.saveFileMetadata({
+      fileId,
+      knowledgeBaseId,
+      filename,
+      size: file.size,
+      uploadedAt: Date.now(),
+      attributes
+    });
+    
+    // Create file response
+    const knowledgeBaseFile: KnowledgeBaseFile = {
+      id: fileId,
+      filename,
+      size: file.size,
+      uploadedAt: Date.now(),
+      attributes,
+      status: 'completed'
+    };
     
     // Update file count
     await updateFileCount(knowledgeBaseId);
@@ -140,7 +146,11 @@ export const deleteFile = async (knowledgeBaseId: string, fileId: string): Promi
       throw new Error('Knowledge base not found');
     }
     
+    // Delete from OpenAI
     await vectorStore.deleteFile(knowledgeBase.vectorStoreId, fileId);
+    
+    // Delete file metadata from IndexedDB
+    await indexedDBService.deleteFileMetadata(fileId);
     
     // Update file count
     await updateFileCount(knowledgeBaseId);
@@ -157,7 +167,39 @@ export const getFiles = async (knowledgeBaseId: string): Promise<KnowledgeBaseFi
       throw new Error('Knowledge base not found');
     }
     
+    // First try to get files from IndexedDB (faster and includes size info)
+    try {
+      const localFiles = await indexedDBService.getFileMetadataByKnowledgeBase(knowledgeBaseId);
+      if (localFiles.length > 0) {
+        return localFiles.map(file => ({
+          id: file.fileId,
+          filename: file.filename,
+          size: file.size || 0,
+          uploadedAt: file.uploadedAt,
+          status: 'completed',
+          attributes: file.attributes
+        }));
+      }
+    } catch (error) {
+      console.warn('Failed to get files from IndexedDB, falling back to API:', error);
+    }
+    
+    // Fallback to OpenAI API if IndexedDB is empty or fails
     const files = await vectorStore.listFiles(knowledgeBase.vectorStoreId);
+    
+    // Store the retrieved files in IndexedDB for future use
+    for (const file of files) {
+      try {
+        await indexedDBService.saveFileMetadata({
+          fileId: file.id,
+          knowledgeBaseId,
+          filename: file.filename,
+          uploadedAt: file.createdAt
+        });
+      } catch (error) {
+        console.warn('Failed to cache file metadata:', error);
+      }
+    }
     
     return files.map(file => ({
       id: file.id,

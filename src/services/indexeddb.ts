@@ -1,9 +1,10 @@
 import type { DocumentHistoryItem, KnowledgeBase } from '../types';
 
 const DB_NAME = 'DocumentWriterDB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const DOCUMENTS_STORE = 'documents';
 const KNOWLEDGE_BASES_STORE = 'knowledgeBases';
+const FILE_METADATA_STORE = 'fileMetadata';
 
 export class IndexedDBService {
   private db: IDBDatabase | null = null;
@@ -36,6 +37,14 @@ export class IndexedDBService {
           kbStore.createIndex('createdAt', 'createdAt', { unique: false });
           kbStore.createIndex('updatedAt', 'updatedAt', { unique: false });
           kbStore.createIndex('name', 'name', { unique: false });
+        }
+        
+        // Create file metadata store
+        if (!db.objectStoreNames.contains(FILE_METADATA_STORE)) {
+          const fileStore = db.createObjectStore(FILE_METADATA_STORE, { keyPath: 'fileId' });
+          fileStore.createIndex('knowledgeBaseId', 'knowledgeBaseId', { unique: false });
+          fileStore.createIndex('filename', 'filename', { unique: false });
+          fileStore.createIndex('uploadedAt', 'uploadedAt', { unique: false });
         }
       };
 
@@ -234,6 +243,111 @@ export class IndexedDBService {
 
       request.onsuccess = () => resolve();
       request.onerror = () => reject(new Error('Failed to delete knowledge base'));
+    });
+  }
+
+  // File metadata methods
+  async saveFileMetadata(fileMetadata: {
+    fileId: string;
+    knowledgeBaseId: string;
+    filename: string;
+    size?: number;
+    uploadedAt: number;
+    attributes?: Record<string, unknown>;
+  }): Promise<void> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([FILE_METADATA_STORE], 'readwrite');
+      const store = transaction.objectStore(FILE_METADATA_STORE);
+      
+      const request = store.put(fileMetadata);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(new Error('Failed to save file metadata'));
+    });
+  }
+
+  async getFileMetadata(fileId: string): Promise<{
+    fileId: string;
+    knowledgeBaseId: string;
+    filename: string;
+    size?: number;
+    uploadedAt: number;
+    attributes?: Record<string, unknown>;
+  } | null> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([FILE_METADATA_STORE], 'readonly');
+      const store = transaction.objectStore(FILE_METADATA_STORE);
+      const request = store.get(fileId);
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+
+      request.onerror = () => reject(new Error('Failed to get file metadata'));
+    });
+  }
+
+  async getFileMetadataByKnowledgeBase(knowledgeBaseId: string): Promise<Array<{
+    fileId: string;
+    knowledgeBaseId: string;
+    filename: string;
+    size?: number;
+    uploadedAt: number;
+    attributes?: Record<string, unknown>;
+  }>> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([FILE_METADATA_STORE], 'readonly');
+      const store = transaction.objectStore(FILE_METADATA_STORE);
+      const index = store.index('knowledgeBaseId');
+      const request = index.openCursor(IDBKeyRange.only(knowledgeBaseId));
+      
+      const files: Array<{
+        fileId: string;
+        knowledgeBaseId: string;
+        filename: string;
+        size?: number;
+        uploadedAt: number;
+        attributes?: Record<string, unknown>;
+      }> = [];
+
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result;
+        if (cursor) {
+          files.push(cursor.value);
+          cursor.continue();
+        } else {
+          resolve(files);
+        }
+      };
+
+      request.onerror = () => reject(new Error('Failed to get file metadata by knowledge base'));
+    });
+  }
+
+  async deleteFileMetadata(fileId: string): Promise<void> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([FILE_METADATA_STORE], 'readwrite');
+      const store = transaction.objectStore(FILE_METADATA_STORE);
+      const request = store.delete(fileId);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(new Error('Failed to delete file metadata'));
     });
   }
 
