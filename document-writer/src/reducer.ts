@@ -26,38 +26,13 @@ export const initialState: AppState = {
 
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
+    // User settings and configuration
     case 'SET_API_KEY':
       localStorage.setItem('openai-api-key', action.payload);
       return { ...state, apiKey: action.payload };
     
     case 'TOGGLE_SETTINGS':
       return { ...state, isSettingsOpen: !state.isSettingsOpen };
-    
-    case 'SET_DOCUMENT_CONFIG':
-      return { ...state, documentConfig: action.payload };
-    
-    case 'SET_OUTLINE':
-      return { 
-        ...state, 
-        outline: action.payload,
-        sections: action.payload.sections.map(s => ({ ...s, content: '', wordCount: 0 }))
-      };
-    
-    case 'UPDATE_SECTION':
-      return {
-        ...state,
-        sections: state.sections.map(s => 
-          s.id === action.payload.id 
-            ? { ...s, content: action.payload.content, wordCount: action.payload.wordCount }
-            : s
-        )
-      };
-    
-    case 'SET_GENERATING':
-      return { ...state, isGenerating: action.payload };
-    
-    case 'SET_ERROR':
-      return { ...state, error: action.payload };
     
     case 'RESET_DOCUMENT':
       return { 
@@ -68,32 +43,88 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         documentConfig: initialState.documentConfig,
         responseId: null,
         streamingContent: '',
+        isStreaming: false,
+        isGenerating: false,
         isBulkGenerating: false,
         currentBulkSectionIndex: null,
         bulkGenerationStopped: false,
         bulkGenerationError: null
       };
     
-    case 'SET_RESPONSE_ID':
-      return { ...state, responseId: action.payload };
-    
-    case 'START_STREAMING':
-      return { 
-        ...state, 
+    // Outline generation events
+    case 'OUTLINE_GENERATION_STARTED':
+      return {
+        ...state,
+        documentConfig: action.payload.config,
+        isGenerating: true,
         isStreaming: true,
-        streamingContent: ''
+        streamingContent: '',
+        error: null
       };
     
-    case 'APPEND_STREAM':
+    case 'OUTLINE_CONTENT_STREAMED':
       return {
         ...state,
         streamingContent: state.streamingContent + action.payload
       };
     
-    case 'FINISH_STREAMING':
-      return { ...state, isStreaming: false };
+    case 'OUTLINE_GENERATED':
+      return {
+        ...state,
+        responseId: action.payload.responseId,
+        outline: action.payload.outline,
+        sections: action.payload.outline.sections.map(s => ({ ...s, content: '', wordCount: 0 })),
+        isStreaming: false,
+        isGenerating: false
+      };
     
-    case 'START_BULK_GENERATION':
+    case 'OUTLINE_GENERATION_FAILED':
+      return {
+        ...state,
+        error: action.payload,
+        isStreaming: false,
+        isGenerating: false
+      };
+    
+    // Section generation events
+    case 'SECTION_GENERATION_STARTED':
+      return {
+        ...state,
+        isGenerating: true,
+        isStreaming: true,
+        streamingContent: '',
+        error: null
+      };
+    
+    case 'SECTION_CONTENT_STREAMED':
+      return {
+        ...state,
+        streamingContent: state.streamingContent + action.payload
+      };
+    
+    case 'SECTION_GENERATED':
+      return {
+        ...state,
+        responseId: action.payload.responseId,
+        sections: state.sections.map(s => 
+          s.id === action.payload.sectionId 
+            ? { ...s, content: action.payload.content, wordCount: action.payload.wordCount }
+            : s
+        ),
+        isStreaming: false,
+        isGenerating: false
+      };
+    
+    case 'SECTION_GENERATION_FAILED':
+      return {
+        ...state,
+        error: action.payload,
+        isStreaming: false,
+        isGenerating: false
+      };
+    
+    // Bulk generation events
+    case 'BULK_GENERATION_STARTED':
       return {
         ...state,
         isBulkGenerating: true,
@@ -103,13 +134,13 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         error: null
       };
     
-    case 'ADVANCE_BULK_SECTION':
+    case 'BULK_SECTION_STARTED':
       return {
         ...state,
-        currentBulkSectionIndex: action.payload
+        currentBulkSectionIndex: action.payload.sectionIndex
       };
     
-    case 'STOP_BULK_GENERATION':
+    case 'BULK_GENERATION_STOPPED':
       return {
         ...state,
         isBulkGenerating: false,
@@ -117,7 +148,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         currentBulkSectionIndex: null
       };
     
-    case 'COMPLETE_BULK_GENERATION':
+    case 'BULK_GENERATION_COMPLETED':
       return {
         ...state,
         isBulkGenerating: false,
@@ -126,7 +157,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         bulkGenerationError: null
       };
     
-    case 'FAIL_BULK_GENERATION':
+    case 'BULK_GENERATION_FAILED':
       return {
         ...state,
         isBulkGenerating: false,

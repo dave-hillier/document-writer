@@ -18,6 +18,7 @@ export class ResponsesService {
     onError: (error: Error) => void
   ): Promise<void> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await (this.openai as any).responses.create({
         input,
         model: 'gpt-4o',

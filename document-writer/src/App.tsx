@@ -14,14 +14,11 @@ function App() {
 
   const handleGenerateOutline = useCallback(async (config: IDocumentConfig, prompt: string) => {
     if (!state.apiKey) {
-      dispatch({ type: 'SET_ERROR', payload: 'Please set your OpenAI API key in settings' });
+      dispatch({ type: 'OUTLINE_GENERATION_FAILED', payload: 'Please set your OpenAI API key in settings' });
       return;
     }
 
-    dispatch({ type: 'SET_GENERATING', payload: true });
-    dispatch({ type: 'SET_ERROR', payload: null });
-    dispatch({ type: 'SET_DOCUMENT_CONFIG', payload: config });
-    dispatch({ type: 'START_STREAMING' });
+    dispatch({ type: 'OUTLINE_GENERATION_STARTED', payload: { config } });
 
     const generator = new DocumentGenerator(state.apiKey);
     await generator.generateOutline(
@@ -29,18 +26,13 @@ function App() {
       prompt,
       state.responseId,
       (chunk) => {
-        dispatch({ type: 'APPEND_STREAM', payload: chunk });
+        dispatch({ type: 'OUTLINE_CONTENT_STREAMED', payload: chunk });
       },
       (responseId, outline) => {
-        dispatch({ type: 'SET_RESPONSE_ID', payload: responseId });
-        dispatch({ type: 'SET_OUTLINE', payload: outline });
-        dispatch({ type: 'FINISH_STREAMING' });
-        dispatch({ type: 'SET_GENERATING', payload: false });
+        dispatch({ type: 'OUTLINE_GENERATED', payload: { responseId, outline } });
       },
       (error) => {
-        dispatch({ type: 'SET_ERROR', payload: error.message });
-        dispatch({ type: 'FINISH_STREAMING' });
-        dispatch({ type: 'SET_GENERATING', payload: false });
+        dispatch({ type: 'OUTLINE_GENERATION_FAILED', payload: error.message });
       }
     );
   }, [state.apiKey, state.responseId]);
@@ -52,9 +44,7 @@ function App() {
     const section = state.sections[sectionIndex];
     if (!section) return;
 
-    dispatch({ type: 'SET_GENERATING', payload: true });
-    dispatch({ type: 'SET_ERROR', payload: null });
-    dispatch({ type: 'START_STREAMING' });
+    dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
 
     const generator = new DocumentGenerator(state.apiKey);
     const previousSections = state.sections.slice(0, sectionIndex).filter(s => s.content);
@@ -66,21 +56,13 @@ function App() {
       previousSections,
       state.responseId,
       (chunk) => {
-        dispatch({ type: 'APPEND_STREAM', payload: chunk });
+        dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
       },
       (responseId, content, wordCount) => {
-        dispatch({ type: 'SET_RESPONSE_ID', payload: responseId });
-        dispatch({ 
-          type: 'UPDATE_SECTION', 
-          payload: { id: sectionId, content, wordCount } 
-        });
-        dispatch({ type: 'FINISH_STREAMING' });
-        dispatch({ type: 'SET_GENERATING', payload: false });
+        dispatch({ type: 'SECTION_GENERATED', payload: { responseId, sectionId, content, wordCount } });
       },
       (error) => {
-        dispatch({ type: 'SET_ERROR', payload: error.message });
-        dispatch({ type: 'FINISH_STREAMING' });
-        dispatch({ type: 'SET_GENERATING', payload: false });
+        dispatch({ type: 'SECTION_GENERATION_FAILED', payload: error.message });
       }
     );
   }, [state.apiKey, state.outline, state.sections, state.documentConfig, state.responseId]);
@@ -92,7 +74,7 @@ function App() {
     if (incompleteSections.length === 0) return;
 
     bulkGenerationStoppedRef.current = false;
-    dispatch({ type: 'START_BULK_GENERATION' });
+    dispatch({ type: 'BULK_GENERATION_STARTED' });
 
     const generateSectionPromise = (sectionId: string): Promise<void> => {
       return new Promise((resolve, reject) => {
@@ -108,9 +90,7 @@ function App() {
           return;
         }
 
-        dispatch({ type: 'SET_GENERATING', payload: true });
-        dispatch({ type: 'SET_ERROR', payload: null });
-        dispatch({ type: 'START_STREAMING' });
+        dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
 
         const generator = new DocumentGenerator(state.apiKey);
         const previousSections = state.sections.slice(0, sectionIndex).filter(s => s.content);
@@ -122,22 +102,14 @@ function App() {
           previousSections,
           state.responseId,
           (chunk) => {
-            dispatch({ type: 'APPEND_STREAM', payload: chunk });
+            dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
           },
           (responseId, content, wordCount) => {
-            dispatch({ type: 'SET_RESPONSE_ID', payload: responseId });
-            dispatch({ 
-              type: 'UPDATE_SECTION', 
-              payload: { id: sectionId, content, wordCount } 
-            });
-            dispatch({ type: 'FINISH_STREAMING' });
-            dispatch({ type: 'SET_GENERATING', payload: false });
+            dispatch({ type: 'SECTION_GENERATED', payload: { responseId, sectionId, content, wordCount } });
             resolve();
           },
           (error) => {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            dispatch({ type: 'FINISH_STREAMING' });
-            dispatch({ type: 'SET_GENERATING', payload: false });
+            dispatch({ type: 'SECTION_GENERATION_FAILED', payload: error.message });
             reject(error);
           }
         );
@@ -149,35 +121,35 @@ function App() {
         const section = state.sections[i];
         
         if (bulkGenerationStoppedRef.current) {
-          dispatch({ type: 'STOP_BULK_GENERATION' });
+          dispatch({ type: 'BULK_GENERATION_STOPPED' });
           return;
         }
 
         if (section.content) continue;
 
-        dispatch({ type: 'ADVANCE_BULK_SECTION', payload: i });
+        dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex: i } });
 
         await generateSectionPromise(section.id);
         
         // Check again after generation completes
         if (bulkGenerationStoppedRef.current) {
-          dispatch({ type: 'STOP_BULK_GENERATION' });
+          dispatch({ type: 'BULK_GENERATION_STOPPED' });
           return;
         }
       }
 
-      dispatch({ type: 'COMPLETE_BULK_GENERATION' });
+      dispatch({ type: 'BULK_GENERATION_COMPLETED' });
     } catch (error) {
       dispatch({ 
-        type: 'FAIL_BULK_GENERATION', 
+        type: 'BULK_GENERATION_FAILED', 
         payload: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  }, [state.outline, state.apiKey, state.sections, state.bulkGenerationStopped, state.documentConfig, state.responseId]);
+  }, [state.outline, state.apiKey, state.sections, state.documentConfig, state.responseId]);
 
   const handleStopBulkGeneration = useCallback(() => {
     bulkGenerationStoppedRef.current = true;
-    dispatch({ type: 'STOP_BULK_GENERATION' });
+    dispatch({ type: 'BULK_GENERATION_STOPPED' });
   }, []);
 
   const handleRetryBulkGeneration = useCallback(() => {

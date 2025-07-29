@@ -39,20 +39,26 @@ export interface AppState {
 }
 
 export type AppAction =
+  // User settings and configuration
   | { type: 'SET_API_KEY'; payload: string }
   | { type: 'TOGGLE_SETTINGS' }
-  | { type: 'SET_DOCUMENT_CONFIG'; payload: DocumentConfig }
-  | { type: 'SET_OUTLINE'; payload: DocumentOutline }
-  | { type: 'UPDATE_SECTION'; payload: { id: string; content: string; wordCount: number } }
-  | { type: 'SET_GENERATING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'RESET_DOCUMENT' }
-  | { type: 'SET_RESPONSE_ID'; payload: string | null }
-  | { type: 'START_STREAMING' }
-  | { type: 'APPEND_STREAM'; payload: string }
-  | { type: 'FINISH_STREAMING' }
-  | { type: 'START_BULK_GENERATION' }
-  | { type: 'ADVANCE_BULK_SECTION'; payload: number }
-  | { type: 'STOP_BULK_GENERATION' }
-  | { type: 'COMPLETE_BULK_GENERATION' }
-  | { type: 'FAIL_BULK_GENERATION'; payload: string };
+  
+  // Outline generation events
+  | { type: 'OUTLINE_GENERATION_STARTED'; payload: { config: DocumentConfig } }
+  | { type: 'OUTLINE_CONTENT_STREAMED'; payload: string }
+  | { type: 'OUTLINE_GENERATED'; payload: { responseId: string; outline: DocumentOutline } }
+  | { type: 'OUTLINE_GENERATION_FAILED'; payload: string }
+  
+  // Section generation events
+  | { type: 'SECTION_GENERATION_STARTED'; payload: { sectionId: string } }
+  | { type: 'SECTION_CONTENT_STREAMED'; payload: string }
+  | { type: 'SECTION_GENERATED'; payload: { responseId: string; sectionId: string; content: string; wordCount: number } }
+  | { type: 'SECTION_GENERATION_FAILED'; payload: string }
+  
+  // Bulk generation events
+  | { type: 'BULK_GENERATION_STARTED' }
+  | { type: 'BULK_SECTION_STARTED'; payload: { sectionIndex: number } }
+  | { type: 'BULK_GENERATION_STOPPED' }
+  | { type: 'BULK_GENERATION_COMPLETED' }
+  | { type: 'BULK_GENERATION_FAILED'; payload: string };

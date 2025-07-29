@@ -59,7 +59,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format, with no additional text:
           
           const outline = JSON.parse(jsonContent) as DocumentOutline;
           onComplete(newResponseId, outline);
-        } catch (error) {
+        } catch {
           console.error('Failed to parse JSON response:', fullResponse);
           onError(new Error('Invalid JSON response. Please try again.'));
         }
