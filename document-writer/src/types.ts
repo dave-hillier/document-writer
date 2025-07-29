@@ -22,7 +22,6 @@ export interface DocumentConfig {
 }
 
 export interface AppState {
-  isSettingsOpen: boolean;
   documentConfig: DocumentConfig;
   outline: DocumentOutline | null;
   sections: Section[];
@@ -39,7 +38,6 @@ export interface AppState {
 
 export type AppAction =
   // User settings and configuration
-  | { type: 'TOGGLE_SETTINGS' }
   | { type: 'RESET_DOCUMENT' }
   
   // Outline generation events

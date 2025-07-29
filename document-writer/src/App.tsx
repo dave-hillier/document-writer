@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
 import { appReducer, initialState } from './reducer';
 import { SettingsModal } from './components/SettingsModal';
@@ -10,6 +10,7 @@ import './App.css';
 
 function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleGenerateOutline = async (config: IDocumentConfig, prompt: string) => {
     dispatch({ type: 'OUTLINE_GENERATION_STARTED', payload: { config } });
@@ -150,10 +151,10 @@ function App() {
 
   useEffect(() => {
     const apiKey = localStorage.getItem('openai-api-key');
-    if (!apiKey && !state.isSettingsOpen) {
-      dispatch({ type: 'TOGGLE_SETTINGS' });
+    if (!apiKey && !isSettingsOpen) {
+      setIsSettingsOpen(true);
     }
-  }, [state.isSettingsOpen]);
+  }, [isSettingsOpen]);
 
 
   return (
@@ -167,7 +168,7 @@ function App() {
           <ul>
             <li>
               <button
-                onClick={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
+                onClick={() => setIsSettingsOpen(true)}
                 aria-label="Open settings"
                 data-tooltip="Settings"
                 className="contrast outline"
@@ -232,8 +233,8 @@ function App() {
       </main>
 
       <SettingsModal
-        isOpen={state.isSettingsOpen}
-        onClose={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </>
   );

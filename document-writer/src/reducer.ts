@@ -1,7 +1,6 @@
 import type { AppState, AppAction } from './types';
 
 export const initialState: AppState = {
-  isSettingsOpen: false,
   documentConfig: {
     tone: 'professional',
     narrativeElements: {
@@ -26,9 +25,6 @@ export const initialState: AppState = {
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     // User settings and configuration
-    case 'TOGGLE_SETTINGS':
-      return { ...state, isSettingsOpen: !state.isSettingsOpen };
-    
     case 'RESET_DOCUMENT':
       return { 
         ...state, 
