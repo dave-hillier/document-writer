@@ -3,6 +3,8 @@ import type { DocumentConfig as IDocumentConfig } from '../types';
 import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
 import { useAppContext } from '../contexts/useAppContext';
 import { KnowledgeBaseSelector } from './KnowledgeBaseSelector';
+import { StylePromptSelector } from './StylePromptSelector';
+import { StylePromptManager } from './StylePromptManager';
 
 interface DocumentConfigProps {
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
@@ -18,6 +20,8 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
   const [targetWordCount, setTargetWordCount] = useState(formDefaults.targetWordCount);
   const [prompt, setPrompt] = useState('');
   const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | undefined>(config.knowledgeBaseId);
+  const [stylePromptId, setStylePromptId] = useState<string | undefined>(config.stylePromptId);
+  const [showStyleManager, setShowStyleManager] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +32,8 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
       denied,
       targetWordCount,
       prompt,
-      knowledgeBaseId
+      knowledgeBaseId,
+      stylePromptId
     });
     
     onSubmit(newConfig, prompt);
@@ -112,6 +117,23 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           onChange={setKnowledgeBaseId}
         />
 
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+          <div style={{ flex: 1 }}>
+            <StylePromptSelector 
+              selectedId={stylePromptId}
+              onChange={setStylePromptId}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowStyleManager(true)}
+            className="secondary"
+            style={{ marginBottom: '0', whiteSpace: 'nowrap' }}
+          >
+            Manage Styles
+          </button>
+        </div>
+
         <button
           type="submit"
           disabled={isGenerating || !prompt}
@@ -131,6 +153,10 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
             <span className="cursor" aria-label="Generating">▋</span>
           </div>
         </article>
+      )}
+      
+      {showStyleManager && (
+        <StylePromptManager onClose={() => setShowStyleManager(false)} />
       )}
     </form>
   );

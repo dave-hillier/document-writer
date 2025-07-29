@@ -1,5 +1,4 @@
-import type { DocumentConfig, DocumentOutline, Section } from '../types';
-import systemPromptContent from '../system-prompt.md?raw';
+import type { DocumentConfig, DocumentOutline, Section, StylePrompt } from '../types';
 import { createResponse } from './responses';
 import { createOutlinePrompt, createSectionPrompt } from './promptTemplates';
 import * as vectorStore from './vectorStore';
@@ -22,7 +21,8 @@ export async function generateOutline(
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string, outline: DocumentOutline, cacheMetrics?: { cachedTokens: number; totalTokens: number }) => void,
     onError: (error: Error) => void,
-    shouldStop?: () => boolean
+    shouldStop?: () => boolean,
+    stylePrompt?: StylePrompt
   ): Promise<void> {
     // Search knowledge base if configured
     let knowledgeBaseContext = '';
@@ -56,10 +56,10 @@ export async function generateOutline(
     }
     // Structure prompt with static content first for optimal caching
     const prompt = createOutlinePrompt({
-      systemPromptContent,
       config,
       userPrompt,
-      knowledgeBaseContext
+      knowledgeBaseContext,
+      stylePrompt
     });
 
     let fullResponse = '';
@@ -102,7 +102,8 @@ export async function generateSection(
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string, content: string, wordCount: number, cacheMetrics?: { cachedTokens: number; totalTokens: number }) => void,
     onError: (error: Error) => void,
-    shouldStop?: () => boolean
+    shouldStop?: () => boolean,
+    stylePrompt?: StylePrompt
   ): Promise<void> {
     // Search knowledge base for section-specific context
     let knowledgeBaseContext = '';
@@ -148,14 +149,14 @@ export async function generateSection(
 
     // Optimize prompt structure for maximum caching: most static content first
     const prompt = createSectionPrompt({
-      systemPromptContent,
       config,
       outline,
       section,
       currentSectionIndex,
       outlineStructure,
       previousContent,
-      knowledgeBaseContext
+      knowledgeBaseContext,
+      stylePrompt
     });
 
     let fullContent = '';

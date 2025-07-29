@@ -24,7 +24,10 @@ export const initialState: AppState = {
   selectedKnowledgeBase: null,
   knowledgeBaseFiles: {},
   isLoadingKnowledgeBases: false,
-  queryTestResults: []
+  queryTestResults: [],
+  stylePrompts: [],
+  selectedStylePrompt: null,
+  isLoadingStylePrompts: false
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -294,6 +297,59 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         queryTestResults: []
+      };
+    
+    // Style prompt events
+    case 'STYLE_PROMPTS_LOADING_STARTED':
+      return {
+        ...state,
+        isLoadingStylePrompts: true,
+        error: null
+      };
+    
+    case 'STYLE_PROMPTS_LOADED':
+      return {
+        ...state,
+        stylePrompts: action.payload.stylePrompts,
+        isLoadingStylePrompts: false
+      };
+    
+    case 'STYLE_PROMPT_CREATED':
+      return {
+        ...state,
+        stylePrompts: [...state.stylePrompts, action.payload.stylePrompt]
+      };
+    
+    case 'STYLE_PROMPT_UPDATED':
+      return {
+        ...state,
+        stylePrompts: state.stylePrompts.map(sp =>
+          sp.id === action.payload.stylePrompt.id ? action.payload.stylePrompt : sp
+        ),
+        selectedStylePrompt: state.selectedStylePrompt?.id === action.payload.stylePrompt.id
+          ? action.payload.stylePrompt
+          : state.selectedStylePrompt
+      };
+    
+    case 'STYLE_PROMPT_DELETED':
+      return {
+        ...state,
+        stylePrompts: state.stylePrompts.filter(sp => sp.id !== action.payload.stylePromptId),
+        selectedStylePrompt: state.selectedStylePrompt?.id === action.payload.stylePromptId
+          ? null
+          : state.selectedStylePrompt,
+        documentConfig: state.documentConfig.stylePromptId === action.payload.stylePromptId
+          ? { ...state.documentConfig, stylePromptId: undefined }
+          : state.documentConfig
+      };
+    
+    case 'STYLE_PROMPT_SELECTED':
+      return {
+        ...state,
+        selectedStylePrompt: action.payload.stylePrompt,
+        documentConfig: action.payload.stylePrompt
+          ? { ...state.documentConfig, stylePromptId: action.payload.stylePrompt.id }
+          : { ...state.documentConfig, stylePromptId: undefined }
       };
     
     default:

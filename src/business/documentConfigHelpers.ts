@@ -7,10 +7,11 @@ export interface DocumentConfigFormData {
   targetWordCount: number;
   prompt: string;
   knowledgeBaseId?: string;
+  stylePromptId?: string;
 }
 
 export function createDocumentConfig(formData: DocumentConfigFormData): DocumentConfig {
-  const { tone, allowed, denied, targetWordCount, knowledgeBaseId } = formData;
+  const { tone, allowed, denied, targetWordCount, knowledgeBaseId, stylePromptId } = formData;
   
   return {
     tone,
@@ -19,7 +20,8 @@ export function createDocumentConfig(formData: DocumentConfigFormData): Document
       denied: denied.split(',').map(s => s.trim()).filter(s => s)
     },
     targetWordCount,
-    knowledgeBaseId
+    knowledgeBaseId,
+    stylePromptId
   };
 }
 
@@ -28,6 +30,8 @@ export function documentConfigToFormData(config: DocumentConfig): Omit<DocumentC
     tone: config.tone,
     allowed: config.narrativeElements.allowed.join(', '),
     denied: config.narrativeElements.denied.join(', '),
-    targetWordCount: config.targetWordCount
+    targetWordCount: config.targetWordCount,
+    knowledgeBaseId: config.knowledgeBaseId,
+    stylePromptId: config.stylePromptId
   };
 }

@@ -1,14 +1,15 @@
-import type { DocumentConfig, DocumentOutline, Section } from '../types';
+import type { DocumentConfig, DocumentOutline, Section, StylePrompt } from '../types';
+import workflowPromptContent from '../workflow-prompt.md?raw';
+import defaultStyleContent from '../default-style-prompt.md?raw';
 
 export interface OutlinePromptParams {
-  systemPromptContent: string;
   config: DocumentConfig;
   userPrompt: string;
   knowledgeBaseContext?: string;
+  stylePrompt?: StylePrompt;
 }
 
 export interface SectionPromptParams {
-  systemPromptContent: string;
   config: DocumentConfig;
   outline: DocumentOutline;
   section: Section;
@@ -16,16 +17,21 @@ export interface SectionPromptParams {
   outlineStructure: string;
   previousContent: string;
   knowledgeBaseContext?: string;
+  stylePrompt?: StylePrompt;
 }
 
 export function createOutlinePrompt(params: OutlinePromptParams): string {
-  const { systemPromptContent, config, userPrompt, knowledgeBaseContext } = params;
+  const { config, userPrompt, knowledgeBaseContext, stylePrompt } = params;
   
-  return `${systemPromptContent}
+  const styleContent = stylePrompt?.content || defaultStyleContent;
+  
+  return `${workflowPromptContent}
+
+${styleContent}
 
 ## Task
 
-Generate a detailed outline following the structure described in the system prompt. The outline should have 4-8 sections, each with a clear role and 3-5 sub-steps.
+Generate a detailed outline following the structure described in the workflow guidelines. The outline should have 4-8 sections, each with a clear role and 3-5 sub-steps. Follow the style guidelines provided above.
 
 ## Configuration
 
@@ -59,18 +65,22 @@ ${userPrompt}${knowledgeBaseContext ? `\n\n## Knowledge Base Context\n\n${knowle
 
 export function createSectionPrompt(params: SectionPromptParams): string {
   const { 
-    systemPromptContent, 
     config, 
     outline, 
     section, 
     currentSectionIndex, 
     outlineStructure, 
     previousContent,
-    knowledgeBaseContext 
+    knowledgeBaseContext,
+    stylePrompt 
   } = params;
 
+  const styleContent = stylePrompt?.content || defaultStyleContent;
+
   // Optimize prompt structure for maximum caching: most static content first, most variable content last
-  return `${systemPromptContent}
+  return `${workflowPromptContent}
+
+${styleContent}
 
 ## Section Generation Task
 
@@ -79,11 +89,12 @@ Write a section with exactly 400-800 words that:
 1. Fulfills the section's designated role
 2. Covers all the sub-steps comprehensively
 3. Maintains the specified tone consistently
-4. Uses only allowed narrative elements
-5. Avoids denied narrative elements completely
-6. Flows naturally from previous sections (if any)
-7. Positions content appropriately within the overall document structure
-8. Avoids concluding prematurely if there are more sections to follow
+4. Follows the style guidelines provided above
+5. Uses only allowed narrative elements
+6. Avoids denied narrative elements completely
+7. Flows naturally from previous sections (if any)
+8. Positions content appropriately within the overall document structure
+9. Avoids concluding prematurely if there are more sections to follow
 
 **CRITICAL**: Your response must contain exactly 400-800 words. Count your words carefully.
 **Write only the section content, no titles or metadata.**

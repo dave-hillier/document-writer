@@ -1,5 +1,6 @@
-import type { DocumentConfig, DocumentOutline, Section } from '../types';
+import type { DocumentConfig, DocumentOutline, Section, StylePrompt } from '../types';
 import { generateOutline as generateOutlineService, generateSection as generateSectionService } from '../services/openai';
+import { indexedDBService } from '../services/indexeddb';
 
 export interface GenerateOutlineParams {
   config: DocumentConfig;
@@ -50,6 +51,16 @@ export async function generateOutline(
   const { config, prompt, responseId } = params;
   const { onChunk } = callbacks;
 
+  // Fetch style prompt if specified
+  let stylePrompt: StylePrompt | undefined;
+  if (config.stylePromptId) {
+    try {
+      stylePrompt = await indexedDBService.getStylePrompt(config.stylePromptId) || undefined;
+    } catch (error) {
+      console.error('Failed to fetch style prompt:', error);
+    }
+  }
+
   return new Promise((resolve, reject) => {
     generateOutlineService(
       config,
@@ -59,7 +70,9 @@ export async function generateOutline(
       (responseId, outline, cacheMetrics) => {
         resolve({ responseId, outline, cacheMetrics });
       },
-      reject
+      reject,
+      undefined,
+      stylePrompt
     );
   });
 }
@@ -83,6 +96,16 @@ export async function generateSection(
 
   const previousSections = sections.slice(0, sectionIndex).filter(s => s.content);
   
+  // Fetch style prompt if specified
+  let stylePrompt: StylePrompt | undefined;
+  if (documentConfig.stylePromptId) {
+    try {
+      stylePrompt = await indexedDBService.getStylePrompt(documentConfig.stylePromptId) || undefined;
+    } catch (error) {
+      console.error('Failed to fetch style prompt:', error);
+    }
+  }
+  
   return new Promise((resolve, reject) => {
     generateSectionService(
       section,
@@ -95,7 +118,8 @@ export async function generateSection(
         resolve({ responseId, sectionId, content, wordCount, cacheMetrics });
       },
       reject,
-      shouldStop
+      shouldStop,
+      stylePrompt
     );
   });
 }
