@@ -3,6 +3,16 @@ import systemPromptContent from '../system-prompt.md?raw';
 import { ResponsesService } from './responses';
 import { createOutlinePrompt, createSectionPrompt } from './promptTemplates';
 
+function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
 export class DocumentGenerator {
   private responsesService: ResponsesService;
 
@@ -29,7 +39,7 @@ export class DocumentGenerator {
     let fullResponse = '';
     
     // Use cache key based on document configuration
-    const cacheKey = `outline-${config.tone}-${config.targetWordCount}`;
+    const cacheKey = `outline-${hashString(`${config.tone}-${config.targetWordCount}`)}`;
     
     await this.responsesService.createResponse(
       prompt,
@@ -92,7 +102,7 @@ export class DocumentGenerator {
     let fullContent = '';
     
     // Cache key for sections with same document configuration
-    const cacheKey = `section-${config.tone}-${outline.title.replace(/\s+/g, '-')}`;
+    const cacheKey = `section-${hashString(`${config.tone}-${outline.title}`)}`;
     
     await this.responsesService.createResponse(
       prompt,
