@@ -85,9 +85,19 @@ IMPORTANT: Return ONLY valid JSON in this exact format, with no additional text:
       .map(s => `${s.title}:\n${s.content}`)
       .join('\n\n---\n\n');
 
+    const outlineStructure = outline.sections
+      .map((s, index) => `${index + 1}. ${s.title} (Role: ${s.role})`)
+      .join('\n');
+
+    const currentSectionIndex = outline.sections.findIndex(s => s.id === section.id);
+
     const prompt = `
 Document Title: ${outline.title}
-Current Section: ${section.title}
+
+Full Document Outline:
+${outlineStructure}
+
+Current Section: ${section.title} (Section ${currentSectionIndex + 1} of ${outline.sections.length})
 Section Role: ${section.role}
 Sub-steps to cover: ${section.subSteps.join(', ')}
 
@@ -105,6 +115,8 @@ Write a 400-800 word section that:
 4. Uses only allowed narrative elements
 5. Avoids denied narrative elements
 6. Flows naturally from previous sections (if any)
+7. Positions content appropriately within the overall document structure
+8. Avoids concluding prematurely if there are more sections to follow
 
 Write only the section content, no titles or metadata.`;
 
