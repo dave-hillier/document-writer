@@ -122,8 +122,11 @@ export async function generateAllSections(
     return;
   }
 
-  for (let i = 0; i < sections.length; i++) {
-    const section = sections[i];
+  // Maintain local sections state to track content updates
+  let currentSections = [...sections];
+
+  for (let i = 0; i < currentSections.length; i++) {
+    const section = currentSections[i];
     
     if (shouldStop()) {
       throw new Error('Generation stopped by user');
@@ -137,13 +140,21 @@ export async function generateAllSections(
     const sectionParams: GenerateSectionParams = {
       sectionId: section.id,
       outline,
-      sections,
+      sections: currentSections,
       documentConfig,
       responseId,
       shouldStop
     };
 
     const result = await generateSection(sectionParams, { onChunk });
+    
+    // Update local sections with generated content
+    currentSections = currentSections.map(s => 
+      s.id === result.sectionId 
+        ? { ...s, content: result.content, wordCount: result.wordCount }
+        : s
+    );
+    
     onSectionGenerated(result);
     
     if (shouldStop()) {
