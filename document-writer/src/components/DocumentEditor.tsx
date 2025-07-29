@@ -1,7 +1,8 @@
-import { ChevronRight, FileText, Download, Play, Square, RotateCcw } from 'lucide-react';
+import { ChevronRight, FileText, Download } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
 import { generateSection, generateAllSections } from '../business/documentOperations';
 import { exportDocumentAsMarkdown } from '../business/exportUtils';
+import { BulkGenerationButton } from './BulkGenerationButton';
 
 export function DocumentEditor() {
   const { state, dispatch } = useAppContext();
@@ -12,7 +13,6 @@ export function DocumentEditor() {
     isStreaming,
     streamingContent,
     isBulkGenerating,
-    currentBulkSectionIndex,
     bulkGenerationStopped,
     bulkGenerationError
   } = state;
@@ -111,36 +111,6 @@ export function DocumentEditor() {
   const totalWordCount = sections.reduce((sum, s) => sum + (s.wordCount || 0), 0);
   const incompleteSections = sections.filter(s => !s.content);
   
-  const getBulkGenerationButtonContent = () => {
-    if (isBulkGenerating) {
-      const currentSection = currentBulkSectionIndex !== null ? sections[currentBulkSectionIndex] : null;
-      return (
-        <>
-          <Square size={18} aria-hidden="true" />
-          Stop Generation
-          {currentSection && (
-            <small style={{ display: 'block', marginTop: '4px' }}>
-              Generating: {currentSection.title}
-            </small>
-          )}
-        </>
-      );
-    } else if (bulkGenerationStopped || bulkGenerationError) {
-      return (
-        <>
-          <RotateCcw size={18} aria-hidden="true" />
-          Retry All Sections
-        </>
-      );
-    } else {
-      return (
-        <>
-          <Play size={18} aria-hidden="true" />
-          Generate All Sections
-        </>
-      );
-    }
-  };
 
   return (
     <article aria-label="Document editor">
@@ -153,14 +123,12 @@ export function DocumentEditor() {
           </p>
         </hgroup>
         <nav aria-label="Document actions" style={{ display: 'flex', gap: '12px' }}>
-          <button
-            onClick={isBulkGenerating ? handleStopBulkGeneration : (bulkGenerationStopped || bulkGenerationError) ? handleRetryBulkGeneration : handleGenerateAllSections}
+          <BulkGenerationButton
+            onStartGeneration={handleGenerateAllSections}
+            onStopGeneration={handleStopBulkGeneration}
+            onRetryGeneration={handleRetryBulkGeneration}
             disabled={isStreaming || (incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError)}
-            className="secondary"
-            aria-label={isBulkGenerating ? "Stop bulk generation" : (bulkGenerationStopped || bulkGenerationError) ? "Retry bulk generation" : "Generate all incomplete sections"}
-          >
-            {getBulkGenerationButtonContent()}
-          </button>
+          />
           <button
             onClick={handleExport}
             disabled={isStreaming || sections.every(s => !s.content)}
