@@ -155,7 +155,7 @@ export function DocumentEditor() {
         <nav aria-label="Document actions" style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={isBulkGenerating ? handleStopBulkGeneration : (bulkGenerationStopped || bulkGenerationError) ? handleRetryBulkGeneration : handleGenerateAllSections}
-            disabled={incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError}
+            disabled={isStreaming || (incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError)}
             className="secondary"
             aria-label={isBulkGenerating ? "Stop bulk generation" : (bulkGenerationStopped || bulkGenerationError) ? "Retry bulk generation" : "Generate all incomplete sections"}
           >
@@ -163,7 +163,7 @@ export function DocumentEditor() {
           </button>
           <button
             onClick={handleExport}
-            disabled={sections.every(s => !s.content)}
+            disabled={isStreaming || sections.every(s => !s.content)}
             className="contrast"
             aria-label="Export document as Markdown"
           >
@@ -224,7 +224,7 @@ export function DocumentEditor() {
               ) : (
                 <button
                   onClick={() => handleGenerateSection(section.id)}
-                  disabled={isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
+                  disabled={isStreaming || isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
                   aria-busy={isGenerating}
                   aria-label={`Generate content for section: ${section.title}`}
                 >
