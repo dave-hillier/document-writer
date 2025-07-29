@@ -165,31 +165,29 @@ function App() {
   return (
     <>
       <a href="#main-content" className="skip-link">Skip to main content</a>
-      <header className="app-header">
-        <div className="container">
-          <nav aria-label="Main navigation">
-            <ul>
-              <li><h1>Document Writer</h1></li>
-            </ul>
-            <ul>
-              <li>
-                <button
-                  onClick={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
-                  aria-label="Open settings"
-                  data-tooltip="Settings"
-                  className="contrast outline"
-                >
-                  <Settings size={24} aria-hidden="true" />
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+      <header className="app-header container">
+        <nav aria-label="Main navigation">
+          <ul>
+            <li><h1>Document Writer</h1></li>
+          </ul>
+          <ul>
+            <li>
+              <button
+                onClick={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
+                aria-label="Open settings"
+                data-tooltip="Settings"
+                className="contrast outline"
+              >
+                <Settings size={24} aria-hidden="true" />
+              </button>
+            </li>
+          </ul>
+        </nav>
       </header>
 
       <main id="main-content" className="container" style={{ flex: 1 }}>
         {state.error && (
-          <div role="alert" className="error-message" aria-live="assertive">
+          <div role="alert" aria-live="assertive">
             {state.error}
           </div>
         )}

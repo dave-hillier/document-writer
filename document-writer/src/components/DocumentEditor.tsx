@@ -78,7 +78,7 @@ export function DocumentEditor({
             <span aria-label="Sections completed">{sections.filter(s => s.content).length} of {sections.length} sections completed</span>
           </p>
         </hgroup>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <nav aria-label="Document actions" style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={isBulkGenerating ? onStopBulkGeneration : (bulkGenerationStopped || bulkGenerationError) ? onRetryBulkGeneration : onGenerateAllSections}
             disabled={incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError}
@@ -90,78 +90,78 @@ export function DocumentEditor({
           <button
             onClick={onExport}
             disabled={sections.every(s => !s.content)}
-            className="export-button contrast"
+            className="contrast"
             aria-label="Export document as Markdown"
           >
             <Download size={18} aria-hidden="true" />
             Export Document
           </button>
-        </div>
+        </nav>
       </header>
 
       {bulkGenerationError && (
-        <div role="alert" className="error-message" aria-live="assertive" style={{ marginBottom: '24px' }}>
+        <div role="alert" aria-live="assertive" style={{ marginBottom: '24px' }}>
           Bulk generation failed: {bulkGenerationError}
         </div>
       )}
 
-      <div role="list">
+      <ol>
         {sections.map((section, index) => (
-          <section key={section.id} className="document-section" role="listitem" aria-labelledby={`section-${section.id}-title`}>
-            <div className="section-header">
-              <div className={`section-indicator ${section.content ? 'completed' : ''}`} aria-hidden="true">
-                {section.content ? (
-                  <FileText size={20} />
-                ) : (
-                  <span>{index + 1}</span>
-                )}
-              </div>
-              
-              <div className="section-content">
-                <h3 id={`section-${section.id}-title`}>{section.title}</h3>
-                <p><small>Role: {section.role}</small></p>
+          <li key={section.id}>
+            <section className="document-section" aria-labelledby={`section-${section.id}-title`}>
+              <header>
+                <div className={`section-indicator ${section.content ? 'completed' : ''}`} aria-hidden="true">
+                  {section.content ? (
+                    <FileText size={20} />
+                  ) : (
+                    <span>{index + 1}</span>
+                  )}
+                </div>
                 
-                <details>
-                  <summary>Sub-steps</summary>
-                  <ul>
-                    {section.subSteps.map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ul>
-                </details>
+                <hgroup>
+                  <h3 id={`section-${section.id}-title`}>{section.title}</h3>
+                  <p><small>Role: {section.role}</small></p>
+                </hgroup>
+              </header>
+              
+              <details>
+                <summary>Sub-steps</summary>
+                <ul>
+                  {section.subSteps.map((step, i) => (
+                    <li key={i}>{step}</li>
+                  ))}
+                </ul>
+              </details>
 
-                {section.content ? (
-                  <div>
-                    <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
-                      {section.content}
-                    </div>
-                    <p className="word-count" aria-label={`Section word count: ${section.wordCount}`}>
-                      {section.wordCount} words
-                    </p>
+              {section.content ? (
+                <>
+                  <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
+                    {section.content}
                   </div>
-                ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (
-                  <div>
-                    <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
-                      {streamingContent}
-                      <span className="cursor" aria-label="Generating content">▋</span>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => onGenerateSection(section.id)}
-                    disabled={isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
-                    aria-busy={isGenerating}
-                    aria-label={`Generate content for section: ${section.title}`}
-                  >
-                    <ChevronRight size={18} aria-hidden="true" />
-                    {isGenerating ? 'Generating...' : 'Generate Section'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </section>
+                  <output aria-label={`Section word count: ${section.wordCount}`}>
+                    {section.wordCount} words
+                  </output>
+                </>
+              ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (
+                <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
+                  {streamingContent}
+                  <span className="cursor" aria-label="Generating content">▋</span>
+                </div>
+              ) : (
+                <button
+                  onClick={() => onGenerateSection(section.id)}
+                  disabled={isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
+                  aria-busy={isGenerating}
+                  aria-label={`Generate content for section: ${section.title}`}
+                >
+                  <ChevronRight size={18} aria-hidden="true" />
+                  {isGenerating ? 'Generating...' : 'Generate Section'}
+                </button>
+              )}
+            </section>
+          </li>
         ))}
-      </div>
+      </ol>
     </article>
   );
 }

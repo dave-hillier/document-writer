@@ -34,10 +34,11 @@ body {
   border-bottom: none;
 }
 
-.section-header {
-  display: flex;
+.document-section header {
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: 1rem;
-  align-items: flex-start;
+  align-items: start;
 }
 
 .section-indicator {
@@ -58,12 +59,36 @@ body {
   color: var(--pico-primary-inverse);
 }
 
-.section-content {
-  flex-grow: 1;
+/* Remove default list styling and use CSS counters */
+ol {
+  list-style: none;
+  padding: 0;
+  counter-reset: section-counter;
 }
 
-/* Modal styles */
-.modal-backdrop {
+ol > li {
+  counter-increment: section-counter;
+}
+
+/* Use CSS counters for section indicators */
+.section-indicator:not(.completed)::before {
+  content: counter(section-counter);
+}
+
+.section-indicator:not(.completed) span {
+  display: none;
+}
+
+/* Style output element for word counts */
+output {
+  color: var(--pico-muted-color);
+  font-size: 0.875rem;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* Modal styles - use CSS-only approach */
+dialog.modal {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
@@ -72,39 +97,30 @@ body {
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  border: none;
 }
 
 /* Form enhancements */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
 .form-hint {
   font-size: 0.875rem;
   color: var(--pico-muted-color);
   margin-top: 0.25rem;
 }
 
-/* Export button styles */
-.export-button {
+/* Button enhancements */
+button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Error message styles */
-.error-message {
+/* Alert and status message styles */
+[role="alert"] {
   background-color: var(--pico-del-color);
   color: white;
   padding: 1rem;
   border-radius: var(--pico-border-radius);
   margin-bottom: 1rem;
-}
-
-/* Word count styles */
-.word-count {
-  color: var(--pico-muted-color);
-  font-size: 0.875rem;
 }
 
 /* Skip link for accessibility */
