@@ -27,7 +27,7 @@ export class ResponsesService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await (this.openai as any).responses.create({
         input,
-        model: 'gpt-4o',
+        model: localStorage.getItem('openai-model') || 'gpt-4.1-nano',
         stream: true,
         previous_response_id: previousResponseId,
         store: true,
