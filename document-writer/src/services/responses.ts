@@ -18,9 +18,10 @@ export class ResponsesService {
     input: string,
     previousResponseId: string | null,
     onChunk: (chunk: string) => void,
-    onComplete: (responseId: string) => void,
+    onComplete: (responseId: string, cacheMetrics?: { cachedTokens: number; totalTokens: number }) => void,
     onError: (error: Error) => void,
-    shouldStop?: () => boolean
+    shouldStop?: () => boolean,
+    promptCacheKey?: string
   ): Promise<void> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,10 +30,12 @@ export class ResponsesService {
         model: 'gpt-4o',
         stream: true,
         previous_response_id: previousResponseId,
-        store: true
+        store: true,
+        ...(promptCacheKey && { prompt_cache_key: promptCacheKey })
       });
 
       let responseId: string | null = null;
+      let cacheMetrics: { cachedTokens: number; totalTokens: number } | undefined;
 
       for await (const event of response) {
         if (shouldStop && shouldStop()) {
@@ -45,6 +48,14 @@ export class ResponsesService {
           }
         } else if (event.type === 'response.completed') {
           responseId = event.response?.id || null;
+          // Extract cache metrics from usage data
+          const usage = event.response?.usage;
+          if (usage?.prompt_tokens_details?.cached_tokens !== undefined) {
+            cacheMetrics = {
+              cachedTokens: usage.prompt_tokens_details.cached_tokens,
+              totalTokens: usage.prompt_tokens
+            };
+          }
         } else if (event.type === 'response.created') {
           // Response started, no action needed
         } else {
@@ -54,7 +65,7 @@ export class ResponsesService {
       }
 
       if (responseId) {
-        onComplete(responseId);
+        onComplete(responseId, cacheMetrics);
       } else {
         throw new Error('No response ID received from API');
       }

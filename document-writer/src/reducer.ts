@@ -15,7 +15,9 @@ export const initialState: AppState = {
   error: null,
   responseId: null,
   streamingContent: '',
-  isStreaming: false
+  isStreaming: false,
+  outlineCacheMetrics: undefined,
+  sectionCacheMetrics: {}
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -31,7 +33,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         responseId: null,
         streamingContent: '',
         isStreaming: false,
-        isGenerating: false
+        isGenerating: false,
+        outlineCacheMetrics: undefined,
+        sectionCacheMetrics: {}
       };
     
     // Outline generation events
@@ -58,7 +62,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         outline: action.payload.outline,
         sections: action.payload.outline.sections.map(s => ({ ...s, content: '', wordCount: 0 })),
         isStreaming: false,
-        isGenerating: false
+        isGenerating: false,
+        outlineCacheMetrics: action.payload.cacheMetrics
       };
     
     case 'OUTLINE_GENERATION_FAILED':
@@ -95,7 +100,10 @@ export function appReducer(state: AppState, action: AppAction): AppState {
             : s
         ),
         isStreaming: false,
-        isGenerating: false
+        isGenerating: false,
+        sectionCacheMetrics: action.payload.cacheMetrics 
+          ? { ...state.sectionCacheMetrics, [action.payload.sectionId]: action.payload.cacheMetrics }
+          : state.sectionCacheMetrics
       };
     
     case 'SECTION_GENERATION_FAILED':

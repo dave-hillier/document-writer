@@ -3,6 +3,7 @@ import { useAppContext } from '../contexts/useAppContext';
 import { generateSection } from '../business/documentOperations';
 import { exportDocumentAsMarkdown } from '../business/exportUtils';
 import { BulkGenerationButton } from './BulkGenerationButton';
+import { CacheMetrics } from './CacheMetrics';
 
 export function DocumentEditor() {
   const { state, dispatch } = useAppContext();
@@ -11,7 +12,9 @@ export function DocumentEditor() {
     sections, 
     isGenerating,
     isStreaming,
-    streamingContent
+    streamingContent,
+    outlineCacheMetrics,
+    sectionCacheMetrics
   } = state;
   if (!outline) {
     return null;
@@ -77,6 +80,7 @@ export function DocumentEditor() {
         </nav>
       </header>
 
+      <CacheMetrics cacheMetrics={outlineCacheMetrics} label="Outline cache performance" />
 
       <ol>
         {sections.map((section, index) => (
@@ -111,9 +115,15 @@ export function DocumentEditor() {
                   <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
                     {section.content}
                   </div>
-                  <output aria-label={`Section word count: ${section.wordCount}`}>
-                    {section.wordCount} words
-                  </output>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                    <output aria-label={`Section word count: ${section.wordCount}`}>
+                      {section.wordCount} words
+                    </output>
+                    <CacheMetrics 
+                      cacheMetrics={sectionCacheMetrics[section.id]} 
+                      label="Section cache"
+                    />
+                  </div>
                 </>
               ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (
                 <div className="content" style={{ whiteSpace: 'pre-wrap' }}>

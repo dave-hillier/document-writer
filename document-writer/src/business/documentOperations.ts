@@ -32,6 +32,7 @@ export interface StreamingCallbacks {
 export interface OutlineResult {
   responseId: string;
   outline: DocumentOutline;
+  cacheMetrics?: { cachedTokens: number; totalTokens: number };
 }
 
 export interface SectionResult {
@@ -39,6 +40,7 @@ export interface SectionResult {
   sectionId: string;
   content: string;
   wordCount: number;
+  cacheMetrics?: { cachedTokens: number; totalTokens: number };
 }
 
 export async function generateOutline(
@@ -56,8 +58,8 @@ export async function generateOutline(
       prompt,
       responseId,
       onChunk,
-      (responseId, outline) => {
-        resolve({ responseId, outline });
+      (responseId, outline, cacheMetrics) => {
+        resolve({ responseId, outline, cacheMetrics });
       },
       reject
     );
@@ -92,8 +94,8 @@ export async function generateSection(
       previousSections,
       responseId,
       onChunk,
-      (responseId, content, wordCount) => {
-        resolve({ responseId, sectionId, content, wordCount });
+      (responseId, content, wordCount, cacheMetrics) => {
+        resolve({ responseId, sectionId, content, wordCount, cacheMetrics });
       },
       reject,
       shouldStop
