@@ -6,7 +6,7 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename="/chat-proto">
+    <BrowserRouter basename="/document-writer">
       <App />
     </BrowserRouter>
   </StrictMode>,
