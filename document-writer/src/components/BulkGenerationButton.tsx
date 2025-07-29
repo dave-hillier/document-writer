@@ -2,38 +2,50 @@ import { useAppContext } from '../contexts/useAppContext';
 import { generateAllSections } from '../business/documentOperations';
 import { Play, Square, RotateCcw } from 'lucide-react';
 import type { AppState, AppAction } from '../types';
-import { useRef, useEffect } from 'react';
-
-type BulkGenerationButtonState = 'generating' | 'stopped' | 'error' | 'idle';
+import { useRef, useEffect, useReducer } from 'react';
 
 interface BulkGenerationUIState {
-  state: BulkGenerationButtonState;
+  buttonState: 'generating' | 'stopped' | 'error' | 'idle';
   disabled: boolean;
   ariaLabel: string;
 }
 
-function getBulkGenerationUIState(state: AppState): BulkGenerationUIState {
-  const { isBulkGenerating, bulkGenerationStopped, bulkGenerationError, isStreaming, sections } = state;
+const initialUIState: BulkGenerationUIState = {
+  buttonState: 'idle',
+  disabled: true,
+  ariaLabel: 'Generate all incomplete sections'
+};
+
+function bulkGenerationUIReducer(_: BulkGenerationUIState, appState: AppState): BulkGenerationUIState {
+  const { isBulkGenerating, bulkGenerationStopped, bulkGenerationError, isStreaming, sections } = appState;
   const incompleteSections = sections.filter(s => !s.content).length;
   
   if (isBulkGenerating) {
     return {
-      state: 'generating',
+      buttonState: 'generating',
       disabled: false,
       ariaLabel: 'Stop bulk generation'
     };
   }
   
-  if (bulkGenerationStopped || bulkGenerationError) {
+  if (bulkGenerationStopped) {
     return {
-      state: bulkGenerationStopped ? 'stopped' : 'error',
+      buttonState: 'stopped',
+      disabled: false,
+      ariaLabel: 'Retry bulk generation'
+    };
+  }
+  
+  if (bulkGenerationError) {
+    return {
+      buttonState: 'error',
       disabled: false,
       ariaLabel: 'Retry bulk generation'
     };
   }
   
   return {
-    state: 'idle',
+    buttonState: 'idle',
     disabled: isStreaming || incompleteSections === 0,
     ariaLabel: 'Generate all incomplete sections'
   };
@@ -110,7 +122,7 @@ function BulkGenerationButtonContent({ uiState }: { uiState: BulkGenerationUISta
   const { state } = useAppContext();
   const { sections, currentBulkSectionIndex } = state;
   
-  if (uiState.state === 'generating') {
+  if (uiState.buttonState === 'generating') {
     const currentSection = currentBulkSectionIndex !== null ? sections[currentBulkSectionIndex] : null;
     return (
       <>
@@ -123,7 +135,7 @@ function BulkGenerationButtonContent({ uiState }: { uiState: BulkGenerationUISta
         )}
       </>
     );
-  } else if (uiState.state === 'stopped' || uiState.state === 'error') {
+  } else if (uiState.buttonState === 'stopped' || uiState.buttonState === 'error') {
     return (
       <>
         <RotateCcw size={18} aria-hidden="true" />
@@ -143,16 +155,17 @@ function BulkGenerationButtonContent({ uiState }: { uiState: BulkGenerationUISta
 export function BulkGenerationButton() {
   const { state, dispatch } = useAppContext();
   const stateRef = useRef(state);
+  const [uiState, updateUIState] = useReducer(bulkGenerationUIReducer, initialUIState);
   
   useEffect(() => {
     stateRef.current = state;
+    updateUIState(state);
   }, [state]);
   
-  const uiState = getBulkGenerationUIState(state);
   const getCurrentState = () => stateRef.current;
 
   const handleClick = async () => {
-    switch (uiState.state) {
+    switch (uiState.buttonState) {
       case 'idle':
         await executeBulkGeneration(state, dispatch, getCurrentState);
         break;
