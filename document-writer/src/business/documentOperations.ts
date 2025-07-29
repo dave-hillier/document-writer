@@ -13,6 +13,7 @@ export interface GenerateSectionParams {
   sections: Section[];
   documentConfig: DocumentConfig;
   responseId: string | null;
+  shouldStop?: () => boolean;
 }
 
 export interface GenerateAllSectionsParams {
@@ -67,7 +68,7 @@ export async function generateSection(
   params: GenerateSectionParams,
   callbacks: StreamingCallbacks
 ): Promise<SectionResult> {
-  const { sectionId, outline, sections, documentConfig, responseId } = params;
+  const { sectionId, outline, sections, documentConfig, responseId, shouldStop } = params;
   const { onChunk } = callbacks;
 
   if (!outline) {
@@ -94,7 +95,8 @@ export async function generateSection(
       (responseId, content, wordCount) => {
         resolve({ responseId, sectionId, content, wordCount });
       },
-      reject
+      reject,
+      shouldStop
     );
   });
 }
@@ -135,7 +137,8 @@ export async function generateAllSections(
       outline,
       sections,
       documentConfig,
-      responseId
+      responseId,
+      shouldStop
     };
 
     const result = await generateSection(sectionParams, { onChunk });

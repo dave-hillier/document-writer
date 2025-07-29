@@ -136,7 +136,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         isBulkGenerating: false,
         bulkGenerationStopped: true,
-        currentBulkSectionIndex: null
+        currentBulkSectionIndex: null,
+        isStreaming: false,
+        isGenerating: false
       };
     
     case 'BULK_GENERATION_COMPLETED':

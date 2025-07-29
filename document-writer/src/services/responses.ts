@@ -19,7 +19,8 @@ export class ResponsesService {
     previousResponseId: string | null,
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string) => void,
-    onError: (error: Error) => void
+    onError: (error: Error) => void,
+    shouldStop?: () => boolean
   ): Promise<void> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,6 +35,10 @@ export class ResponsesService {
       let responseId: string | null = null;
 
       for await (const event of response) {
+        if (shouldStop && shouldStop()) {
+          throw new Error('Generation stopped by user');
+        }
+        
         if (event.type === 'response.output_text.delta') {
           if (event.delta) {
             onChunk(event.delta);

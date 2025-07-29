@@ -15,7 +15,8 @@ export class DocumentGenerator {
     responseId: string | null,
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string, outline: DocumentOutline) => void,
-    onError: (error: Error) => void
+    onError: (error: Error) => void,
+    shouldStop?: () => boolean
   ): Promise<void> {
     const prompt = `${systemPromptContent}
 
@@ -64,7 +65,8 @@ IMPORTANT: Return ONLY valid JSON in this exact format, with no additional text:
           onError(new Error('Invalid JSON response. Please try again.'));
         }
       },
-      onError
+      onError,
+      shouldStop
     );
   }
 
@@ -76,7 +78,8 @@ IMPORTANT: Return ONLY valid JSON in this exact format, with no additional text:
     responseId: string | null,
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string, content: string, wordCount: number) => void,
-    onError: (error: Error) => void
+    onError: (error: Error) => void,
+    shouldStop?: () => boolean
   ): Promise<void> {
     const previousContent = previousSections
       .map(s => `${s.title}:\n${s.content}`)
@@ -111,6 +114,9 @@ Write only the section content, no titles or metadata.`;
       prompt,
       responseId,
       (chunk) => {
+        if (shouldStop && shouldStop()) {
+          throw new Error('Generation stopped by user');
+        }
         fullContent += chunk;
         onChunk(chunk);
       },
@@ -118,7 +124,8 @@ Write only the section content, no titles or metadata.`;
         const wordCount = fullContent.split(/\s+/).filter(word => word.length > 0).length;
         onComplete(newResponseId, fullContent, wordCount);
       },
-      onError
+      onError,
+      shouldStop
     );
   }
 }

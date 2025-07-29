@@ -2,6 +2,7 @@ import { useAppContext } from '../contexts/useAppContext';
 import { generateAllSections } from '../business/documentOperations';
 import { Play, Square, RotateCcw } from 'lucide-react';
 import type { AppState, AppAction } from '../types';
+import { useRef, useEffect } from 'react';
 
 type BulkGenerationButtonState = 'generating' | 'stopped' | 'error' | 'idle';
 
@@ -141,9 +142,14 @@ function BulkGenerationButtonContent({ uiState }: { uiState: BulkGenerationUISta
 
 export function BulkGenerationButton() {
   const { state, dispatch } = useAppContext();
+  const stateRef = useRef(state);
+  
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
   
   const uiState = getBulkGenerationUIState(state);
-  const getCurrentState = () => state;
+  const getCurrentState = () => stateRef.current;
 
   const handleClick = async () => {
     switch (uiState.state) {
