@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect, useRef } from 'react';
+import { useReducer, useEffect } from 'react';
 import { Settings } from 'lucide-react';
 import { appReducer, initialState } from './reducer';
 import { SettingsModal } from './components/SettingsModal';
@@ -10,9 +10,8 @@ import './App.css';
 
 function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const bulkGenerationStoppedRef = useRef(false);
 
-  const handleGenerateOutline = useCallback(async (config: IDocumentConfig, prompt: string) => {
+  const handleGenerateOutline = async (config: IDocumentConfig, prompt: string) => {
     dispatch({ type: 'OUTLINE_GENERATION_STARTED', payload: { config } });
 
     try {
@@ -36,9 +35,9 @@ function App() {
         payload: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  }, [state.responseId]);
+  };
 
-  const handleGenerateSection = useCallback(async (sectionId: string) => {
+  const handleGenerateSection = async (sectionId: string) => {
     if (!state.outline) return;
 
     dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
@@ -66,15 +65,14 @@ function App() {
         payload: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  }, [state.outline, state.sections, state.documentConfig, state.responseId]);
+  };
 
-  const handleGenerateAllSections = useCallback(async () => {
+  const handleGenerateAllSections = async () => {
     if (!state.outline) return;
 
     const incompleteSections = state.sections.filter(s => !s.content);
     if (incompleteSections.length === 0) return;
 
-    bulkGenerationStoppedRef.current = false;
     dispatch({ type: 'BULK_GENERATION_STARTED' });
 
     try {
@@ -87,7 +85,7 @@ function App() {
           onSectionStart: (sectionIndex) => {
             dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex } });
           },
-          shouldStop: () => bulkGenerationStoppedRef.current
+          shouldStop: () => state.bulkGenerationStopped
         },
         {
           onChunk: (chunk) => {
@@ -102,7 +100,7 @@ function App() {
         }
       );
 
-      if (bulkGenerationStoppedRef.current) {
+      if (state.bulkGenerationStopped) {
         dispatch({ type: 'BULK_GENERATION_STOPPED' });
       } else {
         dispatch({ type: 'BULK_GENERATION_COMPLETED' });
@@ -117,18 +115,17 @@ function App() {
         });
       }
     }
-  }, [state.outline, state.sections, state.documentConfig, state.responseId]);
+  };
 
-  const handleStopBulkGeneration = useCallback(() => {
-    bulkGenerationStoppedRef.current = true;
+  const handleStopBulkGeneration = () => {
     dispatch({ type: 'BULK_GENERATION_STOPPED' });
-  }, []);
+  };
 
-  const handleRetryBulkGeneration = useCallback(() => {
+  const handleRetryBulkGeneration = () => {
     handleGenerateAllSections();
-  }, [handleGenerateAllSections]);
+  };
 
-  const handleExport = useCallback(() => {
+  const handleExport = () => {
     if (!state.outline) return;
 
     const content = [
@@ -149,7 +146,7 @@ function App() {
     a.download = `${state.outline.title.toLowerCase().replace(/\s+/g, '-')}.md`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [state.outline, state.sections]);
+  };
 
   useEffect(() => {
     const apiKey = localStorage.getItem('openai-api-key');
@@ -158,9 +155,6 @@ function App() {
     }
   }, [state.isSettingsOpen]);
 
-  useEffect(() => {
-    bulkGenerationStoppedRef.current = state.bulkGenerationStopped;
-  }, [state.bulkGenerationStopped]);
 
   return (
     <>
