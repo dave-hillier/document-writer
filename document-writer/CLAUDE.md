@@ -5,9 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
+npm run lint      # Run ESLint
 npm run dev       # Start development server at http://localhost:5173
 npm run build     # TypeScript check + Vite production build
-npm run lint      # Run ESLint
 npm run preview   # Preview production build
 ```
 

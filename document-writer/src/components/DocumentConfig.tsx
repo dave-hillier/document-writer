@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { DocumentConfig as IDocumentConfig } from '../types';
+import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
 
 interface DocumentConfigProps {
   config: IDocumentConfig;
@@ -10,23 +11,23 @@ interface DocumentConfigProps {
 }
 
 export function DocumentConfig({ config, onSubmit, isGenerating, isStreaming, streamingContent }: DocumentConfigProps) {
-  const [tone, setTone] = useState(config.tone);
-  const [allowed, setAllowed] = useState(config.narrativeElements.allowed.join(', '));
-  const [denied, setDenied] = useState(config.narrativeElements.denied.join(', '));
-  const [targetWordCount, setTargetWordCount] = useState(config.targetWordCount);
+  const formDefaults = documentConfigToFormData(config);
+  const [tone, setTone] = useState(formDefaults.tone);
+  const [allowed, setAllowed] = useState(formDefaults.allowed);
+  const [denied, setDenied] = useState(formDefaults.denied);
+  const [targetWordCount, setTargetWordCount] = useState(formDefaults.targetWordCount);
   const [prompt, setPrompt] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newConfig: IDocumentConfig = {
+    const newConfig = createDocumentConfig({
       tone,
-      narrativeElements: {
-        allowed: allowed.split(',').map(s => s.trim()).filter(s => s),
-        denied: denied.split(',').map(s => s.trim()).filter(s => s)
-      },
-      targetWordCount
-    };
+      allowed,
+      denied,
+      targetWordCount,
+      prompt
+    });
     
     onSubmit(newConfig, prompt);
   };
