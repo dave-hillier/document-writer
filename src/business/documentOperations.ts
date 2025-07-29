@@ -1,5 +1,5 @@
 import type { DocumentConfig, DocumentOutline, Section } from '../types';
-import { DocumentGenerator } from '../services/openai';
+import { generateOutline as generateOutlineService, generateSection as generateSectionService } from '../services/openai';
 
 export interface GenerateOutlineParams {
   config: DocumentConfig;
@@ -50,10 +50,8 @@ export async function generateOutline(
   const { config, prompt, responseId } = params;
   const { onChunk } = callbacks;
 
-  const generator = new DocumentGenerator();
-  
   return new Promise((resolve, reject) => {
-    generator.generateOutline(
+    generateOutlineService(
       config,
       prompt,
       responseId,
@@ -83,11 +81,10 @@ export async function generateSection(
     throw new Error('Section not found');
   }
 
-  const generator = new DocumentGenerator();
   const previousSections = sections.slice(0, sectionIndex).filter(s => s.content);
   
   return new Promise((resolve, reject) => {
-    generator.generateSection(
+    generateSectionService(
       section,
       documentConfig,
       outline,

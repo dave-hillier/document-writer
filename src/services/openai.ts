@@ -1,6 +1,6 @@
 import type { DocumentConfig, DocumentOutline, Section } from '../types';
 import systemPromptContent from '../system-prompt.md?raw';
-import { ResponsesService } from './responses';
+import { createResponse } from './responses';
 import { createOutlinePrompt, createSectionPrompt } from './promptTemplates';
 import * as vectorStore from './vectorStore';
 import { indexedDBService } from './indexeddb';
@@ -15,14 +15,7 @@ function hashString(str: string): string {
   return Math.abs(hash).toString(36);
 }
 
-export class DocumentGenerator {
-  private responsesService: ResponsesService;
-
-  constructor() {
-    this.responsesService = new ResponsesService();
-  }
-
-  async generateOutline(
+export async function generateOutline(
     config: DocumentConfig, 
     userPrompt: string,
     responseId: string | null,
@@ -74,7 +67,7 @@ export class DocumentGenerator {
     // Use cache key based on document configuration
     const cacheKey = `outline-${hashString(`${config.tone}-${config.targetWordCount}`)}`;
     
-    await this.responsesService.createResponse(
+    await createResponse(
       prompt,
       responseId,
       (chunk) => {
@@ -100,7 +93,7 @@ export class DocumentGenerator {
     );
   }
 
-  async generateSection(
+export async function generateSection(
     section: Section, 
     config: DocumentConfig, 
     outline: DocumentOutline,
@@ -170,7 +163,7 @@ export class DocumentGenerator {
     // Cache key for sections with same document configuration
     const cacheKey = `section-${hashString(`${config.tone}-${outline.title}`)}`;
     
-    await this.responsesService.createResponse(
+    await createResponse(
       prompt,
       responseId,
       (chunk) => {
@@ -189,4 +182,3 @@ export class DocumentGenerator {
       cacheKey
     );
   }
-}
