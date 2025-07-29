@@ -1,4 +1,5 @@
 import { useAppContext } from '../contexts/useAppContext';
+import { generateAllSections } from '../business/documentOperations';
 import { Play, Square, RotateCcw } from 'lucide-react';
 
 function BulkGenerationButtonContent() {
@@ -40,33 +41,83 @@ function BulkGenerationButtonContent() {
   }
 }
 
-interface BulkGenerationButtonProps {
-  onStartGeneration: () => void;
-  onStopGeneration: () => void;
-  onRetryGeneration: () => void;
-  disabled?: boolean;
-}
-
-export function BulkGenerationButton({
-  onStartGeneration,
-  onStopGeneration,
-  onRetryGeneration,
-  disabled = false
-}: BulkGenerationButtonProps) {
-  const { state } = useAppContext();
+export function BulkGenerationButton() {
+  const { state, dispatch } = useAppContext();
   const { 
+    outline,
+    sections,
+    isStreaming,
     isBulkGenerating,
     bulkGenerationStopped,
     bulkGenerationError
   } = state;
+
+  const handleGenerateAllSections = async () => {
+    const incompleteSections = sections.filter(s => !s.content);
+    if (incompleteSections.length === 0 || !outline) return;
+
+    dispatch({ type: 'BULK_GENERATION_STARTED' });
+
+    try {
+      await generateAllSections(
+        {
+          outline,
+          sections,
+          documentConfig: state.documentConfig,
+          responseId: state.responseId,
+          onSectionStart: (sectionIndex) => {
+            dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex } });
+          },
+          shouldStop: () => state.bulkGenerationStopped
+        },
+        {
+          onChunk: (chunk) => {
+            dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
+          },
+          onSectionGenerated: (result) => {
+            dispatch({ type: 'SECTION_GENERATED', payload: result });
+          },
+          onSectionStarted: (sectionId) => {
+            dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
+          }
+        }
+      );
+
+      if (state.bulkGenerationStopped) {
+        dispatch({ type: 'BULK_GENERATION_STOPPED' });
+      } else {
+        dispatch({ type: 'BULK_GENERATION_COMPLETED' });
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Generation stopped by user') {
+        dispatch({ type: 'BULK_GENERATION_STOPPED' });
+      } else {
+        dispatch({ 
+          type: 'BULK_GENERATION_FAILED', 
+          payload: error instanceof Error ? error.message : 'Unknown error occurred'
+        });
+      }
+    }
+  };
+
+  const handleStopBulkGeneration = () => {
+    dispatch({ type: 'BULK_GENERATION_STOPPED' });
+  };
+
+  const handleRetryBulkGeneration = () => {
+    handleGenerateAllSections();
+  };
+
+  const incompleteSections = sections.filter(s => !s.content);
+  const disabled = isStreaming || (incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError);
   
   const handleClick = () => {
     if (isBulkGenerating) {
-      onStopGeneration();
+      handleStopBulkGeneration();
     } else if (bulkGenerationStopped || bulkGenerationError) {
-      onRetryGeneration();
+      handleRetryBulkGeneration();
     } else {
-      onStartGeneration();
+      handleGenerateAllSections();
     }
   };
 

@@ -1,6 +1,6 @@
 import { ChevronRight, FileText, Download } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
-import { generateSection, generateAllSections } from '../business/documentOperations';
+import { generateSection } from '../business/documentOperations';
 import { exportDocumentAsMarkdown } from '../business/exportUtils';
 import { BulkGenerationButton } from './BulkGenerationButton';
 
@@ -13,7 +13,6 @@ export function DocumentEditor() {
     isStreaming,
     streamingContent,
     isBulkGenerating,
-    bulkGenerationStopped,
     bulkGenerationError
   } = state;
   if (!outline) {
@@ -48,68 +47,12 @@ export function DocumentEditor() {
     }
   };
 
-  const handleGenerateAllSections = async () => {
-    const incompleteSections = sections.filter(s => !s.content);
-    if (incompleteSections.length === 0) return;
-
-    dispatch({ type: 'BULK_GENERATION_STARTED' });
-
-    try {
-      await generateAllSections(
-        {
-          outline,
-          sections,
-          documentConfig: state.documentConfig,
-          responseId: state.responseId,
-          onSectionStart: (sectionIndex) => {
-            dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex } });
-          },
-          shouldStop: () => state.bulkGenerationStopped
-        },
-        {
-          onChunk: (chunk) => {
-            dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
-          },
-          onSectionGenerated: (result) => {
-            dispatch({ type: 'SECTION_GENERATED', payload: result });
-          },
-          onSectionStarted: (sectionId) => {
-            dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
-          }
-        }
-      );
-
-      if (state.bulkGenerationStopped) {
-        dispatch({ type: 'BULK_GENERATION_STOPPED' });
-      } else {
-        dispatch({ type: 'BULK_GENERATION_COMPLETED' });
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Generation stopped by user') {
-        dispatch({ type: 'BULK_GENERATION_STOPPED' });
-      } else {
-        dispatch({ 
-          type: 'BULK_GENERATION_FAILED', 
-          payload: error instanceof Error ? error.message : 'Unknown error occurred'
-        });
-      }
-    }
-  };
-
-  const handleStopBulkGeneration = () => {
-    dispatch({ type: 'BULK_GENERATION_STOPPED' });
-  };
-
-  const handleRetryBulkGeneration = () => {
-    handleGenerateAllSections();
-  };
 
   const handleExport = () => {
     exportDocumentAsMarkdown(outline, sections);
   };
 
   const totalWordCount = sections.reduce((sum, s) => sum + (s.wordCount || 0), 0);
-  const incompleteSections = sections.filter(s => !s.content);
   
 
   return (
@@ -123,12 +66,7 @@ export function DocumentEditor() {
           </p>
         </hgroup>
         <nav aria-label="Document actions" style={{ display: 'flex', gap: '12px' }}>
-          <BulkGenerationButton
-            onStartGeneration={handleGenerateAllSections}
-            onStopGeneration={handleStopBulkGeneration}
-            onRetryGeneration={handleRetryBulkGeneration}
-            disabled={isStreaming || (incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError)}
-          />
+        <BulkGenerationButton />
           <button
             onClick={handleExport}
             disabled={isStreaming || sections.every(s => !s.content)}
