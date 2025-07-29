@@ -32,3 +32,14 @@ The default writing style should be:
 - Be specific rather than vague
 - Use parallel structure in lists and series
 - Maintain consistency in terminology throughout the document
+
+## Section Roles
+
+- **Introduction**: Sets context, establishes purpose, engages reader
+- **Background/Context**: Provides necessary information, history, or setup
+- **Problem/Challenge**: Identifies issues, gaps, or opportunities
+- **Analysis**: Examines details, explores implications, considers perspectives
+- **Solution/Approach**: Presents methods, strategies, or recommendations
+- **Implementation**: Details execution, steps, or processes
+- **Results/Outcomes**: Describes impacts, benefits, or findings
+- **Conclusion**: Synthesizes key points, provides closure, suggests next steps

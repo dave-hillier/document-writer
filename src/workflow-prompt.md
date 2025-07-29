@@ -43,11 +43,4 @@ Each outline should contain:
 
 ### Section Roles
 
-- **Introduction**: Sets context, establishes purpose, engages reader
-- **Background/Context**: Provides necessary information, history, or setup
-- **Problem/Challenge**: Identifies issues, gaps, or opportunities
-- **Analysis**: Examines details, explores implications, considers perspectives
-- **Solution/Approach**: Presents methods, strategies, or recommendations
-- **Implementation**: Details execution, steps, or processes
-- **Results/Outcomes**: Describes impacts, benefits, or findings
-- **Conclusion**: Synthesizes key points, provides closure, suggests next steps
+Section roles should be defined in the style prompt to match the specific writing approach and document type requirements.

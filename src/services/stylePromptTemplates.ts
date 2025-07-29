@@ -51,7 +51,16 @@ The academic writing style should be:
 - Employ disciplinary terminology accurately
 - Maintain consistency in citation style
 - Use hedging language (may, could, suggests) appropriately
-- Avoid first-person pronouns unless specifically required`,
+- Avoid first-person pronouns unless specifically required
+
+## Section Roles
+
+- **Abstract/Introduction**: Establishes research context, states thesis, previews argument structure
+- **Literature Review**: Surveys existing scholarship, identifies gaps, positions current work
+- **Methodology**: Explains research approach, theoretical framework, analytical methods
+- **Analysis**: Presents findings systematically, interprets evidence, builds arguments
+- **Discussion**: Evaluates implications, addresses limitations, considers alternative interpretations  
+- **Conclusion**: Synthesizes contributions, suggests future research directions`,
       isDefault: false,
       createdAt: now,
       updatedAt: now
@@ -94,7 +103,17 @@ The creative writing style should be:
 - Employ rhetorical questions to engage readers
 - Use varied sentence lengths for pacing
 - Include dialogue or quotes where appropriate
-- Balance creativity with professional credibility`,
+- Balance creativity with professional credibility
+
+## Section Roles
+
+- **Opening Hook**: Captivates with story, question, or vivid scene-setting
+- **Context/Setup**: Builds world, introduces characters, establishes stakes
+- **Rising Tension**: Develops conflict, explores challenges, builds momentum
+- **Exploration**: Dives deep into themes, examines multiple perspectives creatively
+- **Revelation/Insight**: Presents key discoveries through narrative or metaphor
+- **Resolution**: Ties narrative threads together, provides satisfying closure
+- **Reflection**: Offers deeper meaning, lasting insights, call to imagination`,
       isDefault: false,
       createdAt: now,
       updatedAt: now
@@ -138,7 +157,17 @@ The technical writing style should be:
 - Define technical terms on first use
 - Use consistent terminology throughout
 - Include specific measurements and values
-- Avoid unnecessary qualifiers or hedging language`,
+- Avoid unnecessary qualifiers or hedging language
+
+## Section Roles
+
+- **Overview**: States objectives, scope, and system requirements clearly
+- **Architecture/Design**: Details technical specifications, system components, data flow
+- **Implementation**: Provides step-by-step procedures, code examples, configurations
+- **Testing/Validation**: Documents test procedures, results, verification methods
+- **Troubleshooting**: Identifies common issues, error conditions, diagnostic steps
+- **Maintenance**: Covers ongoing operations, updates, monitoring requirements
+- **Reference**: Summarizes key specifications, APIs, command references`,
       isDefault: false,
       createdAt: now,
       updatedAt: now
@@ -182,7 +211,17 @@ The business executive style should be:
 - Focus on measurable outcomes and benefits
 - Use bullet points for key takeaways
 - Emphasize competitive advantages
-- Include calls-to-action and decision points`,
+- Include calls-to-action and decision points
+
+## Section Roles
+
+- **Executive Summary**: Presents key findings, recommendations, and business impact upfront
+- **Market Analysis**: Examines competitive landscape, opportunities, market conditions
+- **Problem/Opportunity**: Identifies business challenges, gaps, strategic imperatives
+- **Strategic Solution**: Outlines approach, competitive advantages, value proposition
+- **Implementation Plan**: Details timeline, resources, milestones, risk mitigation
+- **Financial Impact**: Projects ROI, costs, revenue potential, budget requirements
+- **Next Steps**: Specifies immediate actions, decision points, success metrics`,
       isDefault: false,
       createdAt: now,
       updatedAt: now
@@ -226,7 +265,17 @@ The casual writing style should be:
 - Use everyday vocabulary over technical jargon
 - Ask rhetorical questions to engage readers
 - Include colloquialisms and informal expressions
-- Maintain authenticity while remaining professional`,
+- Maintain authenticity while remaining professional
+
+## Section Roles
+
+- **Friendly Introduction**: Welcomes readers, sets conversational tone, previews what's coming
+- **Background Story**: Shares context through personal experience or relatable scenarios
+- **The Challenge**: Describes problems in relatable terms, acknowledges shared frustrations
+- **Exploration**: Walks through ideas conversationally, includes personal insights and "aha" moments
+- **What Works**: Shares practical solutions, tips, and real-world applications
+- **Putting It Together**: Shows how to apply insights, includes encouragement and support
+- **Wrap-Up**: Summarizes key takeaways, offers encouragement, invites continued conversation`,
       isDefault: false,
       createdAt: now,
       updatedAt: now
