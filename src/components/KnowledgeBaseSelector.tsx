@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Database } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
-import { KnowledgeBaseService } from '../services/knowledgeBase';
+import * as knowledgeBaseService from '../services/knowledgeBase';
 
 interface KnowledgeBaseSelectorProps {
   selectedId?: string;
@@ -21,7 +21,6 @@ export function KnowledgeBaseSelector({ selectedId, onChange }: KnowledgeBaseSel
   const loadKnowledgeBases = async () => {
     dispatch({ type: 'KNOWLEDGE_BASES_LOADING_STARTED' });
     try {
-      const knowledgeBaseService = new KnowledgeBaseService();
       const knowledgeBases = await knowledgeBaseService.getAllKnowledgeBases();
       dispatch({ type: 'KNOWLEDGE_BASES_LOADED', payload: { knowledgeBases } });
     } catch (error) {

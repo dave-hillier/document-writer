@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Search, Copy, RotateCw, Trash2 } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
-import type { KnowledgeBaseService } from '../services/knowledgeBase';
+import * as knowledgeBaseService from '../services/knowledgeBase';
 
 interface QueryTesterProps {
   knowledgeBaseId: string;
-  knowledgeBaseService: KnowledgeBaseService;
+  knowledgeBaseService: typeof knowledgeBaseService;
 }
 
 export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTesterProps) {

@@ -2,7 +2,7 @@ import type { DocumentConfig, DocumentOutline, Section } from '../types';
 import systemPromptContent from '../system-prompt.md?raw';
 import { ResponsesService } from './responses';
 import { createOutlinePrompt, createSectionPrompt } from './promptTemplates';
-import { VectorStoreService } from './vectorStore';
+import * as vectorStore from './vectorStore';
 import { indexedDBService } from './indexeddb';
 
 function hashString(str: string): string {
@@ -17,11 +17,9 @@ function hashString(str: string): string {
 
 export class DocumentGenerator {
   private responsesService: ResponsesService;
-  private vectorStoreService: VectorStoreService;
 
   constructor() {
     this.responsesService = new ResponsesService();
-    this.vectorStoreService = new VectorStoreService();
   }
 
   async generateOutline(
@@ -39,7 +37,7 @@ export class DocumentGenerator {
       try {
         const knowledgeBase = await indexedDBService.getKnowledgeBase(config.knowledgeBaseId);
         if (knowledgeBase) {
-          const searchResults = await this.vectorStoreService.search(
+          const searchResults = await vectorStore.search(
             knowledgeBase.vectorStoreId,
             userPrompt,
             { maxResults: 5, rewriteQuery: true }
@@ -121,7 +119,7 @@ export class DocumentGenerator {
         if (knowledgeBase) {
           // Search using section title and sub-steps
           const sectionQuery = `${section.title} ${section.subSteps.join(' ')}`;
-          const searchResults = await this.vectorStoreService.search(
+          const searchResults = await vectorStore.search(
             knowledgeBase.vectorStoreId,
             sectionQuery,
             { maxResults: 3, rewriteQuery: true }

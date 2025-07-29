@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Database, Plus, Trash2, Edit, FileText, Search } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
-import { KnowledgeBaseService } from '../services/knowledgeBase';
+import * as knowledgeBaseService from '../services/knowledgeBase';
 import { FileUploader } from './FileUploader';
 import { QueryTester } from './QueryTester';
 import type { KnowledgeBase } from '../types';
@@ -14,7 +14,6 @@ export function KnowledgeBaseManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'files' | 'query'>('files');
   const [selectedKnowledgeBaseId, setSelectedKnowledgeBaseId] = useState<string | null>(null);
-  const [knowledgeBaseService] = useState(() => new KnowledgeBaseService());
 
   useEffect(() => {
     loadKnowledgeBases();
