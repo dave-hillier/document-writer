@@ -1,16 +1,7 @@
-import type { DocumentOutline, Section } from '../types';
 import { ChevronRight, FileText, Download, Play, Square, RotateCcw } from 'lucide-react';
+import { useAppContext } from '../contexts/useAppContext';
 
 interface DocumentEditorProps {
-  outline: DocumentOutline;
-  sections: Section[];
-  isGenerating: boolean;
-  isStreaming: boolean;
-  streamingContent: string;
-  isBulkGenerating: boolean;
-  currentBulkSectionIndex: number | null;
-  bulkGenerationStopped: boolean;
-  bulkGenerationError: string | null;
   onGenerateSection: (sectionId: string) => void;
   onGenerateAllSections: () => void;
   onStopBulkGeneration: () => void;
@@ -19,21 +10,28 @@ interface DocumentEditorProps {
 }
 
 export function DocumentEditor({ 
-  outline, 
-  sections, 
-  isGenerating,
-  isStreaming,
-  streamingContent,
-  isBulkGenerating,
-  currentBulkSectionIndex,
-  bulkGenerationStopped,
-  bulkGenerationError,
   onGenerateSection,
   onGenerateAllSections,
   onStopBulkGeneration,
   onRetryBulkGeneration,
   onExport
 }: DocumentEditorProps) {
+  const { state } = useAppContext();
+  const { 
+    outline, 
+    sections, 
+    isGenerating,
+    isStreaming,
+    streamingContent,
+    isBulkGenerating,
+    currentBulkSectionIndex,
+    bulkGenerationStopped,
+    bulkGenerationError
+  } = state;
+  if (!outline) {
+    return null;
+  }
+
   const totalWordCount = sections.reduce((sum, s) => sum + (s.wordCount || 0), 0);
   const incompleteSections = sections.filter(s => !s.content);
   

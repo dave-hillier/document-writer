@@ -1,6 +1,7 @@
-import { useReducer, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
-import { appReducer, initialState } from './reducer';
+import { AppProvider } from './contexts/AppContext';
+import { useAppContext } from './contexts/useAppContext';
 import { SettingsModal } from './components/SettingsModal';
 import { DocumentConfig } from './components/DocumentConfig';
 import { DocumentEditor } from './components/DocumentEditor';
@@ -8,8 +9,8 @@ import { generateOutline, generateSection, generateAllSections } from './busines
 import type { DocumentConfig as IDocumentConfig } from './types';
 import './App.css';
 
-function App() {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+function AppContent() {
+  const { state, dispatch } = useAppContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleGenerateOutline = async (config: IDocumentConfig, prompt: string) => {
@@ -191,11 +192,7 @@ function App() {
           <section aria-labelledby="config-heading">
             <h2 id="config-heading" className="visually-hidden">Document Configuration</h2>
             <DocumentConfig
-              config={state.documentConfig}
               onSubmit={handleGenerateOutline}
-              isGenerating={state.isGenerating}
-              isStreaming={state.isStreaming}
-              streamingContent={state.streamingContent}
             />
           </section>
         ) : (
@@ -212,15 +209,6 @@ function App() {
             <section aria-labelledby="editor-heading">
               <h2 id="editor-heading" className="visually-hidden">Document Editor</h2>
               <DocumentEditor
-                outline={state.outline}
-                sections={state.sections}
-                isGenerating={state.isGenerating}
-                isStreaming={state.isStreaming}
-                streamingContent={state.streamingContent}
-                isBulkGenerating={state.isBulkGenerating}
-                currentBulkSectionIndex={state.currentBulkSectionIndex}
-                bulkGenerationStopped={state.bulkGenerationStopped}
-                bulkGenerationError={state.bulkGenerationError}
                 onGenerateSection={handleGenerateSection}
                 onGenerateAllSections={handleGenerateAllSections}
                 onStopBulkGeneration={handleStopBulkGeneration}
@@ -237,6 +225,14 @@ function App() {
         onClose={() => setIsSettingsOpen(false)}
       />
     </>
+  );
+}
+
+function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }
 

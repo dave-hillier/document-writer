@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import type { DocumentConfig as IDocumentConfig } from '../types';
 import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
+import { useAppContext } from '../contexts/useAppContext';
 
 interface DocumentConfigProps {
-  config: IDocumentConfig;
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
-  isGenerating: boolean;
-  isStreaming?: boolean;
-  streamingContent?: string;
 }
 
-export function DocumentConfig({ config, onSubmit, isGenerating, isStreaming, streamingContent }: DocumentConfigProps) {
+export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
+  const { state } = useAppContext();
+  const { documentConfig: config, isGenerating, isStreaming, streamingContent } = state;
   const formDefaults = documentConfigToFormData(config);
   const [tone, setTone] = useState(formDefaults.tone);
   const [allowed, setAllowed] = useState(formDefaults.allowed);
