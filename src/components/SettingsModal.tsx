@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import { ModelsService } from '../services/models';
 import type { ModelInfo } from '../services/models';
+import { indexedDBService } from '../services/indexeddb';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -49,6 +50,20 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     localStorage.setItem('openai-api-key', key);
     localStorage.setItem('openai-model', selectedModel);
     onClose();
+  };
+
+  const handleResetDatabase = async () => {
+    if (!confirm('This will delete all your documents and knowledge bases. Are you sure?')) {
+      return;
+    }
+
+    try {
+      await indexedDBService.resetDatabase();
+      alert('Database reset successfully. Please refresh the page.');
+      window.location.reload();
+    } catch (error) {
+      alert(`Failed to reset database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   return (
@@ -113,6 +128,27 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             }
           </small>
         </label>
+
+        <hr />
+        
+        <section>
+          <h4>
+            <AlertTriangle size={16} aria-hidden="true" />
+            {' '}Danger Zone
+          </h4>
+          <article>
+            <header>
+              <strong>Reset Database</strong>
+            </header>
+            <p>This will delete all your documents and knowledge bases. This action cannot be undone.</p>
+            <button 
+              onClick={handleResetDatabase}
+              className="secondary"
+            >
+              Reset Database
+            </button>
+          </article>
+        </section>
       
         <footer>
           <button

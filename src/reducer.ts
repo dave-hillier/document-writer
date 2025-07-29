@@ -1,4 +1,4 @@
-import type { AppState, AppAction } from './types';
+import type { AppState, AppAction, KnowledgeBaseFile } from './types';
 
 export const initialState: AppState = {
   currentDocumentId: null,
@@ -19,7 +19,12 @@ export const initialState: AppState = {
   isStreaming: false,
   outlineCacheMetrics: undefined,
   sectionCacheMetrics: {},
-  documentHistory: []
+  documentHistory: [],
+  knowledgeBases: [],
+  selectedKnowledgeBase: null,
+  knowledgeBaseFiles: {},
+  isLoadingKnowledgeBases: false,
+  queryTestResults: []
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -161,6 +166,133 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         isStreaming: false,
         isGenerating: false,
         streamingContent: ''
+      };
+    
+    // Knowledge base events
+    case 'KNOWLEDGE_BASES_LOADING_STARTED':
+      return {
+        ...state,
+        isLoadingKnowledgeBases: true,
+        error: null
+      };
+    
+    case 'KNOWLEDGE_BASES_LOADED':
+      return {
+        ...state,
+        knowledgeBases: action.payload.knowledgeBases,
+        isLoadingKnowledgeBases: false
+      };
+    
+    case 'KNOWLEDGE_BASE_CREATED':
+      return {
+        ...state,
+        knowledgeBases: [...state.knowledgeBases, action.payload.knowledgeBase]
+      };
+    
+    case 'KNOWLEDGE_BASE_UPDATED':
+      return {
+        ...state,
+        knowledgeBases: state.knowledgeBases.map(kb =>
+          kb.id === action.payload.knowledgeBase.id ? action.payload.knowledgeBase : kb
+        ),
+        selectedKnowledgeBase: state.selectedKnowledgeBase?.id === action.payload.knowledgeBase.id
+          ? action.payload.knowledgeBase
+          : state.selectedKnowledgeBase
+      };
+    
+    case 'KNOWLEDGE_BASE_DELETED':
+      return {
+        ...state,
+        knowledgeBases: state.knowledgeBases.filter(kb => kb.id !== action.payload.knowledgeBaseId),
+        selectedKnowledgeBase: state.selectedKnowledgeBase?.id === action.payload.knowledgeBaseId
+          ? null
+          : state.selectedKnowledgeBase,
+        knowledgeBaseFiles: Object.keys(state.knowledgeBaseFiles).reduce((acc, key) => {
+          if (key !== action.payload.knowledgeBaseId) {
+            acc[key] = state.knowledgeBaseFiles[key];
+          }
+          return acc;
+        }, {} as Record<string, KnowledgeBaseFile[]>)
+      };
+    
+    case 'KNOWLEDGE_BASE_SELECTED':
+      return {
+        ...state,
+        selectedKnowledgeBase: action.payload.knowledgeBase,
+        documentConfig: action.payload.knowledgeBase
+          ? { ...state.documentConfig, knowledgeBaseId: action.payload.knowledgeBase.id }
+          : { ...state.documentConfig, knowledgeBaseId: undefined }
+      };
+    
+    // Knowledge base file events
+    case 'KNOWLEDGE_BASE_FILES_LOADED':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: action.payload.files
+        }
+      };
+    
+    case 'KNOWLEDGE_BASE_FILE_UPLOAD_STARTED':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: [
+            ...(state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []),
+            action.payload.file
+          ]
+        }
+      };
+    
+    case 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
+            file.id === action.payload.fileId
+              ? { ...file, status: 'completed' as const }
+              : file
+          )
+        }
+      };
+    
+    case 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
+            file.id === action.payload.fileId
+              ? { ...file, status: 'failed' as const }
+              : file
+          )
+        }
+      };
+    
+    case 'KNOWLEDGE_BASE_FILE_DELETED':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || [])
+            .filter(file => file.id !== action.payload.fileId)
+        }
+      };
+    
+    // Query test events
+    case 'QUERY_TEST_EXECUTED':
+      return {
+        ...state,
+        queryTestResults: [action.payload.result, ...state.queryTestResults.slice(0, 9)] // Keep last 10 results
+      };
+    
+    case 'QUERY_TEST_RESULTS_CLEARED':
+      return {
+        ...state,
+        queryTestResults: []
       };
     
     default:

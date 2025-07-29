@@ -19,6 +19,7 @@ export interface DocumentConfig {
     denied: string[];
   };
   targetWordCount: number;
+  knowledgeBaseId?: string;
 }
 
 export interface CacheMetrics {
@@ -37,6 +38,41 @@ export interface DocumentHistoryItem {
   url: string;
 }
 
+export interface KnowledgeBase {
+  id: string;
+  name: string;
+  description?: string;
+  vectorStoreId: string;
+  createdAt: number;
+  updatedAt: number;
+  fileCount: number;
+}
+
+export interface KnowledgeBaseFile {
+  id: string;
+  filename: string;
+  size: number;
+  uploadedAt: number;
+  attributes?: Record<string, unknown>;
+  status: 'uploading' | 'processing' | 'completed' | 'failed';
+}
+
+export interface SearchResult {
+  fileId: string;
+  filename: string;
+  score: number;
+  content: Array<{ type: string; text: string }>;
+  attributes?: Record<string, unknown>;
+}
+
+export interface QueryTestResult {
+  query: string;
+  rewrittenQuery?: string;
+  results: SearchResult[];
+  searchTime: number;
+  timestamp: number;
+}
+
 export interface AppState {
   currentDocumentId: string | null;
   documentConfig: DocumentConfig;
@@ -50,6 +86,11 @@ export interface AppState {
   outlineCacheMetrics?: CacheMetrics;
   sectionCacheMetrics: Record<string, CacheMetrics>;
   documentHistory: DocumentHistoryItem[];
+  knowledgeBases: KnowledgeBase[];
+  selectedKnowledgeBase: KnowledgeBase | null;
+  knowledgeBaseFiles: Record<string, KnowledgeBaseFile[]>;
+  isLoadingKnowledgeBases: boolean;
+  queryTestResults: QueryTestResult[];
 }
 
 export type AppAction =
@@ -74,4 +115,23 @@ export type AppAction =
   | { type: 'SECTION_CONTENT_STREAMED'; payload: string }
   | { type: 'SECTION_GENERATED'; payload: { responseId: string; sectionId: string; content: string; wordCount: number; cacheMetrics?: CacheMetrics } }
   | { type: 'SECTION_GENERATION_FAILED'; payload: string }
-  | { type: 'SECTION_GENERATION_ABORTED' };
+  | { type: 'SECTION_GENERATION_ABORTED' }
+  
+  // Knowledge base events
+  | { type: 'KNOWLEDGE_BASES_LOADING_STARTED' }
+  | { type: 'KNOWLEDGE_BASES_LOADED'; payload: { knowledgeBases: KnowledgeBase[] } }
+  | { type: 'KNOWLEDGE_BASE_CREATED'; payload: { knowledgeBase: KnowledgeBase } }
+  | { type: 'KNOWLEDGE_BASE_UPDATED'; payload: { knowledgeBase: KnowledgeBase } }
+  | { type: 'KNOWLEDGE_BASE_DELETED'; payload: { knowledgeBaseId: string } }
+  | { type: 'KNOWLEDGE_BASE_SELECTED'; payload: { knowledgeBase: KnowledgeBase | null } }
+  
+  // Knowledge base file events
+  | { type: 'KNOWLEDGE_BASE_FILES_LOADED'; payload: { knowledgeBaseId: string; files: KnowledgeBaseFile[] } }
+  | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_STARTED'; payload: { knowledgeBaseId: string; file: KnowledgeBaseFile } }
+  | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED'; payload: { knowledgeBaseId: string; fileId: string } }
+  | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED'; payload: { knowledgeBaseId: string; fileId: string; error: string } }
+  | { type: 'KNOWLEDGE_BASE_FILE_DELETED'; payload: { knowledgeBaseId: string; fileId: string } }
+  
+  // Query test events
+  | { type: 'QUERY_TEST_EXECUTED'; payload: { result: QueryTestResult } }
+  | { type: 'QUERY_TEST_RESULTS_CLEARED' };

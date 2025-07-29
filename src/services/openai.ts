@@ -2,6 +2,8 @@ import type { DocumentConfig, DocumentOutline, Section } from '../types';
 import systemPromptContent from '../system-prompt.md?raw';
 import { ResponsesService } from './responses';
 import { createOutlinePrompt, createSectionPrompt } from './promptTemplates';
+import { VectorStoreService } from './vectorStore';
+import { indexedDBService } from './indexeddb';
 
 function hashString(str: string): string {
   let hash = 0;
@@ -15,9 +17,11 @@ function hashString(str: string): string {
 
 export class DocumentGenerator {
   private responsesService: ResponsesService;
+  private vectorStoreService: VectorStoreService;
 
   constructor() {
     this.responsesService = new ResponsesService();
+    this.vectorStoreService = new VectorStoreService();
   }
 
   async generateOutline(
@@ -29,11 +33,42 @@ export class DocumentGenerator {
     onError: (error: Error) => void,
     shouldStop?: () => boolean
   ): Promise<void> {
+    // Search knowledge base if configured
+    let knowledgeBaseContext = '';
+    if (config.knowledgeBaseId) {
+      try {
+        const knowledgeBase = await indexedDBService.getKnowledgeBase(config.knowledgeBaseId);
+        if (knowledgeBase) {
+          const searchResults = await this.vectorStoreService.search(
+            knowledgeBase.vectorStoreId,
+            userPrompt,
+            { maxResults: 5, rewriteQuery: true }
+          );
+          
+          if (searchResults.results.length > 0) {
+            knowledgeBaseContext = 'Relevant information from knowledge base:\n\n';
+            searchResults.results.forEach((result, index) => {
+              knowledgeBaseContext += `[${index + 1}] ${result.filename} (relevance: ${(result.score * 100).toFixed(1)}%):\n`;
+              result.content.forEach(chunk => {
+                if (chunk.type === 'text') {
+                  knowledgeBaseContext += chunk.text + '\n';
+                }
+              });
+              knowledgeBaseContext += '\n';
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to search knowledge base:', error);
+        // Continue without knowledge base context
+      }
+    }
     // Structure prompt with static content first for optimal caching
     const prompt = createOutlinePrompt({
       systemPromptContent,
       config,
-      userPrompt
+      userPrompt,
+      knowledgeBaseContext
     });
 
     let fullResponse = '';
@@ -78,6 +113,38 @@ export class DocumentGenerator {
     onError: (error: Error) => void,
     shouldStop?: () => boolean
   ): Promise<void> {
+    // Search knowledge base for section-specific context
+    let knowledgeBaseContext = '';
+    if (config.knowledgeBaseId) {
+      try {
+        const knowledgeBase = await indexedDBService.getKnowledgeBase(config.knowledgeBaseId);
+        if (knowledgeBase) {
+          // Search using section title and sub-steps
+          const sectionQuery = `${section.title} ${section.subSteps.join(' ')}`;
+          const searchResults = await this.vectorStoreService.search(
+            knowledgeBase.vectorStoreId,
+            sectionQuery,
+            { maxResults: 3, rewriteQuery: true }
+          );
+          
+          if (searchResults.results.length > 0) {
+            knowledgeBaseContext = 'Relevant information for this section:\n\n';
+            searchResults.results.forEach((result, index) => {
+              knowledgeBaseContext += `[${index + 1}] ${result.filename}:\n`;
+              result.content.forEach(chunk => {
+                if (chunk.type === 'text') {
+                  knowledgeBaseContext += chunk.text + '\n';
+                }
+              });
+              knowledgeBaseContext += '\n';
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to search knowledge base for section:', error);
+        // Continue without knowledge base context
+      }
+    }
     const outlineStructure = outline.sections
       .map((s, index) => `${index + 1}. ${s.title} (Role: ${s.role})`)
       .join('\n');
@@ -96,7 +163,8 @@ export class DocumentGenerator {
       section,
       currentSectionIndex,
       outlineStructure,
-      previousContent
+      previousContent,
+      knowledgeBaseContext
     });
 
     let fullContent = '';

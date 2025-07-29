@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { DocumentConfig as IDocumentConfig } from '../types';
 import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
 import { useAppContext } from '../contexts/useAppContext';
+import { KnowledgeBaseSelector } from './KnowledgeBaseSelector';
 
 interface DocumentConfigProps {
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
@@ -16,6 +17,7 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
   const [denied, setDenied] = useState(formDefaults.denied);
   const [targetWordCount, setTargetWordCount] = useState(formDefaults.targetWordCount);
   const [prompt, setPrompt] = useState('');
+  const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | undefined>(config.knowledgeBaseId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,8 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
       allowed,
       denied,
       targetWordCount,
-      prompt
+      prompt,
+      knowledgeBaseId
     });
     
     onSubmit(newConfig, prompt);
@@ -103,6 +106,11 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
             aria-label="Target word count for the document"
           />
         </label>
+
+        <KnowledgeBaseSelector 
+          selectedId={knowledgeBaseId}
+          onChange={setKnowledgeBaseId}
+        />
 
         <button
           type="submit"

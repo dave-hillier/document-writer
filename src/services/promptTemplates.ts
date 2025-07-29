@@ -4,6 +4,7 @@ export interface OutlinePromptParams {
   systemPromptContent: string;
   config: DocumentConfig;
   userPrompt: string;
+  knowledgeBaseContext?: string;
 }
 
 export interface SectionPromptParams {
@@ -14,10 +15,11 @@ export interface SectionPromptParams {
   currentSectionIndex: number;
   outlineStructure: string;
   previousContent: string;
+  knowledgeBaseContext?: string;
 }
 
 export function createOutlinePrompt(params: OutlinePromptParams): string {
-  const { systemPromptContent, config, userPrompt } = params;
+  const { systemPromptContent, config, userPrompt, knowledgeBaseContext } = params;
   
   return `${systemPromptContent}
 
@@ -52,7 +54,7 @@ Generate a detailed outline following the structure described in the system prom
 
 ## User Request
 
-${userPrompt}`;
+${userPrompt}${knowledgeBaseContext ? `\n\n## Knowledge Base Context\n\n${knowledgeBaseContext}` : ''}`;
 }
 
 export function createSectionPrompt(params: SectionPromptParams): string {
@@ -63,7 +65,8 @@ export function createSectionPrompt(params: SectionPromptParams): string {
     section, 
     currentSectionIndex, 
     outlineStructure, 
-    previousContent 
+    previousContent,
+    knowledgeBaseContext 
   } = params;
 
   return `${systemPromptContent}
@@ -102,5 +105,5 @@ ${previousContent ? `### Previous Sections\n\n${previousContent}\n` : ''}
 
 - **Section**: ${section.title} (Section ${currentSectionIndex + 1} of ${outline.sections.length})
 - **Role**: ${section.role}
-- **Sub-steps to cover**: ${section.subSteps.join(', ')}`;
+- **Sub-steps to cover**: ${section.subSteps.join(', ')}${knowledgeBaseContext ? `\n\n## Knowledge Base Context\n\n${knowledgeBaseContext}` : ''}`;
 }

@@ -6,10 +6,11 @@ export interface DocumentConfigFormData {
   denied: string;
   targetWordCount: number;
   prompt: string;
+  knowledgeBaseId?: string;
 }
 
 export function createDocumentConfig(formData: DocumentConfigFormData): DocumentConfig {
-  const { tone, allowed, denied, targetWordCount } = formData;
+  const { tone, allowed, denied, targetWordCount, knowledgeBaseId } = formData;
   
   return {
     tone,
@@ -17,7 +18,8 @@ export function createDocumentConfig(formData: DocumentConfigFormData): Document
       allowed: allowed.split(',').map(s => s.trim()).filter(s => s),
       denied: denied.split(',').map(s => s.trim()).filter(s => s)
     },
-    targetWordCount
+    targetWordCount,
+    knowledgeBaseId
   };
 }
 

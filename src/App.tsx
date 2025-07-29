@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useParams, useNavigate, Link } from 'react-router-dom';
-import { Settings, History, FileText } from 'lucide-react';
+import { Settings, History, FileText, Database } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppProvider } from './contexts/AppContext';
 import { useAppContext } from './contexts/useAppContext';
@@ -8,6 +8,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { DocumentConfig } from './components/DocumentConfig';
 import { DocumentEditor } from './components/DocumentEditor';
 import { DocumentHistory } from './components/DocumentHistory';
+import { KnowledgeBaseManager } from './components/KnowledgeBaseManager';
 import { generateOutline } from './business/documentOperations';
 import { indexedDBService } from './services/indexeddb';
 import type { DocumentConfig as IDocumentConfig, DocumentHistoryItem } from './types';
@@ -130,7 +131,7 @@ function DocumentPage() {
 }
 
 function AppContent() {
-  const { state } = useAppContext();
+  const { state, dispatch } = useAppContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
@@ -141,17 +142,23 @@ function AppContent() {
   }, [isSettingsOpen]);
 
   useEffect(() => {
-    // Load document history on app start
-    const loadHistory = async () => {
+    // Initialize database and load document history on app start
+    const initializeApp = async () => {
       try {
-        await indexedDBService.getAllDocuments();
+        // Ensure database is initialized
+        await indexedDBService.init();
+        console.log('Database initialized successfully');
+        
+        // Load document history
+        const documents = await indexedDBService.getAllDocuments();
+        dispatch({ type: 'HISTORY_LOADED', payload: { documents } });
       } catch (error) {
-        console.error('Failed to load document history:', error);
+        console.error('Failed to initialize app:', error);
       }
     };
 
-    loadHistory();
-  }, []);
+    initializeApp();
+  }, [dispatch]);
 
   return (
     <>
@@ -162,6 +169,11 @@ function AppContent() {
             <li><h1>Document Writer</h1></li>
           </ul>
           <ul>
+            <li>
+              <Link to="/knowledge-bases" aria-label="Knowledge bases" data-tooltip="Knowledge Bases">
+                <Database size={24} aria-hidden="true" />
+              </Link>
+            </li>
             <li>
               <Link to="/history" aria-label="Document history" data-tooltip="History">
                 <History size={24} aria-hidden="true" />
@@ -197,6 +209,7 @@ function AppContent() {
           <Route path="/" element={<HomePage />} />
           <Route path="/document/:documentId" element={<DocumentPage />} />
           <Route path="/history" element={<DocumentHistory />} />
+          <Route path="/knowledge-bases" element={<KnowledgeBaseManager />} />
         </Routes>
       </main>
 
