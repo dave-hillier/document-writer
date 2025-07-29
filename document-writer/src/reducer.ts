@@ -14,7 +14,10 @@ export const initialState: AppState = {
   outline: null,
   sections: [],
   isGenerating: false,
-  error: null
+  error: null,
+  responseId: null,
+  streamingContent: '',
+  isStreaming: false
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -58,8 +61,29 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         outline: null, 
         sections: [], 
         error: null,
-        documentConfig: initialState.documentConfig
+        documentConfig: initialState.documentConfig,
+        responseId: null,
+        streamingContent: ''
       };
+    
+    case 'SET_RESPONSE_ID':
+      return { ...state, responseId: action.payload };
+    
+    case 'START_STREAMING':
+      return { 
+        ...state, 
+        isStreaming: true,
+        streamingContent: ''
+      };
+    
+    case 'APPEND_STREAM':
+      return {
+        ...state,
+        streamingContent: state.streamingContent + action.payload
+      };
+    
+    case 'FINISH_STREAMING':
+      return { ...state, isStreaming: false };
     
     default:
       return state;

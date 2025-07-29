@@ -1,19 +1,24 @@
-import OpenAI from 'openai';
 import type { DocumentConfig, DocumentOutline, Section } from '../types';
 import systemPromptContent from '../system-prompt.md?raw';
+import { ResponsesService } from './responses';
 
 export class DocumentGenerator {
-  private openai: OpenAI;
+  private responsesService: ResponsesService;
 
   constructor(apiKey: string) {
-    this.openai = new OpenAI({
-      apiKey,
-      dangerouslyAllowBrowser: true
-    });
+    this.responsesService = new ResponsesService(apiKey);
   }
 
-  async generateOutline(config: DocumentConfig, userPrompt: string): Promise<DocumentOutline> {
-    const prompt = `
+  async generateOutline(
+    config: DocumentConfig, 
+    userPrompt: string,
+    responseId: string | null,
+    onChunk: (chunk: string) => void,
+    onComplete: (responseId: string, outline: DocumentOutline) => void,
+    onError: (error: Error) => void
+  ): Promise<void> {
+    const prompt = `${systemPromptContent}
+
 Given the following document configuration:
 - Tone: ${config.tone}
 - Allowed narrative elements: ${config.narrativeElements.allowed.join(', ') || 'None specified'}
@@ -37,49 +42,42 @@ IMPORTANT: Return ONLY valid JSON in this exact format, with no additional text:
   ]
 }`;
 
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPromptContent },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7
-      });
-
-      const content = response.choices[0].message.content;
-      if (!content) throw new Error('No response from OpenAI');
-      
-      // Extract JSON from markdown code blocks if present
-      const jsonMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-      const jsonContent = jsonMatch ? jsonMatch[1].trim() : content.trim();
-      
-      try {
-        return JSON.parse(jsonContent) as DocumentOutline;
-      } catch {
-        console.error('Failed to parse JSON response:', jsonContent);
-        throw new Error('Invalid JSON response from OpenAI. Please try again.');
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message.includes('response_format') && error.message.includes('not supported')) {
-          throw new Error('The selected model does not support structured JSON output. The response has been updated to request JSON format in the prompt.');
+    let fullResponse = '';
+    
+    await this.responsesService.createResponse(
+      prompt,
+      responseId,
+      (chunk) => {
+        fullResponse += chunk;
+        onChunk(chunk);
+      },
+      (newResponseId) => {
+        try {
+          // Extract JSON from markdown code blocks if present
+          const jsonMatch = fullResponse.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+          const jsonContent = jsonMatch ? jsonMatch[1].trim() : fullResponse.trim();
+          
+          const outline = JSON.parse(jsonContent) as DocumentOutline;
+          onComplete(newResponseId, outline);
+        } catch (error) {
+          console.error('Failed to parse JSON response:', fullResponse);
+          onError(new Error('Invalid JSON response. Please try again.'));
         }
-        if (error.message.includes('Invalid JSON response')) {
-          throw error;
-        }
-      }
-      console.error('Error generating outline:', error);
-      throw new Error('Failed to generate document outline. Please check your API key and try again.');
-    }
+      },
+      onError
+    );
   }
 
   async generateSection(
     section: Section, 
     config: DocumentConfig, 
     outline: DocumentOutline,
-    previousSections: Section[]
-  ): Promise<{ content: string; wordCount: number }> {
+    previousSections: Section[],
+    responseId: string | null,
+    onChunk: (chunk: string) => void,
+    onComplete: (responseId: string, content: string, wordCount: number) => void,
+    onError: (error: Error) => void
+  ): Promise<void> {
     const previousContent = previousSections
       .map(s => `${s.title}:\n${s.content}`)
       .join('\n\n---\n\n');
@@ -107,23 +105,20 @@ Write a 400-800 word section that:
 
 Write only the section content, no titles or metadata.`;
 
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPromptContent },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7
-      });
-
-      const content = response.choices[0].message.content || '';
-      const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
-      
-      return { content, wordCount };
-    } catch (error) {
-      console.error('Error generating section:', error);
-      throw error;
-    }
+    let fullContent = '';
+    
+    await this.responsesService.createResponse(
+      prompt,
+      responseId,
+      (chunk) => {
+        fullContent += chunk;
+        onChunk(chunk);
+      },
+      (newResponseId) => {
+        const wordCount = fullContent.split(/\s+/).filter(word => word.length > 0).length;
+        onComplete(newResponseId, fullContent, wordCount);
+      },
+      onError
+    );
   }
 }

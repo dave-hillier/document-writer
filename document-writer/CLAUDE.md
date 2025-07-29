@@ -55,4 +55,4 @@ The project uses strict TypeScript settings with `verbatimModuleSyntax` enabled,
 - Use `<dialog>` for modals with proper focus management
 - Ensure all form inputs have associated labels
 - Maintain proper heading hierarchy
-- Prefer Pico.css default styles over custom classes
+- Prefer Pico.css default styles over custom classes.

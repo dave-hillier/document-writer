@@ -29,6 +29,9 @@ export interface AppState {
   sections: Section[];
   isGenerating: boolean;
   error: string | null;
+  responseId: string | null;
+  streamingContent: string;
+  isStreaming: boolean;
 }
 
 export type AppAction =
@@ -39,4 +42,8 @@ export type AppAction =
   | { type: 'UPDATE_SECTION'; payload: { id: string; content: string; wordCount: number } }
   | { type: 'SET_GENERATING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'RESET_DOCUMENT' };
+  | { type: 'RESET_DOCUMENT' }
+  | { type: 'SET_RESPONSE_ID'; payload: string | null }
+  | { type: 'START_STREAMING' }
+  | { type: 'APPEND_STREAM'; payload: string }
+  | { type: 'FINISH_STREAMING' };

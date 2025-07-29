@@ -5,9 +5,11 @@ interface DocumentConfigProps {
   config: IDocumentConfig;
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
   isGenerating: boolean;
+  isStreaming?: boolean;
+  streamingContent?: string;
 }
 
-export function DocumentConfig({ config, onSubmit, isGenerating }: DocumentConfigProps) {
+export function DocumentConfig({ config, onSubmit, isGenerating, isStreaming, streamingContent }: DocumentConfigProps) {
   const [tone, setTone] = useState(config.tone);
   const [allowed, setAllowed] = useState(config.narrativeElements.allowed.join(', '));
   const [denied, setDenied] = useState(config.narrativeElements.denied.join(', '));
@@ -110,6 +112,18 @@ export function DocumentConfig({ config, onSubmit, isGenerating }: DocumentConfi
           {isGenerating ? 'Generating...' : 'Generate Outline'}
         </button>
       </fieldset>
+      
+      {isStreaming && streamingContent && (
+        <article aria-label="Generating outline" role="status" aria-live="polite">
+          <header>
+            <h3>Generating Outline...</h3>
+          </header>
+          <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+            {streamingContent}
+            <span className="cursor" aria-label="Generating">▋</span>
+          </div>
+        </article>
+      )}
     </form>
   );
 }

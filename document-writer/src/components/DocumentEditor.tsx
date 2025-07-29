@@ -5,6 +5,8 @@ interface DocumentEditorProps {
   outline: DocumentOutline;
   sections: Section[];
   isGenerating: boolean;
+  isStreaming: boolean;
+  streamingContent: string;
   onGenerateSection: (sectionId: string) => void;
   onExport: () => void;
 }
@@ -12,7 +14,9 @@ interface DocumentEditorProps {
 export function DocumentEditor({ 
   outline, 
   sections, 
-  isGenerating, 
+  isGenerating,
+  isStreaming,
+  streamingContent,
   onGenerateSection,
   onExport
 }: DocumentEditorProps) {
@@ -72,6 +76,13 @@ export function DocumentEditor({
                     <p className="word-count" aria-label={`Section word count: ${section.wordCount}`}>
                       {section.wordCount} words
                     </p>
+                  </div>
+                ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (
+                  <div>
+                    <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
+                      {streamingContent}
+                      <span className="cursor" aria-label="Generating content">▋</span>
+                    </div>
                   </div>
                 ) : (
                   <button

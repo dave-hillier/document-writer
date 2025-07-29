@@ -20,17 +20,29 @@ function App() {
     dispatch({ type: 'SET_GENERATING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
     dispatch({ type: 'SET_DOCUMENT_CONFIG', payload: config });
+    dispatch({ type: 'START_STREAMING' });
 
-    try {
-      const generator = new DocumentGenerator(state.apiKey);
-      const outline = await generator.generateOutline(config, prompt);
-      dispatch({ type: 'SET_OUTLINE', payload: outline });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Failed to generate outline' });
-    } finally {
-      dispatch({ type: 'SET_GENERATING', payload: false });
-    }
-  }, [state.apiKey]);
+    const generator = new DocumentGenerator(state.apiKey);
+    await generator.generateOutline(
+      config,
+      prompt,
+      state.responseId,
+      (chunk) => {
+        dispatch({ type: 'APPEND_STREAM', payload: chunk });
+      },
+      (responseId, outline) => {
+        dispatch({ type: 'SET_RESPONSE_ID', payload: responseId });
+        dispatch({ type: 'SET_OUTLINE', payload: outline });
+        dispatch({ type: 'FINISH_STREAMING' });
+        dispatch({ type: 'SET_GENERATING', payload: false });
+      },
+      (error) => {
+        dispatch({ type: 'SET_ERROR', payload: error.message });
+        dispatch({ type: 'FINISH_STREAMING' });
+        dispatch({ type: 'SET_GENERATING', payload: false });
+      }
+    );
+  }, [state.apiKey, state.responseId]);
 
   const handleGenerateSection = useCallback(async (sectionId: string) => {
     if (!state.outline || !state.apiKey) return;
@@ -41,27 +53,36 @@ function App() {
 
     dispatch({ type: 'SET_GENERATING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: null });
+    dispatch({ type: 'START_STREAMING' });
 
-    try {
-      const generator = new DocumentGenerator(state.apiKey);
-      const previousSections = state.sections.slice(0, sectionIndex).filter(s => s.content);
-      const { content, wordCount } = await generator.generateSection(
-        section,
-        state.documentConfig,
-        state.outline,
-        previousSections
-      );
-      
-      dispatch({ 
-        type: 'UPDATE_SECTION', 
-        payload: { id: sectionId, content, wordCount } 
-      });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Failed to generate section' });
-    } finally {
-      dispatch({ type: 'SET_GENERATING', payload: false });
-    }
-  }, [state.apiKey, state.outline, state.sections, state.documentConfig]);
+    const generator = new DocumentGenerator(state.apiKey);
+    const previousSections = state.sections.slice(0, sectionIndex).filter(s => s.content);
+    
+    await generator.generateSection(
+      section,
+      state.documentConfig,
+      state.outline,
+      previousSections,
+      state.responseId,
+      (chunk) => {
+        dispatch({ type: 'APPEND_STREAM', payload: chunk });
+      },
+      (responseId, content, wordCount) => {
+        dispatch({ type: 'SET_RESPONSE_ID', payload: responseId });
+        dispatch({ 
+          type: 'UPDATE_SECTION', 
+          payload: { id: sectionId, content, wordCount } 
+        });
+        dispatch({ type: 'FINISH_STREAMING' });
+        dispatch({ type: 'SET_GENERATING', payload: false });
+      },
+      (error) => {
+        dispatch({ type: 'SET_ERROR', payload: error.message });
+        dispatch({ type: 'FINISH_STREAMING' });
+        dispatch({ type: 'SET_GENERATING', payload: false });
+      }
+    );
+  }, [state.apiKey, state.outline, state.sections, state.documentConfig, state.responseId]);
 
   const handleExport = useCallback(() => {
     if (!state.outline) return;
@@ -131,6 +152,8 @@ function App() {
               config={state.documentConfig}
               onSubmit={handleGenerateOutline}
               isGenerating={state.isGenerating}
+              isStreaming={state.isStreaming}
+              streamingContent={state.streamingContent}
             />
           </section>
         ) : (
@@ -150,6 +173,8 @@ function App() {
                 outline={state.outline}
                 sections={state.sections}
                 isGenerating={state.isGenerating}
+                isStreaming={state.isStreaming}
+                streamingContent={state.streamingContent}
                 onGenerateSection={handleGenerateSection}
                 onExport={handleExport}
               />
