@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ChevronRight, FileText, Download } from 'lucide-react';
+import { ChevronRight, FileText, Download, RotateCcw } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
 import { generateSection } from '../business/documentOperations';
 import { exportDocumentAsMarkdown } from '../business/exportUtils';
@@ -54,8 +54,11 @@ export function DocumentEditor() {
     return null;
   }
 
-  const handleGenerateSection = async (sectionId: string) => {
-    dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
+  const handleGenerateSection = async (sectionId: string, isRegeneration = false) => {
+    dispatch({ 
+      type: isRegeneration ? 'SECTION_REGENERATION_STARTED' : 'SECTION_GENERATION_STARTED', 
+      payload: { sectionId } 
+    });
 
     try {
       const result = await generateSection(
@@ -149,14 +152,25 @@ export function DocumentEditor() {
                   <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
                     {section.content}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <output aria-label={`Section word count: ${section.wordCount}`}>
-                      {section.wordCount} words
-                    </output>
-                    <CacheMetrics 
-                      cacheMetrics={sectionCacheMetrics[section.id]} 
-                      label="Section cache"
-                    />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <output aria-label={`Section word count: ${section.wordCount}`}>
+                        {section.wordCount} words
+                      </output>
+                      <CacheMetrics 
+                        cacheMetrics={sectionCacheMetrics[section.id]} 
+                        label="Section cache"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleGenerateSection(section.id, true)}
+                      disabled={isStreaming || isGenerating}
+                      className="outline"
+                      aria-label={`Regenerate content for section: ${section.title}`}
+                    >
+                      <RotateCcw size={16} aria-hidden="true" />
+                      Regenerate
+                    </button>
                   </div>
                 </>
               ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (

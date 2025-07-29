@@ -69,21 +69,23 @@ export function createSectionPrompt(params: SectionPromptParams): string {
     knowledgeBaseContext 
   } = params;
 
+  // Optimize prompt structure for maximum caching: most static content first, most variable content last
   return `${systemPromptContent}
 
 ## Section Generation Task
 
-Write a 400-800 word section that:
+Write a section with exactly 400-800 words that:
 
 1. Fulfills the section's designated role
-2. Covers all the sub-steps
-3. Maintains the specified tone
+2. Covers all the sub-steps comprehensively
+3. Maintains the specified tone consistently
 4. Uses only allowed narrative elements
-5. Avoids denied narrative elements
+5. Avoids denied narrative elements completely
 6. Flows naturally from previous sections (if any)
 7. Positions content appropriately within the overall document structure
 8. Avoids concluding prematurely if there are more sections to follow
 
+**CRITICAL**: Your response must contain exactly 400-800 words. Count your words carefully.
 **Write only the section content, no titles or metadata.**
 
 ## Document Configuration
@@ -100,10 +102,10 @@ Write a 400-800 word section that:
 
 ${outlineStructure}
 
-${previousContent ? `### Previous Sections\n\n${previousContent}\n` : ''}
-### Current Section
+${knowledgeBaseContext ? `## Knowledge Base Context\n\n${knowledgeBaseContext}\n` : ''}${previousContent ? `## Previous Sections\n\n${previousContent}\n` : ''}
+## Current Section
 
 - **Section**: ${section.title} (Section ${currentSectionIndex + 1} of ${outline.sections.length})
 - **Role**: ${section.role}
-- **Sub-steps to cover**: ${section.subSteps.join(', ')}${knowledgeBaseContext ? `\n\n## Knowledge Base Context\n\n${knowledgeBaseContext}` : ''}`;
+- **Sub-steps to cover**: ${section.subSteps.join(', ')}`;
 }

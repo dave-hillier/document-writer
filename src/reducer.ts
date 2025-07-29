@@ -122,6 +122,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     
     // Section generation events
     case 'SECTION_GENERATION_STARTED':
+    case 'SECTION_REGENERATION_STARTED':
       return {
         ...state,
         isGenerating: true,

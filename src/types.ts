@@ -112,6 +112,7 @@ export type AppAction =
   
   // Section generation events
   | { type: 'SECTION_GENERATION_STARTED'; payload: { sectionId: string } }
+  | { type: 'SECTION_REGENERATION_STARTED'; payload: { sectionId: string } }
   | { type: 'SECTION_CONTENT_STREAMED'; payload: string }
   | { type: 'SECTION_GENERATED'; payload: { responseId: string; sectionId: string; content: string; wordCount: number; cacheMetrics?: CacheMetrics } }
   | { type: 'SECTION_GENERATION_FAILED'; payload: string }
