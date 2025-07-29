@@ -1,0 +1,138 @@
+@import '@picocss/pico/css/pico.min.css';
+
+/* Custom overrides for Pico.css */
+:root {
+  --pico-font-size: 16px;
+}
+
+/* Ensure full width layout */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header styles */
+.app-header {
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+}
+
+/* Document editor styles */
+.document-section {
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding: 2rem 0;
+}
+
+.document-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.section-indicator {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pico-primary-background);
+  color: var(--pico-primary);
+  font-weight: bold;
+}
+
+.section-indicator.completed {
+  background-color: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+}
+
+.section-content {
+  flex-grow: 1;
+}
+
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+/* Form enhancements */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-hint {
+  font-size: 0.875rem;
+  color: var(--pico-muted-color);
+  margin-top: 0.25rem;
+}
+
+/* Export button styles */
+.export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Error message styles */
+.error-message {
+  background-color: var(--pico-del-color);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--pico-border-radius);
+  margin-bottom: 1rem;
+}
+
+/* Word count styles */
+.word-count {
+  color: var(--pico-muted-color);
+  font-size: 0.875rem;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 1em;
+  background-color: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+}
+
+/* Visually hidden but accessible to screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

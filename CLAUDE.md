@@ -1,0 +1,2 @@
+- Avoid using useMemo or useCallback unless you've benchmarked and confirmed a performance issue—unnecessary use often leads to worse performance and added complexity.
+- Prefer Semantic HTML, use class names for taxonomy rather than styling (classless CSS approach), and include appropriate WCAG and ARIA attributes for accessibility.
