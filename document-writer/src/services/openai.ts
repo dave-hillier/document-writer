@@ -24,7 +24,7 @@ User request: ${userPrompt}
 
 Generate a detailed outline following the structure described in the system prompt. The outline should have 4-8 sections, each with a clear role and 3-5 sub-steps.
 
-Return the outline in this JSON format:
+IMPORTANT: Return ONLY valid JSON in this exact format, with no additional text:
 {
   "title": "Document Title",
   "sections": [
@@ -39,22 +39,38 @@ Return the outline in this JSON format:
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPromptContent },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
-        response_format: { type: 'json_object' }
+        temperature: 0.7
       });
 
       const content = response.choices[0].message.content;
       if (!content) throw new Error('No response from OpenAI');
       
-      return JSON.parse(content) as DocumentOutline;
+      // Extract JSON from markdown code blocks if present
+      const jsonMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+      const jsonContent = jsonMatch ? jsonMatch[1].trim() : content.trim();
+      
+      try {
+        return JSON.parse(jsonContent) as DocumentOutline;
+      } catch {
+        console.error('Failed to parse JSON response:', jsonContent);
+        throw new Error('Invalid JSON response from OpenAI. Please try again.');
+      }
     } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('response_format') && error.message.includes('not supported')) {
+          throw new Error('The selected model does not support structured JSON output. The response has been updated to request JSON format in the prompt.');
+        }
+        if (error.message.includes('Invalid JSON response')) {
+          throw error;
+        }
+      }
       console.error('Error generating outline:', error);
-      throw error;
+      throw new Error('Failed to generate document outline. Please check your API key and try again.');
     }
   }
 
@@ -93,7 +109,7 @@ Write only the section content, no titles or metadata.`;
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPromptContent },
           { role: 'user', content: prompt }
