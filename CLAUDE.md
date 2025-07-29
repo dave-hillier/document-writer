@@ -1,3 +1,4 @@
 - Avoid using useMemo or useCallback unless you've benchmarked and confirmed a performance issue—unnecessary use often leads to worse performance and added complexity.
 - Prefer Semantic HTML, use class names for taxonomy rather than styling (classless CSS approach), and include appropriate WCAG and ARIA attributes for accessibility.
 - When using a reducer, dispatch single events at a time to represent domain events/meaningful business events.
+- Use an event-driven approach when it comes to reducers, focusing on past-tense events that have happened.

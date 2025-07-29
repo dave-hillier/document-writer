@@ -15,11 +15,7 @@ export const initialState: AppState = {
   error: null,
   responseId: null,
   streamingContent: '',
-  isStreaming: false,
-  isBulkGenerating: false,
-  currentBulkSectionIndex: null,
-  bulkGenerationStopped: false,
-  bulkGenerationError: null
+  isStreaming: false
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -35,11 +31,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         responseId: null,
         streamingContent: '',
         isStreaming: false,
-        isGenerating: false,
-        isBulkGenerating: false,
-        currentBulkSectionIndex: null,
-        bulkGenerationStopped: false,
-        bulkGenerationError: null
+        isGenerating: false
       };
     
     // Outline generation events
@@ -114,48 +106,12 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         isGenerating: false
       };
     
-    // Bulk generation events
-    case 'BULK_GENERATION_STARTED':
+    case 'SECTION_GENERATION_ABORTED':
       return {
         ...state,
-        isBulkGenerating: true,
-        currentBulkSectionIndex: 0,
-        bulkGenerationStopped: false,
-        bulkGenerationError: null,
-        error: null
-      };
-    
-    case 'BULK_SECTION_STARTED':
-      return {
-        ...state,
-        currentBulkSectionIndex: action.payload.sectionIndex
-      };
-    
-    case 'BULK_GENERATION_STOPPED':
-      return {
-        ...state,
-        isBulkGenerating: false,
-        bulkGenerationStopped: true,
-        currentBulkSectionIndex: null,
         isStreaming: false,
-        isGenerating: false
-      };
-    
-    case 'BULK_GENERATION_COMPLETED':
-      return {
-        ...state,
-        isBulkGenerating: false,
-        currentBulkSectionIndex: null,
-        bulkGenerationStopped: false,
-        bulkGenerationError: null
-      };
-    
-    case 'BULK_GENERATION_FAILED':
-      return {
-        ...state,
-        isBulkGenerating: false,
-        currentBulkSectionIndex: null,
-        bulkGenerationError: action.payload
+        isGenerating: false,
+        streamingContent: ''
       };
     
     default:

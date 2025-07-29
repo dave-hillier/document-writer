@@ -11,9 +11,7 @@ export function DocumentEditor() {
     sections, 
     isGenerating,
     isStreaming,
-    streamingContent,
-    isBulkGenerating,
-    bulkGenerationError
+    streamingContent
   } = state;
   if (!outline) {
     return null;
@@ -79,11 +77,6 @@ export function DocumentEditor() {
         </nav>
       </header>
 
-      {bulkGenerationError && (
-        <div role="alert" aria-live="assertive" style={{ marginBottom: '24px' }}>
-          Bulk generation failed: {bulkGenerationError}
-        </div>
-      )}
 
       <ol>
         {sections.map((section, index) => (
@@ -130,7 +123,7 @@ export function DocumentEditor() {
               ) : (
                 <button
                   onClick={() => handleGenerateSection(section.id)}
-                  disabled={isStreaming || isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
+                  disabled={isStreaming || isGenerating || (index > 0 && !sections[index - 1].content)}
                   aria-busy={isGenerating}
                   aria-label={`Generate content for section: ${section.title}`}
                 >
