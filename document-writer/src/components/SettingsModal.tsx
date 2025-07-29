@@ -1,20 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
-  apiKey: string;
   onClose: () => void;
-  onSave: (apiKey: string) => void;
 }
 
-export function SettingsModal({ isOpen, apiKey, onClose, onSave }: SettingsModalProps) {
-  const [key, setKey] = useState(apiKey);
+export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  const [key, setKey] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setKey(localStorage.getItem('openai-api-key') || '');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSave = () => {
-    onSave(key);
+    localStorage.setItem('openai-api-key', key);
     onClose();
   };
 

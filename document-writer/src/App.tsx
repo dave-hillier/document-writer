@@ -20,7 +20,6 @@ function App() {
         {
           config,
           prompt,
-          apiKey: state.apiKey,
           responseId: state.responseId
         },
         {
@@ -37,10 +36,10 @@ function App() {
         payload: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  }, [state.apiKey, state.responseId]);
+  }, [state.responseId]);
 
   const handleGenerateSection = useCallback(async (sectionId: string) => {
-    if (!state.outline || !state.apiKey) return;
+    if (!state.outline) return;
 
     dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
 
@@ -48,7 +47,6 @@ function App() {
       const result = await generateSection(
         {
           sectionId,
-          apiKey: state.apiKey,
           outline: state.outline,
           sections: state.sections,
           documentConfig: state.documentConfig,
@@ -68,10 +66,10 @@ function App() {
         payload: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  }, [state.apiKey, state.outline, state.sections, state.documentConfig, state.responseId]);
+  }, [state.outline, state.sections, state.documentConfig, state.responseId]);
 
   const handleGenerateAllSections = useCallback(async () => {
-    if (!state.outline || !state.apiKey) return;
+    if (!state.outline) return;
 
     const incompleteSections = state.sections.filter(s => !s.content);
     if (incompleteSections.length === 0) return;
@@ -82,7 +80,6 @@ function App() {
     try {
       await generateAllSections(
         {
-          apiKey: state.apiKey,
           outline: state.outline,
           sections: state.sections,
           documentConfig: state.documentConfig,
@@ -120,7 +117,7 @@ function App() {
         });
       }
     }
-  }, [state.outline, state.apiKey, state.sections, state.documentConfig, state.responseId]);
+  }, [state.outline, state.sections, state.documentConfig, state.responseId]);
 
   const handleStopBulkGeneration = useCallback(() => {
     bulkGenerationStoppedRef.current = true;
@@ -155,10 +152,11 @@ function App() {
   }, [state.outline, state.sections]);
 
   useEffect(() => {
-    if (!state.apiKey && !state.isSettingsOpen) {
+    const apiKey = localStorage.getItem('openai-api-key');
+    if (!apiKey && !state.isSettingsOpen) {
       dispatch({ type: 'TOGGLE_SETTINGS' });
     }
-  }, [state.apiKey, state.isSettingsOpen]);
+  }, [state.isSettingsOpen]);
 
   useEffect(() => {
     bulkGenerationStoppedRef.current = state.bulkGenerationStopped;
@@ -243,9 +241,7 @@ function App() {
 
       <SettingsModal
         isOpen={state.isSettingsOpen}
-        apiKey={state.apiKey}
         onClose={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
-        onSave={(key) => dispatch({ type: 'SET_API_KEY', payload: key })}
       />
     </>
   );

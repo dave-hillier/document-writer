@@ -22,7 +22,6 @@ export interface DocumentConfig {
 }
 
 export interface AppState {
-  apiKey: string;
   isSettingsOpen: boolean;
   documentConfig: DocumentConfig;
   outline: DocumentOutline | null;
@@ -40,7 +39,6 @@ export interface AppState {
 
 export type AppAction =
   // User settings and configuration
-  | { type: 'SET_API_KEY'; payload: string }
   | { type: 'TOGGLE_SETTINGS' }
   | { type: 'RESET_DOCUMENT' }
   

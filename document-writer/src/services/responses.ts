@@ -3,7 +3,11 @@ import OpenAI from 'openai';
 export class ResponsesService {
   private openai: OpenAI;
 
-  constructor(apiKey: string) {
+  constructor() {
+    const apiKey = localStorage.getItem('openai-api-key');
+    if (!apiKey) {
+      throw new Error('Please set your OpenAI API key in settings');
+    }
     this.openai = new OpenAI({
       apiKey,
       dangerouslyAllowBrowser: true

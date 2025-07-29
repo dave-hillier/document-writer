@@ -5,8 +5,8 @@ import { ResponsesService } from './responses';
 export class DocumentGenerator {
   private responsesService: ResponsesService;
 
-  constructor(apiKey: string) {
-    this.responsesService = new ResponsesService(apiKey);
+  constructor() {
+    this.responsesService = new ResponsesService();
   }
 
   async generateOutline(

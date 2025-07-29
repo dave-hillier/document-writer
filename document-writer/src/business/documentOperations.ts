@@ -4,13 +4,11 @@ import { DocumentGenerator } from '../services/openai';
 export interface GenerateOutlineParams {
   config: DocumentConfig;
   prompt: string;
-  apiKey: string;
   responseId: string | null;
 }
 
 export interface GenerateSectionParams {
   sectionId: string;
-  apiKey: string;
   outline: DocumentOutline;
   sections: Section[];
   documentConfig: DocumentConfig;
@@ -18,7 +16,6 @@ export interface GenerateSectionParams {
 }
 
 export interface GenerateAllSectionsParams {
-  apiKey: string;
   outline: DocumentOutline;
   sections: Section[];
   documentConfig: DocumentConfig;
@@ -47,14 +44,10 @@ export async function generateOutline(
   params: GenerateOutlineParams,
   callbacks: StreamingCallbacks
 ): Promise<OutlineResult> {
-  const { config, prompt, apiKey, responseId } = params;
+  const { config, prompt, responseId } = params;
   const { onChunk } = callbacks;
 
-  if (!apiKey) {
-    throw new Error('Please set your OpenAI API key in settings');
-  }
-
-  const generator = new DocumentGenerator(apiKey);
+  const generator = new DocumentGenerator();
   
   return new Promise((resolve, reject) => {
     generator.generateOutline(
@@ -74,11 +67,11 @@ export async function generateSection(
   params: GenerateSectionParams,
   callbacks: StreamingCallbacks
 ): Promise<SectionResult> {
-  const { sectionId, apiKey, outline, sections, documentConfig, responseId } = params;
+  const { sectionId, outline, sections, documentConfig, responseId } = params;
   const { onChunk } = callbacks;
 
-  if (!outline || !apiKey) {
-    throw new Error('Missing outline or API key');
+  if (!outline) {
+    throw new Error('Missing outline');
   }
 
   const sectionIndex = sections.findIndex(s => s.id === sectionId);
@@ -87,7 +80,7 @@ export async function generateSection(
     throw new Error('Section not found');
   }
 
-  const generator = new DocumentGenerator(apiKey);
+  const generator = new DocumentGenerator();
   const previousSections = sections.slice(0, sectionIndex).filter(s => s.content);
   
   return new Promise((resolve, reject) => {
@@ -113,11 +106,11 @@ export async function generateAllSections(
     onSectionStarted: (sectionId: string) => void;
   }
 ): Promise<void> {
-  const { apiKey, outline, sections, documentConfig, responseId, onSectionStart, shouldStop } = params;
+  const { outline, sections, documentConfig, responseId, onSectionStart, shouldStop } = params;
   const { onChunk, onSectionGenerated, onSectionStarted } = callbacks;
 
-  if (!outline || !apiKey) {
-    throw new Error('Missing outline or API key');
+  if (!outline) {
+    throw new Error('Missing outline');
   }
 
   const incompleteSections = sections.filter(s => !s.content);
@@ -139,7 +132,6 @@ export async function generateAllSections(
 
     const sectionParams: GenerateSectionParams = {
       sectionId: section.id,
-      apiKey,
       outline,
       sections,
       documentConfig,

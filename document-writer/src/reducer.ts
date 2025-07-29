@@ -1,7 +1,6 @@
 import type { AppState, AppAction } from './types';
 
 export const initialState: AppState = {
-  apiKey: localStorage.getItem('openai-api-key') || '',
   isSettingsOpen: false,
   documentConfig: {
     tone: 'professional',
@@ -27,10 +26,6 @@ export const initialState: AppState = {
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     // User settings and configuration
-    case 'SET_API_KEY':
-      localStorage.setItem('openai-api-key', action.payload);
-      return { ...state, apiKey: action.payload };
-    
     case 'TOGGLE_SETTINGS':
       return { ...state, isSettingsOpen: !state.isSettingsOpen };
     
