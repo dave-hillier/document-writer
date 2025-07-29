@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect } from 'react';
+import { useReducer, useCallback, useEffect, useRef } from 'react';
 import { Settings } from 'lucide-react';
 import { appReducer, initialState } from './reducer';
 import { SettingsModal } from './components/SettingsModal';
@@ -10,6 +10,7 @@ import './App.css';
 
 function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const bulkGenerationStoppedRef = useRef(false);
 
   const handleGenerateOutline = useCallback(async (config: IDocumentConfig, prompt: string) => {
     if (!state.apiKey) {
@@ -84,6 +85,105 @@ function App() {
     );
   }, [state.apiKey, state.outline, state.sections, state.documentConfig, state.responseId]);
 
+  const handleGenerateAllSections = useCallback(async () => {
+    if (!state.outline || !state.apiKey) return;
+
+    const incompleteSections = state.sections.filter(s => !s.content);
+    if (incompleteSections.length === 0) return;
+
+    bulkGenerationStoppedRef.current = false;
+    dispatch({ type: 'START_BULK_GENERATION' });
+
+    const generateSectionPromise = (sectionId: string): Promise<void> => {
+      return new Promise((resolve, reject) => {
+        if (!state.outline || !state.apiKey) {
+          reject(new Error('Missing outline or API key'));
+          return;
+        }
+
+        const sectionIndex = state.sections.findIndex(s => s.id === sectionId);
+        const section = state.sections[sectionIndex];
+        if (!section) {
+          reject(new Error('Section not found'));
+          return;
+        }
+
+        dispatch({ type: 'SET_GENERATING', payload: true });
+        dispatch({ type: 'SET_ERROR', payload: null });
+        dispatch({ type: 'START_STREAMING' });
+
+        const generator = new DocumentGenerator(state.apiKey);
+        const previousSections = state.sections.slice(0, sectionIndex).filter(s => s.content);
+        
+        generator.generateSection(
+          section,
+          state.documentConfig,
+          state.outline,
+          previousSections,
+          state.responseId,
+          (chunk) => {
+            dispatch({ type: 'APPEND_STREAM', payload: chunk });
+          },
+          (responseId, content, wordCount) => {
+            dispatch({ type: 'SET_RESPONSE_ID', payload: responseId });
+            dispatch({ 
+              type: 'UPDATE_SECTION', 
+              payload: { id: sectionId, content, wordCount } 
+            });
+            dispatch({ type: 'FINISH_STREAMING' });
+            dispatch({ type: 'SET_GENERATING', payload: false });
+            resolve();
+          },
+          (error) => {
+            dispatch({ type: 'SET_ERROR', payload: error.message });
+            dispatch({ type: 'FINISH_STREAMING' });
+            dispatch({ type: 'SET_GENERATING', payload: false });
+            reject(error);
+          }
+        );
+      });
+    };
+
+    try {
+      for (let i = 0; i < state.sections.length; i++) {
+        const section = state.sections[i];
+        
+        if (bulkGenerationStoppedRef.current) {
+          dispatch({ type: 'STOP_BULK_GENERATION' });
+          return;
+        }
+
+        if (section.content) continue;
+
+        dispatch({ type: 'ADVANCE_BULK_SECTION', payload: i });
+
+        await generateSectionPromise(section.id);
+        
+        // Check again after generation completes
+        if (bulkGenerationStoppedRef.current) {
+          dispatch({ type: 'STOP_BULK_GENERATION' });
+          return;
+        }
+      }
+
+      dispatch({ type: 'COMPLETE_BULK_GENERATION' });
+    } catch (error) {
+      dispatch({ 
+        type: 'FAIL_BULK_GENERATION', 
+        payload: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+    }
+  }, [state.outline, state.apiKey, state.sections, state.bulkGenerationStopped, state.documentConfig, state.responseId]);
+
+  const handleStopBulkGeneration = useCallback(() => {
+    bulkGenerationStoppedRef.current = true;
+    dispatch({ type: 'STOP_BULK_GENERATION' });
+  }, []);
+
+  const handleRetryBulkGeneration = useCallback(() => {
+    handleGenerateAllSections();
+  }, [handleGenerateAllSections]);
+
   const handleExport = useCallback(() => {
     if (!state.outline) return;
 
@@ -112,6 +212,10 @@ function App() {
       dispatch({ type: 'TOGGLE_SETTINGS' });
     }
   }, [state.apiKey, state.isSettingsOpen]);
+
+  useEffect(() => {
+    bulkGenerationStoppedRef.current = state.bulkGenerationStopped;
+  }, [state.bulkGenerationStopped]);
 
   return (
     <>
@@ -175,7 +279,14 @@ function App() {
                 isGenerating={state.isGenerating}
                 isStreaming={state.isStreaming}
                 streamingContent={state.streamingContent}
+                isBulkGenerating={state.isBulkGenerating}
+                currentBulkSectionIndex={state.currentBulkSectionIndex}
+                bulkGenerationStopped={state.bulkGenerationStopped}
+                bulkGenerationError={state.bulkGenerationError}
                 onGenerateSection={handleGenerateSection}
+                onGenerateAllSections={handleGenerateAllSections}
+                onStopBulkGeneration={handleStopBulkGeneration}
+                onRetryBulkGeneration={handleRetryBulkGeneration}
                 onExport={handleExport}
               />
             </section>

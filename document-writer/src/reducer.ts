@@ -17,7 +17,11 @@ export const initialState: AppState = {
   error: null,
   responseId: null,
   streamingContent: '',
-  isStreaming: false
+  isStreaming: false,
+  isBulkGenerating: false,
+  currentBulkSectionIndex: null,
+  bulkGenerationStopped: false,
+  bulkGenerationError: null
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -63,7 +67,11 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         error: null,
         documentConfig: initialState.documentConfig,
         responseId: null,
-        streamingContent: ''
+        streamingContent: '',
+        isBulkGenerating: false,
+        currentBulkSectionIndex: null,
+        bulkGenerationStopped: false,
+        bulkGenerationError: null
       };
     
     case 'SET_RESPONSE_ID':
@@ -84,6 +92,47 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     
     case 'FINISH_STREAMING':
       return { ...state, isStreaming: false };
+    
+    case 'START_BULK_GENERATION':
+      return {
+        ...state,
+        isBulkGenerating: true,
+        currentBulkSectionIndex: 0,
+        bulkGenerationStopped: false,
+        bulkGenerationError: null,
+        error: null
+      };
+    
+    case 'ADVANCE_BULK_SECTION':
+      return {
+        ...state,
+        currentBulkSectionIndex: action.payload
+      };
+    
+    case 'STOP_BULK_GENERATION':
+      return {
+        ...state,
+        isBulkGenerating: false,
+        bulkGenerationStopped: true,
+        currentBulkSectionIndex: null
+      };
+    
+    case 'COMPLETE_BULK_GENERATION':
+      return {
+        ...state,
+        isBulkGenerating: false,
+        currentBulkSectionIndex: null,
+        bulkGenerationStopped: false,
+        bulkGenerationError: null
+      };
+    
+    case 'FAIL_BULK_GENERATION':
+      return {
+        ...state,
+        isBulkGenerating: false,
+        currentBulkSectionIndex: null,
+        bulkGenerationError: action.payload
+      };
     
     default:
       return state;

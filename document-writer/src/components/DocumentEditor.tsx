@@ -1,5 +1,5 @@
 import type { DocumentOutline, Section } from '../types';
-import { ChevronRight, FileText, Download } from 'lucide-react';
+import { ChevronRight, FileText, Download, Play, Square, RotateCcw } from 'lucide-react';
 
 interface DocumentEditorProps {
   outline: DocumentOutline;
@@ -7,7 +7,14 @@ interface DocumentEditorProps {
   isGenerating: boolean;
   isStreaming: boolean;
   streamingContent: string;
+  isBulkGenerating: boolean;
+  currentBulkSectionIndex: number | null;
+  bulkGenerationStopped: boolean;
+  bulkGenerationError: string | null;
   onGenerateSection: (sectionId: string) => void;
+  onGenerateAllSections: () => void;
+  onStopBulkGeneration: () => void;
+  onRetryBulkGeneration: () => void;
   onExport: () => void;
 }
 
@@ -17,10 +24,49 @@ export function DocumentEditor({
   isGenerating,
   isStreaming,
   streamingContent,
+  isBulkGenerating,
+  currentBulkSectionIndex,
+  bulkGenerationStopped,
+  bulkGenerationError,
   onGenerateSection,
+  onGenerateAllSections,
+  onStopBulkGeneration,
+  onRetryBulkGeneration,
   onExport
 }: DocumentEditorProps) {
   const totalWordCount = sections.reduce((sum, s) => sum + (s.wordCount || 0), 0);
+  const incompleteSections = sections.filter(s => !s.content);
+  
+  const getBulkGenerationButtonContent = () => {
+    if (isBulkGenerating) {
+      const currentSection = currentBulkSectionIndex !== null ? sections[currentBulkSectionIndex] : null;
+      return (
+        <>
+          <Square size={18} aria-hidden="true" />
+          Stop Generation
+          {currentSection && (
+            <small style={{ display: 'block', marginTop: '4px' }}>
+              Generating: {currentSection.title}
+            </small>
+          )}
+        </>
+      );
+    } else if (bulkGenerationStopped || bulkGenerationError) {
+      return (
+        <>
+          <RotateCcw size={18} aria-hidden="true" />
+          Retry All Sections
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Play size={18} aria-hidden="true" />
+          Generate All Sections
+        </>
+      );
+    }
+  };
 
   return (
     <article aria-label="Document editor">
@@ -32,16 +78,32 @@ export function DocumentEditor({
             <span aria-label="Sections completed">{sections.filter(s => s.content).length} of {sections.length} sections completed</span>
           </p>
         </hgroup>
-        <button
-          onClick={onExport}
-          disabled={sections.every(s => !s.content)}
-          className="export-button contrast"
-          aria-label="Export document as Markdown"
-        >
-          <Download size={18} aria-hidden="true" />
-          Export Document
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={isBulkGenerating ? onStopBulkGeneration : (bulkGenerationStopped || bulkGenerationError) ? onRetryBulkGeneration : onGenerateAllSections}
+            disabled={incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError}
+            className="secondary"
+            aria-label={isBulkGenerating ? "Stop bulk generation" : (bulkGenerationStopped || bulkGenerationError) ? "Retry bulk generation" : "Generate all incomplete sections"}
+          >
+            {getBulkGenerationButtonContent()}
+          </button>
+          <button
+            onClick={onExport}
+            disabled={sections.every(s => !s.content)}
+            className="export-button contrast"
+            aria-label="Export document as Markdown"
+          >
+            <Download size={18} aria-hidden="true" />
+            Export Document
+          </button>
+        </div>
       </header>
+
+      {bulkGenerationError && (
+        <div role="alert" className="error-message" aria-live="assertive" style={{ marginBottom: '24px' }}>
+          Bulk generation failed: {bulkGenerationError}
+        </div>
+      )}
 
       <div role="list">
         {sections.map((section, index) => (
@@ -87,7 +149,7 @@ export function DocumentEditor({
                 ) : (
                   <button
                     onClick={() => onGenerateSection(section.id)}
-                    disabled={isGenerating || (index > 0 && !sections[index - 1].content)}
+                    disabled={isGenerating || isBulkGenerating || (index > 0 && !sections[index - 1].content)}
                     aria-busy={isGenerating}
                     aria-label={`Generate content for section: ${section.title}`}
                   >

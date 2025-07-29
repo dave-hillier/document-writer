@@ -32,6 +32,10 @@ export interface AppState {
   responseId: string | null;
   streamingContent: string;
   isStreaming: boolean;
+  isBulkGenerating: boolean;
+  currentBulkSectionIndex: number | null;
+  bulkGenerationStopped: boolean;
+  bulkGenerationError: string | null;
 }
 
 export type AppAction =
@@ -46,4 +50,9 @@ export type AppAction =
   | { type: 'SET_RESPONSE_ID'; payload: string | null }
   | { type: 'START_STREAMING' }
   | { type: 'APPEND_STREAM'; payload: string }
-  | { type: 'FINISH_STREAMING' };
+  | { type: 'FINISH_STREAMING' }
+  | { type: 'START_BULK_GENERATION' }
+  | { type: 'ADVANCE_BULK_SECTION'; payload: number }
+  | { type: 'STOP_BULK_GENERATION' }
+  | { type: 'COMPLETE_BULK_GENERATION' }
+  | { type: 'FAIL_BULK_GENERATION'; payload: string };
