@@ -1,17 +1,116 @@
 import { useAppContext } from '../contexts/useAppContext';
 import { generateAllSections } from '../business/documentOperations';
 import { Play, Square, RotateCcw } from 'lucide-react';
+import type { AppState, AppAction } from '../types';
 
-function BulkGenerationButtonContent() {
+type BulkGenerationButtonState = 'generating' | 'stopped' | 'error' | 'idle';
+
+interface BulkGenerationUIState {
+  state: BulkGenerationButtonState;
+  disabled: boolean;
+  ariaLabel: string;
+}
+
+class BulkGenerationStateMachine {
+  private readonly state: AppState;
+  private readonly dispatch: (action: AppAction) => void;
+  
+  constructor(state: AppState, dispatch: (action: AppAction) => void) {
+    this.state = state;
+    this.dispatch = dispatch;
+  }
+
+  getUIState(): BulkGenerationUIState {
+    const { isBulkGenerating, bulkGenerationStopped, bulkGenerationError, isStreaming, sections } = this.state;
+    const incompleteSections = sections.filter(s => !s.content).length;
+    
+    if (isBulkGenerating) {
+      return {
+        state: 'generating',
+        disabled: false,
+        ariaLabel: 'Stop bulk generation'
+      };
+    }
+    
+    if (bulkGenerationStopped || bulkGenerationError) {
+      return {
+        state: bulkGenerationStopped ? 'stopped' : 'error',
+        disabled: false,
+        ariaLabel: 'Retry bulk generation'
+      };
+    }
+    
+    return {
+      state: 'idle',
+      disabled: isStreaming || incompleteSections === 0,
+      ariaLabel: 'Generate all incomplete sections'
+    };
+  }
+
+  async execute(): Promise<void> {
+    const { outline, sections } = this.state;
+    const incompleteSections = sections.filter(s => !s.content);
+    
+    if (incompleteSections.length === 0 || !outline) return;
+
+    this.dispatch({ type: 'BULK_GENERATION_STARTED' });
+
+    try {
+      await generateAllSections(
+        {
+          outline,
+          sections,
+          documentConfig: this.state.documentConfig,
+          responseId: this.state.responseId,
+          onSectionStart: (sectionIndex) => {
+            this.dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex } });
+          },
+          shouldStop: () => this.state.bulkGenerationStopped
+        },
+        {
+          onChunk: (chunk) => {
+            this.dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
+          },
+          onSectionGenerated: (result) => {
+            this.dispatch({ type: 'SECTION_GENERATED', payload: result });
+          },
+          onSectionStarted: (sectionId) => {
+            this.dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
+          }
+        }
+      );
+
+      if (this.state.bulkGenerationStopped) {
+        this.dispatch({ type: 'BULK_GENERATION_STOPPED' });
+      } else {
+        this.dispatch({ type: 'BULK_GENERATION_COMPLETED' });
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Generation stopped by user') {
+        this.dispatch({ type: 'BULK_GENERATION_STOPPED' });
+      } else {
+        this.dispatch({ 
+          type: 'BULK_GENERATION_FAILED', 
+          payload: error instanceof Error ? error.message : 'Unknown error occurred'
+        });
+      }
+    }
+  }
+
+  stop(): void {
+    this.dispatch({ type: 'BULK_GENERATION_STOPPED' });
+  }
+
+  async retry(): Promise<void> {
+    await this.execute();
+  }
+}
+
+function BulkGenerationButtonContent({ uiState }: { uiState: BulkGenerationUIState }) {
   const { state } = useAppContext();
-  const { 
-    sections,
-    isBulkGenerating,
-    currentBulkSectionIndex,
-    bulkGenerationStopped,
-    bulkGenerationError
-  } = state;
-  if (isBulkGenerating) {
+  const { sections, currentBulkSectionIndex } = state;
+  
+  if (uiState.state === 'generating') {
     const currentSection = currentBulkSectionIndex !== null ? sections[currentBulkSectionIndex] : null;
     return (
       <>
@@ -24,7 +123,7 @@ function BulkGenerationButtonContent() {
         )}
       </>
     );
-  } else if (bulkGenerationStopped || bulkGenerationError) {
+  } else if (uiState.state === 'stopped' || uiState.state === 'error') {
     return (
       <>
         <RotateCcw size={18} aria-hidden="true" />
@@ -43,103 +142,33 @@ function BulkGenerationButtonContent() {
 
 export function BulkGenerationButton() {
   const { state, dispatch } = useAppContext();
-  const { 
-    outline,
-    sections,
-    isStreaming,
-    isBulkGenerating,
-    bulkGenerationStopped,
-    bulkGenerationError
-  } = state;
-
-  const handleGenerateAllSections = async () => {
-    const incompleteSections = sections.filter(s => !s.content);
-    if (incompleteSections.length === 0 || !outline) return;
-
-    dispatch({ type: 'BULK_GENERATION_STARTED' });
-
-    try {
-      await generateAllSections(
-        {
-          outline,
-          sections,
-          documentConfig: state.documentConfig,
-          responseId: state.responseId,
-          onSectionStart: (sectionIndex) => {
-            dispatch({ type: 'BULK_SECTION_STARTED', payload: { sectionIndex } });
-          },
-          shouldStop: () => state.bulkGenerationStopped
-        },
-        {
-          onChunk: (chunk) => {
-            dispatch({ type: 'SECTION_CONTENT_STREAMED', payload: chunk });
-          },
-          onSectionGenerated: (result) => {
-            dispatch({ type: 'SECTION_GENERATED', payload: result });
-          },
-          onSectionStarted: (sectionId) => {
-            dispatch({ type: 'SECTION_GENERATION_STARTED', payload: { sectionId } });
-          }
-        }
-      );
-
-      if (state.bulkGenerationStopped) {
-        dispatch({ type: 'BULK_GENERATION_STOPPED' });
-      } else {
-        dispatch({ type: 'BULK_GENERATION_COMPLETED' });
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Generation stopped by user') {
-        dispatch({ type: 'BULK_GENERATION_STOPPED' });
-      } else {
-        dispatch({ 
-          type: 'BULK_GENERATION_FAILED', 
-          payload: error instanceof Error ? error.message : 'Unknown error occurred'
-        });
-      }
-    }
-  };
-
-  const handleStopBulkGeneration = () => {
-    dispatch({ type: 'BULK_GENERATION_STOPPED' });
-  };
-
-  const handleRetryBulkGeneration = () => {
-    handleGenerateAllSections();
-  };
-
-  const incompleteSections = sections.filter(s => !s.content);
-  const disabled = isStreaming || (incompleteSections.length === 0 && !isBulkGenerating && !bulkGenerationStopped && !bulkGenerationError);
   
-  const handleClick = () => {
-    if (isBulkGenerating) {
-      handleStopBulkGeneration();
-    } else if (bulkGenerationStopped || bulkGenerationError) {
-      handleRetryBulkGeneration();
-    } else {
-      handleGenerateAllSections();
-    }
-  };
+  const stateMachine = new BulkGenerationStateMachine(state, dispatch);
+  const uiState = stateMachine.getUIState();
 
-
-  const getAriaLabel = () => {
-    if (isBulkGenerating) {
-      return "Stop bulk generation";
-    } else if (bulkGenerationStopped || bulkGenerationError) {
-      return "Retry bulk generation";
-    } else {
-      return "Generate all incomplete sections";
+  const handleClick = async () => {
+    switch (uiState.state) {
+      case 'idle':
+        await stateMachine.execute();
+        break;
+      case 'generating':
+        stateMachine.stop();
+        break;
+      case 'stopped':
+      case 'error':
+        await stateMachine.retry();
+        break;
     }
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={disabled}
+      disabled={uiState.disabled}
       className="secondary"
-      aria-label={getAriaLabel()}
+      aria-label={uiState.ariaLabel}
     >
-      <BulkGenerationButtonContent />
+      <BulkGenerationButtonContent uiState={uiState} />
     </button>
   );
 }
