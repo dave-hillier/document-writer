@@ -29,12 +29,17 @@ export class ResponsesService {
       let responseId: string | null = null;
 
       for await (const event of response) {
-        if (event.type === 'response.delta') {
-          if (event.delta?.content) {
-            onChunk(event.delta.content);
+        if (event.type === 'response.output_text.delta') {
+          if (event.delta) {
+            onChunk(event.delta);
           }
         } else if (event.type === 'response.completed') {
           responseId = event.response?.id || null;
+        } else if (event.type === 'response.created') {
+          // Response started, no action needed
+        } else {
+          // Log unexpected event types for debugging
+          console.debug('Unexpected event type:', event.type);
         }
       }
 
