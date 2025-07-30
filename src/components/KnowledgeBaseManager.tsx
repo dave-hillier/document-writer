@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Database, Plus, Trash2, Edit, FileText, Search } from 'lucide-react';
+import { Database, Plus, Trash2, Edit } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
 import * as knowledgeBaseService from '../services/knowledgeBase';
-import { FileUploader } from './FileUploader';
-import { QueryTester } from './QueryTester';
 import type { KnowledgeBase } from '../types';
 
 export function KnowledgeBaseManager() {
@@ -12,8 +10,6 @@ export function KnowledgeBaseManager() {
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'files' | 'query'>('files');
-  const [selectedKnowledgeBaseId, setSelectedKnowledgeBaseId] = useState<string | null>(null);
 
   useEffect(() => {
     loadKnowledgeBases();
@@ -81,16 +77,15 @@ export function KnowledgeBaseManager() {
     try {
       await knowledgeBaseService.deleteKnowledgeBase(knowledgeBase.id);
       dispatch({ type: 'KNOWLEDGE_BASE_DELETED', payload: { knowledgeBaseId: knowledgeBase.id } });
-      if (selectedKnowledgeBaseId === knowledgeBase.id) {
-        setSelectedKnowledgeBaseId(null);
-      }
     } catch (error) {
       console.error('Failed to delete knowledge base:', error);
       alert('Failed to delete knowledge base.');
     }
   };
 
-  const selectedKnowledgeBase = state.knowledgeBases.find(kb => kb.id === selectedKnowledgeBaseId);
+  const handleKnowledgeBaseClick = (knowledgeBase: KnowledgeBase) => {
+    navigate(`/knowledge-bases/${knowledgeBase.id}`);
+  };
 
   return (
     <div className="knowledge-base-manager">
@@ -110,8 +105,7 @@ export function KnowledgeBaseManager() {
       {state.isLoadingKnowledgeBases ? (
         <div aria-busy="true">Loading knowledge bases...</div>
       ) : (
-        <div className="knowledge-base-layout">
-          <section className="knowledge-base-list">
+        <section className="knowledge-base-list">
             <header>
               <h2>Your Knowledge Bases</h2>
               <button
@@ -186,8 +180,8 @@ export function KnowledgeBaseManager() {
                       </form>
                     ) : (
                       <article
-                        className={`knowledge-base-item ${selectedKnowledgeBaseId === kb.id ? 'selected' : ''}`}
-                        onClick={() => setSelectedKnowledgeBaseId(kb.id)}
+                        className="knowledge-base-item"
+                        onClick={() => handleKnowledgeBaseClick(kb)}
                       >
                         <header>
                           <h3>
@@ -228,50 +222,7 @@ export function KnowledgeBaseManager() {
                 ))}
               </ul>
             )}
-          </section>
-
-          {selectedKnowledgeBase && (
-            <section className="knowledge-base-details">
-              <header>
-                <h2>{selectedKnowledgeBase.name}</h2>
-                <nav className="tabs" role="tablist">
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'files'}
-                    onClick={() => setActiveTab('files')}
-                    className={activeTab === 'files' ? 'active' : ''}
-                  >
-                    <FileText size={20} aria-hidden="true" />
-                    Files
-                  </button>
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'query'}
-                    onClick={() => setActiveTab('query')}
-                    className={activeTab === 'query' ? 'active' : ''}
-                  >
-                    <Search size={20} aria-hidden="true" />
-                    Query Test
-                  </button>
-                </nav>
-              </header>
-
-              <div className="tab-content">
-                {activeTab === 'files' ? (
-                  <FileUploader
-                    knowledgeBaseId={selectedKnowledgeBase.id}
-                    knowledgeBaseService={knowledgeBaseService}
-                  />
-                ) : (
-                  <QueryTester
-                    knowledgeBaseId={selectedKnowledgeBase.id}
-                    knowledgeBaseService={knowledgeBaseService}
-                  />
-                )}
-              </div>
-            </section>
-          )}
-        </div>
+        </section>
       )}
 
       <style>{`
@@ -279,10 +230,7 @@ export function KnowledgeBaseManager() {
           padding: 1rem 0;
         }
 
-        .knowledge-base-layout {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 2rem;
+        .knowledge-base-list {
           margin-top: 2rem;
         }
 
@@ -330,9 +278,6 @@ export function KnowledgeBaseManager() {
           background: var(--card-sectionning-background-color);
         }
 
-        .knowledge-base-item.selected {
-          border: 2px solid var(--primary);
-        }
 
         .knowledge-base-item header {
           display: flex;
@@ -382,49 +327,6 @@ export function KnowledgeBaseManager() {
           text-align: center;
           color: var(--muted-color);
           padding: 2rem;
-        }
-
-        .knowledge-base-details header {
-          margin-bottom: 1rem;
-        }
-
-        .tabs {
-          display: flex;
-          gap: 1rem;
-          border-bottom: 1px solid var(--muted-border-color);
-          margin-top: 1rem;
-        }
-
-        .tabs button {
-          background: none;
-          border: none;
-          padding: 0.5rem 1rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--muted-color);
-          border-bottom: 2px solid transparent;
-          transition: all 0.2s;
-        }
-
-        .tabs button:hover {
-          color: var(--primary);
-        }
-
-        .tabs button.active {
-          color: var(--primary);
-          border-bottom-color: var(--primary);
-        }
-
-        .tab-content {
-          padding: 1rem 0;
-        }
-
-        @media (max-width: 768px) {
-          .knowledge-base-layout {
-            grid-template-columns: 1fr;
-          }
         }
       `}</style>
     </div>

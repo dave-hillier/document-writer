@@ -9,6 +9,7 @@ import { DocumentConfig } from './components/DocumentConfig';
 import { DocumentEditor } from './components/DocumentEditor';
 import { DocumentHistory } from './components/DocumentHistory';
 import { KnowledgeBaseManager } from './components/KnowledgeBaseManager';
+import { KnowledgeBaseDetails } from './components/KnowledgeBaseDetails';
 import { generateOutline } from './business/documentOperations';
 import { indexedDBService } from './services/indexeddb';
 import { migrateModelSettings } from './utils/migration';
@@ -213,6 +214,7 @@ function AppContent() {
           <Route path="/document/:documentId" element={<DocumentPage />} />
           <Route path="/history" element={<DocumentHistory />} />
           <Route path="/knowledge-bases" element={<KnowledgeBaseManager />} />
+          <Route path="/knowledge-bases/:knowledgeBaseId" element={<KnowledgeBaseDetails />} />
         </Routes>
       </main>
 
