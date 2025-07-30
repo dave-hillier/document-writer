@@ -43,10 +43,11 @@ Keep titles and sub-steps equally concise and direct.
 - Ensure each cue can be meaningfully answered within the section
 
 **Narrative Elements Guidelines:**
-- Select elements that enhance the section's communication effectiveness
-- Common narrative elements: examples, statistics, anecdotes, case-studies, quotes, analogies, personal-experiences, historical-references, data-visualizations, step-by-step-instructions, comparisons, technical-specifications, testimonials, research-findings, expert-opinions, surveys, benchmarks
-- Choose 2-5 narrative elements per section based on the section's purpose and audience
-- Consider what storytelling techniques would make the content more engaging and understandable
+- Generate single-word elements that capture the essence of the section's communication style
+- Each element should be a descriptive word that represents how the content is delivered or structured
+- Examples of narrative elements: examples, statistics, anecdotes, stories, quotes, analogies, experiences, history, visuals, instructions, comparisons, specifications, testimonials, research, opinions, surveys, benchmarks, dialogue, metaphors, frameworks, processes, insights, lessons, principles, strategies, tactics, methods, tools, concepts, theories, models, patterns, trends, facts, observations, experiments, case-studies
+- Choose 2-5 narrative elements per section based on the section's actual content and communication approach
+- Elements should reflect how the information is presented, not just what information is present
 
 ## Output Format
 

@@ -56,8 +56,8 @@ Guidelines:
 2. Assign appropriate roles to each section based on its purpose
 3. For each section, identify 3-5 key sub-steps or topics covered
 4. For each section, identify 2-4 implicit cues or questions that the section is responding to. Think: "What questions is this section answering?"
-5. For each section, identify which narrative elements are present from this list: examples, statistics, anecdotes, case-studies, quotes, analogies, personal-experiences, historical-references, data-visualizations, step-by-step-instructions, comparisons, technical-specifications, testimonials, research-findings, expert-opinions, surveys, benchmarks
-6. Only include narrative elements that are actually present in the section
+5. For each section, identify 2-5 single-word narrative elements that capture how the content is communicated. Generate descriptive words that represent the essence of the section's approach (e.g., examples, statistics, anecdotes, stories, quotes, analogies, experiences, history, visuals, instructions, comparisons, specifications, testimonials, research, opinions, surveys, benchmarks, dialogue, metaphors, frameworks, processes, insights, lessons, principles, strategies, tactics, methods, tools, concepts, theories, models, patterns, trends, facts, observations, experiments)
+6. Generate elements based on what's actually present - don't use a fixed list, but create words that truly describe the communication style
 7. Frame directions as questions or prompts that would generate similar content
 8. Ensure the outline captures the document's structure, not just its content
 9. Use clear, concise language for titles, sub-steps, and directions

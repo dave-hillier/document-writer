@@ -9,13 +9,7 @@ interface QueryTesterProps {
   knowledgeBaseService: typeof knowledgeBaseService;
 }
 
-const COMMON_NARRATIVE_ELEMENTS = [
-  'examples', 'statistics', 'anecdotes', 'case-studies', 'quotes', 
-  'analogies', 'personal-experiences', 'historical-references', 
-  'data-visualizations', 'step-by-step-instructions', 'comparisons',
-  'technical-specifications', 'testimonials', 'research-findings', 
-  'expert-opinions', 'surveys', 'benchmarks'
-];
+// Removed fixed list - narrative elements are now dynamically generated based on content
 
 export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTesterProps) {
   const { state, dispatch } = useAppContext();
@@ -27,6 +21,8 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const [searchOutlines, setSearchOutlines] = useState(false);
   const [selectedNarrativeElements, setSelectedNarrativeElements] = useState<string[]>([]);
   const [fuzzyMatchNarratives, setFuzzyMatchNarratives] = useState(true);
+  const [availableNarrativeElements, setAvailableNarrativeElements] = useState<string[]>([]);
+  const [customNarrativeElement, setCustomNarrativeElement] = useState('');
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +41,16 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
         searchOutlines,
         narrativeOptions
       });
+      
+      // Extract available narrative elements from search results
+      if (searchOutlines && result.results.length > 0) {
+        const allElements = new Set<string>();
+        result.results.forEach(result => {
+          const elements = result.attributes?.narrativeElements as string[] || [];
+          elements.forEach(element => allElements.add(element));
+        });
+        setAvailableNarrativeElements(Array.from(allElements).sort());
+      }
       
       dispatch({ type: 'QUERY_TEST_EXECUTED', payload: { result } });
     } catch (error) {
@@ -69,6 +75,19 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
         ? prev.filter(e => e !== element)
         : [...prev, element]
     );
+  };
+
+  const addCustomNarrativeElement = (e: React.FormEvent) => {
+    e.preventDefault();
+    const element = customNarrativeElement.trim().toLowerCase();
+    if (element && !selectedNarrativeElements.includes(element)) {
+      setSelectedNarrativeElements(prev => [...prev, element]);
+      setCustomNarrativeElement('');
+    }
+  };
+
+  const removeNarrativeElement = (element: string) => {
+    setSelectedNarrativeElements(prev => prev.filter(e => e !== element));
   };
 
   const latestResult = state.queryTestResults[0];
@@ -143,21 +162,56 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
               Enable fuzzy matching for narrative elements
             </label>
             
-            <div data-narrative-elements-grid>
-              {COMMON_NARRATIVE_ELEMENTS.map(element => (
-                <label key={element} data-narrative-element>
-                  <input
-                    type="checkbox"
-                    checked={selectedNarrativeElements.includes(element)}
-                    onChange={() => toggleNarrativeElement(element)}
-                  />
-                  {element.replace(/-/g, ' ')}
-                </label>
-              ))}
-            </div>
+            <form onSubmit={addCustomNarrativeElement}>
+              <label>
+                Add custom element:
+                <input
+                  type="text"
+                  value={customNarrativeElement}
+                  onChange={(e) => setCustomNarrativeElement(e.target.value)}
+                  placeholder="Enter single word (e.g., examples, statistics, stories)"
+                />
+              </label>
+              <button type="submit" disabled={!customNarrativeElement.trim()}>Add</button>
+            </form>
+            
+            {availableNarrativeElements.length > 0 && (
+              <div>
+                <p><strong>Available elements from search results:</strong></p>
+                <div data-narrative-elements-grid>
+                  {availableNarrativeElements.map(element => (
+                    <label key={element} data-narrative-element>
+                      <input
+                        type="checkbox"
+                        checked={selectedNarrativeElements.includes(element)}
+                        onChange={() => toggleNarrativeElement(element)}
+                      />
+                      {element}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {selectedNarrativeElements.length > 0 && (
-              <p><strong>Selected:</strong> {selectedNarrativeElements.join(', ')}</p>
+              <div>
+                <p><strong>Selected elements:</strong></p>
+                <div>
+                  {selectedNarrativeElements.map(element => (
+                    <span key={element} style={{display: 'inline-block', margin: '2px', padding: '4px 8px', background: 'var(--pico-primary)', color: 'white', borderRadius: '4px', fontSize: '0.9em'}}>
+                      {element}
+                      <button 
+                        type="button" 
+                        onClick={() => removeNarrativeElement(element)}
+                        style={{marginLeft: '8px', background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}
+                        aria-label={`Remove ${element}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
           </fieldset>
         )}
