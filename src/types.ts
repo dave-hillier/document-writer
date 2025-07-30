@@ -8,6 +8,8 @@ export interface Section {
   title: string;
   role: string;
   subSteps: string[];
+  directions?: string[];
+  narrativeElements?: string[];
   content?: string;
   wordCount?: number;
 }
@@ -90,6 +92,12 @@ export interface QueryTestResult {
   timestamp: number;
 }
 
+export interface NarrativeSearchOptions {
+  includeElements?: string[];
+  excludeElements?: string[];
+  fuzzyMatch?: boolean;
+}
+
 export interface UploadBatchState {
   totalFiles: number;
   completedFiles: number;
@@ -140,7 +148,7 @@ export type AppAction =
   | { type: 'OUTLINE_GENERATED'; payload: { responseId: string; outline: DocumentOutline; cacheMetrics?: CacheMetrics } }
   | { type: 'OUTLINE_GENERATION_FAILED'; payload: string }
   | { type: 'OUTLINE_TITLE_UPDATED'; payload: { title: string } }
-  | { type: 'SECTION_UPDATED'; payload: { sectionId: string; updates: Partial<Pick<Section, 'title' | 'role' | 'subSteps'>> } }
+  | { type: 'SECTION_UPDATED'; payload: { sectionId: string; updates: Partial<Pick<Section, 'title' | 'role' | 'subSteps' | 'directions' | 'narrativeElements'>> } }
   
   // Section generation events
   | { type: 'SECTION_GENERATION_STARTED'; payload: { sectionId: string } }

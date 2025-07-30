@@ -175,6 +175,20 @@ export function DocumentEditor() {
                 />
               </details>
 
+              {section.directions && section.directions.length > 0 && (
+                <details open={!section.content}>
+                  <summary>Writing Cues</summary>
+                  <EditableList
+                    items={section.directions}
+                    onSave={(newDirections) => dispatch({ 
+                      type: 'SECTION_UPDATED', 
+                      payload: { sectionId: section.id, updates: { directions: newDirections } } 
+                    })}
+                    ariaLabel={`Writing cues for section ${index + 1}`}
+                  />
+                </details>
+              )}
+
               {section.content ? (
                 <>
                   <pre data-content>
