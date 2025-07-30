@@ -77,12 +77,18 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
     );
   };
 
-  const addCustomNarrativeElement = (e: React.FormEvent) => {
-    e.preventDefault();
+  const addCustomNarrativeElement = () => {
     const element = customNarrativeElement.trim().toLowerCase();
     if (element && !selectedNarrativeElements.includes(element)) {
       setSelectedNarrativeElements(prev => [...prev, element]);
       setCustomNarrativeElement('');
+    }
+  };
+
+  const handleCustomElementKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addCustomNarrativeElement();
     }
   };
 
@@ -162,18 +168,19 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
               Enable fuzzy matching for narrative elements
             </label>
             
-            <form onSubmit={addCustomNarrativeElement}>
+            <div>
               <label>
                 Add custom element:
                 <input
                   type="text"
                   value={customNarrativeElement}
                   onChange={(e) => setCustomNarrativeElement(e.target.value)}
+                  onKeyPress={handleCustomElementKeyPress}
                   placeholder="Enter single word (e.g., examples, statistics, stories)"
                 />
               </label>
-              <button type="submit" disabled={!customNarrativeElement.trim()}>Add</button>
-            </form>
+              <button type="button" onClick={addCustomNarrativeElement} disabled={!customNarrativeElement.trim()}>Add</button>
+            </div>
             
             {availableNarrativeElements.length > 0 && (
               <div>
