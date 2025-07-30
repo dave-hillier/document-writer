@@ -9,12 +9,20 @@ interface FileUploaderProps {
   knowledgeBaseService: typeof knowledgeBaseService;
 }
 
+interface UploadQueueItem {
+  file: File;
+  id: string;
+}
+
 export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUploaderProps) {
   const { state, dispatch } = useAppContext();
   const [isDragging, setIsDragging] = useState(false);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const files = state.knowledgeBaseFiles[knowledgeBaseId] || [];
+  const batchState = state.uploadBatchState[knowledgeBaseId];
 
   useEffect(() => {
     loadFiles();
@@ -78,27 +86,76 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
       alert(`Some files were skipped. Supported formats: ${supportedTypes.join(', ')}`);
     }
 
-    // Upload each file
+    if (validFiles.length === 0) return;
+
+    // Create queue items and add files to state as 'queued'
+    const queueItems: UploadQueueItem[] = [];
+    const tempFiles: KnowledgeBaseFile[] = [];
+    
     for (const file of validFiles) {
-      const tempFile: KnowledgeBaseFile = {
-        id: `temp_${Date.now()}_${Math.random()}`,
+      const id = `temp_${Date.now()}_${Math.random()}`;
+      queueItems.push({ file, id });
+      tempFiles.push({
+        id,
         filename: file.name,
         size: file.size,
         uploadedAt: Date.now(),
-        status: 'uploading'
-      };
+        status: 'queued',
+        progress: 0
+      });
+    }
 
+    // Add all files to state as queued
+    dispatch({
+      type: 'KNOWLEDGE_BASE_FILES_LOADED',
+      payload: {
+        knowledgeBaseId,
+        files: [...files, ...tempFiles]
+      }
+    });
+
+    // Start batch upload
+    dispatch({
+      type: 'UPLOAD_BATCH_STARTED',
+      payload: { knowledgeBaseId, totalFiles: validFiles.length }
+    });
+
+    setUploadQueue(prev => [...prev, ...queueItems]);
+    
+    if (!isUploading) {
+      processUploadQueue();
+    }
+  };
+
+  const processUploadQueue = async () => {
+    setIsUploading(true);
+    
+    while (uploadQueue.length > 0) {
+      const item = uploadQueue[0];
+      if (!item) break;
+      
+      // Update status to uploading
       dispatch({
         type: 'KNOWLEDGE_BASE_FILE_UPLOAD_STARTED',
-        payload: { knowledgeBaseId, file: tempFile }
+        payload: {
+          knowledgeBaseId,
+          file: {
+            id: item.id,
+            filename: item.file.name,
+            size: item.file.size,
+            uploadedAt: Date.now(),
+            status: 'uploading',
+            progress: 0
+          }
+        }
       });
 
       try {
-        const uploadedFile = await knowledgeBaseService.uploadFile(knowledgeBaseId, file);
+        const uploadedFile = await knowledgeBaseService.uploadFile(knowledgeBaseId, item.file);
         
         dispatch({
           type: 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED',
-          payload: { knowledgeBaseId, fileId: tempFile.id }
+          payload: { knowledgeBaseId, fileId: item.id }
         });
 
         // Update with real file data
@@ -107,7 +164,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           payload: {
             knowledgeBaseId,
             files: [
-              ...files.filter(f => f.id !== tempFile.id),
+              ...files.filter(f => f.id !== item.id),
               uploadedFile
             ]
           }
@@ -118,13 +175,32 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           type: 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED',
           payload: {
             knowledgeBaseId,
-            fileId: tempFile.id,
+            fileId: item.id,
             error: error instanceof Error ? error.message : 'Upload failed'
           }
         });
       }
+      
+      setUploadQueue(prev => prev.slice(1));
+    }
+    
+    setIsUploading(false);
+    
+    // Mark batch as completed
+    if (batchState?.isUploading) {
+      dispatch({
+        type: 'UPLOAD_BATCH_COMPLETED',
+        payload: { knowledgeBaseId }
+      });
     }
   };
+
+  useEffect(() => {
+    if (uploadQueue.length > 0 && !isUploading) {
+      processUploadQueue();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadQueue]);
 
   const handleDelete = async (file: KnowledgeBaseFile) => {
     if (!confirm(`Delete "${file.filename}"?`)) return;
@@ -141,6 +217,20 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
     }
   };
 
+  const handleCancelAll = () => {
+    setUploadQueue([]);
+    dispatch({
+      type: 'UPLOAD_BATCH_CANCELLED',
+      payload: { knowledgeBaseId }
+    });
+  };
+
+  const handleRetryFailed = () => {
+    // For retry functionality, we would need to store the original File objects
+    // For now, we'll just show an alert
+    alert('To retry failed uploads, please select the files again.');
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -151,6 +241,8 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
 
   const getFileIcon = (status: string) => {
     switch (status) {
+      case 'queued':
+        return <File size={16} aria-hidden="true" style={{ opacity: 0.5 }} />;
       case 'uploading':
       case 'processing':
         return <Loader className="spinning" size={16} aria-hidden="true" />;
@@ -163,8 +255,46 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
     }
   };
 
+  const getOverallProgress = () => {
+    if (!batchState || batchState.totalFiles === 0) return 0;
+    return Math.round(((batchState.completedFiles + batchState.failedFiles) / batchState.totalFiles) * 100);
+  };
+
   return (
     <div className="file-uploader">
+      {batchState?.isUploading && (
+        <div className="upload-progress-summary">
+          <div className="progress-header">
+            <h3>Uploading Files</h3>
+            <button onClick={handleCancelAll} className="secondary cancel-all-button">
+              Cancel All
+            </button>
+          </div>
+          <div className="progress-stats">
+            <span>{batchState.completedFiles + batchState.failedFiles} of {batchState.totalFiles} files</span>
+            <span>{getOverallProgress()}% complete</span>
+          </div>
+          <progress value={getOverallProgress()} max="100" />
+          {batchState.failedFiles > 0 && (
+            <div className="failed-info">
+              <AlertCircle size={16} aria-hidden="true" />
+              <span>{batchState.failedFiles} failed</span>
+              <button onClick={handleRetryFailed} className="link-button">Retry</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {batchState && !batchState.isUploading && batchState.completedAt && (
+        <div className="upload-completion-summary">
+          <CheckCircle size={20} aria-hidden="true" />
+          <div>
+            <h3>Upload Complete</h3>
+            <p>{batchState.completedFiles} files uploaded successfully{batchState.failedFiles > 0 && `, ${batchState.failedFiles} failed`}</p>
+          </div>
+        </div>
+      )}
+
       <div
         className={`upload-zone ${isDragging ? 'dragging' : ''}`}
         onDragOver={handleDragOver}
@@ -193,30 +323,166 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
       ) : files.length === 0 ? (
         <p className="empty-state">No files uploaded yet</p>
       ) : (
-        <ul className="file-list">
-          {files.map(file => (
-            <li key={file.id} className={`file-item ${file.status}`}>
-              <div className="file-info">
-                {getFileIcon(file.status)}
-                <span className="filename">{file.filename}</span>
-                {file.size > 0 && (
-                  <span className="file-size">{formatFileSize(file.size)}</span>
-                )}
-              </div>
-              <button
-                onClick={() => handleDelete(file)}
-                className="delete-button"
-                aria-label={`Delete ${file.filename}`}
-                disabled={file.status === 'uploading' || file.status === 'processing'}
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          {files.filter(f => f.status === 'queued' || f.status === 'uploading').length > 0 && (
+            <div className="file-section">
+              <h4>Uploading</h4>
+              <ul className="file-list">
+                {files
+                  .filter(f => f.status === 'queued' || f.status === 'uploading')
+                  .map(file => (
+                    <li key={file.id} className={`file-item ${file.status}`}>
+                      <div className="file-info">
+                        {getFileIcon(file.status)}
+                        <span className="filename">{file.filename}</span>
+                        {file.status === 'uploading' && file.progress !== undefined && (
+                          <span className="file-progress">{file.progress}%</span>
+                        )}
+                        {file.status === 'queued' && (
+                          <span className="file-status">Queued</span>
+                        )}
+                        {file.size > 0 && (
+                          <span className="file-size">{formatFileSize(file.size)}</span>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+          
+          {files.filter(f => f.status === 'completed' || f.status === 'failed').length > 0 && (
+            <div className="file-section">
+              <h4>Uploaded Files</h4>
+              <ul className="file-list">
+                {files
+                  .filter(f => f.status === 'completed' || f.status === 'failed')
+                  .map(file => (
+                    <li key={file.id} className={`file-item ${file.status}`}>
+                      <div className="file-info">
+                        {getFileIcon(file.status)}
+                        <span className="filename">{file.filename}</span>
+                        {file.status === 'failed' && file.error && (
+                          <span className="file-error" title={file.error}>Failed</span>
+                        )}
+                        {file.size > 0 && (
+                          <span className="file-size">{formatFileSize(file.size)}</span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleDelete(file)}
+                        className="delete-button"
+                        aria-label={`Delete ${file.filename}`}
+                        disabled={file.status === 'uploading' || file.status === 'processing'}
+                      >
+                        <X size={16} aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
 
       <style>{`
+        .upload-progress-summary {
+          background: var(--primary-background);
+          border: 1px solid var(--primary);
+          border-radius: var(--border-radius);
+          padding: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .progress-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+
+        .progress-header h3 {
+          margin: 0;
+          font-size: 1rem;
+        }
+
+        .cancel-all-button {
+          padding: 0.25rem 0.75rem;
+          font-size: 0.875rem;
+        }
+
+        .progress-stats {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.875rem;
+          color: var(--muted-color);
+          margin-bottom: 0.5rem;
+        }
+
+        .failed-info {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+          color: var(--del-color);
+          font-size: 0.875rem;
+        }
+
+        .link-button {
+          background: none;
+          border: none;
+          color: var(--primary);
+          text-decoration: underline;
+          cursor: pointer;
+          padding: 0;
+          font-size: inherit;
+        }
+
+        .upload-completion-summary {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem;
+          background: var(--ins-background);
+          border: 1px solid var(--ins-color);
+          border-radius: var(--border-radius);
+          margin-bottom: 1rem;
+        }
+
+        .upload-completion-summary h3 {
+          margin: 0;
+          font-size: 1rem;
+        }
+
+        .upload-completion-summary p {
+          margin: 0;
+          font-size: 0.875rem;
+          color: var(--muted-color);
+        }
+
+        .file-section {
+          margin-top: 1.5rem;
+        }
+
+        .file-section h4 {
+          margin-bottom: 0.5rem;
+          font-size: 0.875rem;
+          text-transform: uppercase;
+          color: var(--muted-color);
+        }
+
+        .file-progress,
+        .file-status {
+          font-size: 0.75rem;
+          color: var(--primary);
+          font-weight: 500;
+        }
+
+        .file-error {
+          font-size: 0.75rem;
+          color: var(--del-color);
+          font-weight: 500;
+        }
         .file-uploader {
           padding: 1rem 0;
         }

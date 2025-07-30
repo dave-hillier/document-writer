@@ -66,7 +66,11 @@ export interface KnowledgeBaseFile {
   size: number;
   uploadedAt: number;
   attributes?: Record<string, unknown>;
-  status: 'uploading' | 'processing' | 'completed' | 'failed';
+  status: 'queued' | 'uploading' | 'processing' | 'completed' | 'failed';
+  progress?: number; // 0-100 percentage
+  error?: string;
+  startedAt?: number;
+  completedAt?: number;
 }
 
 export interface SearchResult {
@@ -83,6 +87,15 @@ export interface QueryTestResult {
   results: SearchResult[];
   searchTime: number;
   timestamp: number;
+}
+
+export interface UploadBatchState {
+  totalFiles: number;
+  completedFiles: number;
+  failedFiles: number;
+  isUploading: boolean;
+  startedAt?: number;
+  completedAt?: number;
 }
 
 export interface AppState {
@@ -106,6 +119,7 @@ export interface AppState {
   stylePrompts: StylePrompt[];
   selectedStylePrompt: StylePrompt | null;
   isLoadingStylePrompts: boolean;
+  uploadBatchState: Record<string, UploadBatchState>; // keyed by knowledgeBaseId
 }
 
 export type AppAction =
@@ -149,6 +163,12 @@ export type AppAction =
   | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED'; payload: { knowledgeBaseId: string; fileId: string } }
   | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED'; payload: { knowledgeBaseId: string; fileId: string; error: string } }
   | { type: 'KNOWLEDGE_BASE_FILE_DELETED'; payload: { knowledgeBaseId: string; fileId: string } }
+  | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_PROGRESS'; payload: { knowledgeBaseId: string; fileId: string; progress: number } }
+  
+  // Batch upload events
+  | { type: 'UPLOAD_BATCH_STARTED'; payload: { knowledgeBaseId: string; totalFiles: number } }
+  | { type: 'UPLOAD_BATCH_COMPLETED'; payload: { knowledgeBaseId: string } }
+  | { type: 'UPLOAD_BATCH_CANCELLED'; payload: { knowledgeBaseId: string } }
   
   // Query test events
   | { type: 'QUERY_TEST_EXECUTED'; payload: { result: QueryTestResult } }

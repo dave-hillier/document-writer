@@ -27,7 +27,8 @@ export const initialState: AppState = {
   queryTestResults: [],
   stylePrompts: [],
   selectedStylePrompt: null,
-  isLoadingStylePrompts: false
+  isLoadingStylePrompts: false,
+  uploadBatchState: {}
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -273,36 +274,58 @@ export function appReducer(state: AppState, action: AppAction): AppState {
           ...state.knowledgeBaseFiles,
           [action.payload.knowledgeBaseId]: [
             ...(state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []),
-            action.payload.file
+            { ...action.payload.file, startedAt: Date.now() }
           ]
         }
       };
     
-    case 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED':
+    case 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED': {
+      const batchState = state.uploadBatchState[action.payload.knowledgeBaseId];
       return {
         ...state,
         knowledgeBaseFiles: {
           ...state.knowledgeBaseFiles,
           [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
             file.id === action.payload.fileId
-              ? { ...file, status: 'completed' as const }
+              ? { ...file, status: 'completed' as const, completedAt: Date.now(), progress: 100 }
               : file
           )
-        }
+        },
+        uploadBatchState: batchState ? {
+          ...state.uploadBatchState,
+          [action.payload.knowledgeBaseId]: {
+            ...batchState,
+            completedFiles: batchState.completedFiles + 1,
+            isUploading: batchState.completedFiles + 1 < batchState.totalFiles,
+            completedAt: batchState.completedFiles + 1 === batchState.totalFiles ? Date.now() : undefined
+          }
+        } : state.uploadBatchState
       };
+    }
     
-    case 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED':
+    case 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED': {
+      const batchState = state.uploadBatchState[action.payload.knowledgeBaseId];
       return {
         ...state,
         knowledgeBaseFiles: {
           ...state.knowledgeBaseFiles,
           [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
             file.id === action.payload.fileId
-              ? { ...file, status: 'failed' as const }
+              ? { ...file, status: 'failed' as const, error: action.payload.error, completedAt: Date.now() }
               : file
           )
-        }
+        },
+        uploadBatchState: batchState ? {
+          ...state.uploadBatchState,
+          [action.payload.knowledgeBaseId]: {
+            ...batchState,
+            failedFiles: batchState.failedFiles + 1,
+            isUploading: batchState.completedFiles + batchState.failedFiles + 1 < batchState.totalFiles,
+            completedAt: batchState.completedFiles + batchState.failedFiles + 1 === batchState.totalFiles ? Date.now() : undefined
+          }
+        } : state.uploadBatchState
       };
+    }
     
     case 'KNOWLEDGE_BASE_FILE_DELETED':
       return {
@@ -311,6 +334,67 @@ export function appReducer(state: AppState, action: AppAction): AppState {
           ...state.knowledgeBaseFiles,
           [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || [])
             .filter(file => file.id !== action.payload.fileId)
+        }
+      };
+      
+    case 'KNOWLEDGE_BASE_FILE_UPLOAD_PROGRESS':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
+            file.id === action.payload.fileId
+              ? { ...file, progress: action.payload.progress }
+              : file
+          )
+        }
+      };
+      
+    // Batch upload events
+    case 'UPLOAD_BATCH_STARTED':
+      return {
+        ...state,
+        uploadBatchState: {
+          ...state.uploadBatchState,
+          [action.payload.knowledgeBaseId]: {
+            totalFiles: action.payload.totalFiles,
+            completedFiles: 0,
+            failedFiles: 0,
+            isUploading: true,
+            startedAt: Date.now()
+          }
+        }
+      };
+      
+    case 'UPLOAD_BATCH_COMPLETED':
+      return {
+        ...state,
+        uploadBatchState: {
+          ...state.uploadBatchState,
+          [action.payload.knowledgeBaseId]: {
+            ...state.uploadBatchState[action.payload.knowledgeBaseId],
+            isUploading: false,
+            completedAt: Date.now()
+          }
+        }
+      };
+      
+    case 'UPLOAD_BATCH_CANCELLED':
+      return {
+        ...state,
+        uploadBatchState: {
+          ...state.uploadBatchState,
+          [action.payload.knowledgeBaseId]: {
+            ...state.uploadBatchState[action.payload.knowledgeBaseId],
+            isUploading: false,
+            completedAt: Date.now()
+          }
+        },
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).filter(file =>
+            file.status !== 'queued' && file.status !== 'uploading'
+          )
         }
       };
     
