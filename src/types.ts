@@ -68,6 +68,7 @@ export interface KnowledgeBaseFile {
   attributes?: Record<string, unknown>;
   status: 'queued' | 'uploading' | 'processing' | 'completed' | 'failed';
   progress?: number; // 0-100 percentage
+  stage?: string; // Current upload stage description
   error?: string;
   startedAt?: number;
   completedAt?: number;
@@ -164,6 +165,7 @@ export type AppAction =
   | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED'; payload: { knowledgeBaseId: string; fileId: string; error: string } }
   | { type: 'KNOWLEDGE_BASE_FILE_DELETED'; payload: { knowledgeBaseId: string; fileId: string } }
   | { type: 'KNOWLEDGE_BASE_FILE_UPLOAD_PROGRESS'; payload: { knowledgeBaseId: string; fileId: string; progress: number } }
+  | { type: 'KNOWLEDGE_BASE_FILE_PROGRESS_UPDATED'; payload: { knowledgeBaseId: string; fileId: string; progress: number; stage: string } }
   
   // Batch upload events
   | { type: 'UPLOAD_BATCH_STARTED'; payload: { knowledgeBaseId: string; totalFiles: number } }

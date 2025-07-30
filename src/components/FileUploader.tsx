@@ -20,6 +20,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [deletingFiles, setDeletingFiles] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const files = state.knowledgeBaseFiles[knowledgeBaseId] || [];
   const batchState = state.uploadBatchState[knowledgeBaseId];
@@ -130,8 +131,11 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   const processUploadQueue = async () => {
     setIsUploading(true);
     
-    while (uploadQueue.length > 0) {
-      const item = uploadQueue[0];
+    // Process queue items one by one, updating state after each
+    let currentQueue = [...uploadQueue];
+    
+    while (currentQueue.length > 0) {
+      const item = currentQueue[0];
       if (!item) break;
       
       // Update status to uploading
@@ -151,22 +155,36 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
       });
 
       try {
-        const uploadedFile = await knowledgeBaseService.uploadFile(knowledgeBaseId, item.file);
+        // Create a progress callback
+        const progressCallback = (progress: number, stage: string) => {
+          dispatch({
+            type: 'KNOWLEDGE_BASE_FILE_PROGRESS_UPDATED',
+            payload: {
+              knowledgeBaseId,
+              fileId: item.id,
+              progress,
+              stage
+            }
+          });
+        };
+
+        const uploadedFile = await knowledgeBaseService.uploadFileWithProgress(
+          knowledgeBaseId, 
+          item.file, 
+          progressCallback
+        );
         
         dispatch({
           type: 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED',
           payload: { knowledgeBaseId, fileId: item.id }
         });
 
-        // Update with real file data
+        // Update with real file data by replacing the temp file
         dispatch({
           type: 'KNOWLEDGE_BASE_FILES_LOADED',
           payload: {
             knowledgeBaseId,
-            files: [
-              ...files.filter(f => f.id !== item.id),
-              uploadedFile
-            ]
+            files: files.map(f => f.id === item.id ? uploadedFile : f)
           }
         });
       } catch (error) {
@@ -181,7 +199,9 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
         });
       }
       
-      setUploadQueue(prev => prev.slice(1));
+      // Remove processed item from both local queue and state
+      currentQueue = currentQueue.slice(1);
+      setUploadQueue(currentQueue);
     }
     
     setIsUploading(false);
@@ -205,6 +225,8 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   const handleDelete = async (file: KnowledgeBaseFile) => {
     if (!confirm(`Delete "${file.filename}"?`)) return;
 
+    setDeletingFiles(prev => new Set(prev).add(file.id));
+    
     try {
       await knowledgeBaseService.deleteFile(knowledgeBaseId, file.id);
       dispatch({
@@ -214,6 +236,12 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
     } catch (error) {
       console.error('Failed to delete file:', error);
       alert('Failed to delete file');
+    } finally {
+      setDeletingFiles(prev => {
+        const next = new Set(prev);
+        next.delete(file.id);
+        return next;
+      });
     }
   };
 
@@ -335,14 +363,21 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
                       <div className="file-info">
                         {getFileIcon(file.status)}
                         <span className="filename">{file.filename}</span>
-                        {file.status === 'uploading' && file.progress !== undefined && (
-                          <span className="file-progress">{file.progress}%</span>
+                        {file.status === 'uploading' && (
+                          <output className="upload-status">
+                            {file.progress !== undefined && (
+                              <data value={file.progress} className="file-progress">{file.progress}%</data>
+                            )}
+                            {file.stage && (
+                              <small className="file-stage">{file.stage}</small>
+                            )}
+                          </output>
                         )}
                         {file.status === 'queued' && (
                           <span className="file-status">Queued</span>
                         )}
                         {file.size > 0 && (
-                          <span className="file-size">{formatFileSize(file.size)}</span>
+                          <data value={file.size} className="file-size">{formatFileSize(file.size)}</data>
                         )}
                       </div>
                     </li>
@@ -366,16 +401,20 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
                           <span className="file-error" title={file.error}>Failed</span>
                         )}
                         {file.size > 0 && (
-                          <span className="file-size">{formatFileSize(file.size)}</span>
+                          <data value={file.size} className="file-size">{formatFileSize(file.size)}</data>
                         )}
                       </div>
                       <button
                         onClick={() => handleDelete(file)}
                         className="delete-button"
                         aria-label={`Delete ${file.filename}`}
-                        disabled={file.status === 'uploading' || file.status === 'processing'}
+                        disabled={file.status === 'uploading' || file.status === 'processing' || deletingFiles.has(file.id)}
                       >
-                        <X size={16} aria-hidden="true" />
+                        {deletingFiles.has(file.id) ? (
+                          <Loader className="spinning" size={16} aria-hidden="true" />
+                        ) : (
+                          <X size={16} aria-hidden="true" />
+                        )}
                       </button>
                     </li>
                   ))}
@@ -471,11 +510,28 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           color: var(--muted-color);
         }
 
-        .file-progress,
+        output.upload-status {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        data.file-progress,
         .file-status {
           font-size: 0.75rem;
           color: var(--primary);
           font-weight: 500;
+        }
+
+        small.file-stage {
+          font-size: 0.7rem;
+          color: var(--muted-color);
+          font-style: italic;
+        }
+
+        data.file-size {
+          color: var(--muted-color);
+          font-size: 0.875rem;
         }
 
         .file-error {
@@ -543,10 +599,6 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           font-weight: 500;
         }
 
-        .file-size {
-          color: var(--muted-color);
-          font-size: 0.875rem;
-        }
 
         .delete-button {
           background: none;

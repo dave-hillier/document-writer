@@ -100,6 +100,101 @@ export const getAllKnowledgeBases = async (): Promise<KnowledgeBase[]> => {
   }
 };
 
+export const uploadFileWithProgress = async (
+  knowledgeBaseId: string,
+  file: File,
+  progressCallback: (progress: number, stage: string) => void,
+  attributes?: Record<string, unknown>
+): Promise<KnowledgeBaseFile> => {
+  try {
+    const knowledgeBase = await indexedDBService.getKnowledgeBase(knowledgeBaseId);
+    if (!knowledgeBase) {
+      throw new Error('Knowledge base not found');
+    }
+    
+    progressCallback(10, 'Uploading document...');
+    
+    // Upload original file to content vector store
+    const { fileId, filename } = await vectorStore.uploadFile(
+      knowledgeBase.vectorStoreId,
+      file,
+      attributes
+    );
+    
+    progressCallback(40, 'Processing outline...');
+    
+    let outlineFileId: string | undefined;
+    
+    // Extract and upload outline if outline store exists
+    if (knowledgeBase.outlineVectorStoreId) {
+      try {
+        // Extract outline from file
+        const outline = await extractOutlineFromFile(file);
+        
+        progressCallback(70, 'Uploading outline...');
+        
+        // Convert outline to markdown format
+        const outlineMarkdown = outlineToMarkdown(outline);
+        
+        // Create a new file with the outline
+        const outlineFile = new File(
+          [outlineMarkdown], 
+          `${filename}_outline.md`,
+          { type: 'text/markdown' }
+        );
+        
+        // Upload outline to outline vector store
+        const outlineUpload = await vectorStore.uploadFile(
+          knowledgeBase.outlineVectorStoreId,
+          outlineFile,
+          { 
+            originalFileId: fileId,
+            type: 'outline'
+          }
+        );
+        
+        outlineFileId = outlineUpload.fileId;
+      } catch (error) {
+        console.error('Failed to extract/upload outline:', error);
+        // Continue without outline - don't fail the entire upload
+      }
+    }
+    
+    progressCallback(90, 'Finalizing...');
+    
+    // Store file metadata in IndexedDB for faster access
+    await indexedDBService.saveFileMetadata({
+      fileId,
+      knowledgeBaseId,
+      filename,
+      size: file.size,
+      uploadedAt: Date.now(),
+      attributes,
+      outlineFileId
+    });
+    
+    // Create file response
+    const knowledgeBaseFile: KnowledgeBaseFile = {
+      id: fileId,
+      filename,
+      size: file.size,
+      uploadedAt: Date.now(),
+      attributes,
+      status: 'completed'
+    };
+    
+    // Update file count
+    await updateFileCount(knowledgeBaseId);
+    
+    progressCallback(100, 'Complete');
+    
+    return knowledgeBaseFile;
+  } catch (error) {
+    console.error('Failed to upload file:', error);
+    throw error;
+  }
+};
+
 export const uploadFile = async (
   knowledgeBaseId: string,
   file: File,

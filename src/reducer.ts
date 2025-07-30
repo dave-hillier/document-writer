@@ -349,6 +349,19 @@ export function appReducer(state: AppState, action: AppAction): AppState {
           )
         }
       };
+
+    case 'KNOWLEDGE_BASE_FILE_PROGRESS_UPDATED':
+      return {
+        ...state,
+        knowledgeBaseFiles: {
+          ...state.knowledgeBaseFiles,
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
+            file.id === action.payload.fileId
+              ? { ...file, progress: action.payload.progress, stage: action.payload.stage }
+              : file
+          )
+        }
+      };
       
     // Batch upload events
     case 'UPLOAD_BATCH_STARTED':

@@ -9,6 +9,7 @@ export function KnowledgeBaseManager() {
   const { state, dispatch } = useAppContext();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
+  const [isCreatingKnowledgeBase, setIsCreatingKnowledgeBase] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,14 +38,19 @@ export function KnowledgeBaseManager() {
 
     if (!name.trim()) return;
 
+    setIsCreatingKnowledgeBase(true);
     try {
       const knowledgeBase = await knowledgeBaseService.createKnowledgeBase(name, description);
       dispatch({ type: 'KNOWLEDGE_BASE_CREATED', payload: { knowledgeBase } });
       setIsCreating(false);
       form.reset();
+      // Navigate to the newly created knowledge base
+      navigate(`/knowledge-bases/${knowledgeBase.id}`);
     } catch (error) {
       console.error('Failed to create knowledge base:', error);
       alert('Failed to create knowledge base. Please check your API key.');
+    } finally {
+      setIsCreatingKnowledgeBase(false);
     }
   };
 
@@ -142,8 +148,10 @@ export function KnowledgeBaseManager() {
                     />
                   </label>
                   <div className="form-actions">
-                    <button type="submit" className="primary">Create</button>
-                    <button type="button" onClick={() => setIsCreating(false)} className="secondary">
+                    <button type="submit" className="primary" disabled={isCreatingKnowledgeBase} aria-busy={isCreatingKnowledgeBase}>
+                      {isCreatingKnowledgeBase ? 'Creating...' : 'Create'}
+                    </button>
+                    <button type="button" onClick={() => setIsCreating(false)} className="secondary" disabled={isCreatingKnowledgeBase}>
                       Cancel
                     </button>
                   </div>
