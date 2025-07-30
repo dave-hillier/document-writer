@@ -261,7 +261,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   };
 
   return (
-    <div className="file-uploader">
+    <section className="file-uploader">
       {batchState?.isUploading && (
         <div className="upload-progress-summary">
           <div className="progress-header">
@@ -589,6 +589,6 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           animation: spin 1s linear infinite;
         }
       `}</style>
-    </div>
+    </section>
   );
 }

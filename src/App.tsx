@@ -105,7 +105,7 @@ function DocumentPage() {
   }, [documentId, state.currentDocumentId, dispatch, navigate]);
 
   if (!state.outline) {
-    return <div>Loading document...</div>;
+    return <section>Loading document...</section>;
   }
 
   return (
@@ -203,9 +203,9 @@ function AppContent() {
 
       <main id="main-content" className="container" data-flex>
         {state.error && (
-          <div role="alert" aria-live="assertive">
+          <section role="alert" aria-live="assertive">
             {state.error}
-          </div>
+          </section>
         )}
 
         <Routes>

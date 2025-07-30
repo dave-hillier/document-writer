@@ -66,7 +66,7 @@ export function DocumentHistory() {
       </header>
 
       <section>
-        <div data-search-container>
+        <aside data-search-container>
           <input
             type="search"
             placeholder="Search documents..."
@@ -74,10 +74,10 @@ export function DocumentHistory() {
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Search documents"
           />
-        </div>
+        </aside>
 
         {filteredDocuments.length === 0 ? (
-          <div data-empty-state>
+          <section data-empty-state>
             <FileText size={48} data-empty-icon aria-hidden="true" />
             <p>
               {searchQuery ? 'No documents match your search.' : 'No documents saved yet.'}
@@ -85,17 +85,17 @@ export function DocumentHistory() {
             <Link to="/" role="button" data-variant="contrast">
               Create New Document
             </Link>
-          </div>
+          </section>
         ) : (
-          <div data-documents-grid>
+          <section data-documents-grid>
             {filteredDocuments.map((document) => (
               <article
                 key={document.id}
                 data-document-card
               >
                 <header data-card-header>
-                  <div data-card-header-content>
-                    <div>
+                  <section data-card-header-content>
+                    <header>
                       <h3>
                         <Link to={document.url} data-document-link>
                           {document.title}
@@ -105,7 +105,7 @@ export function DocumentHistory() {
                         <Clock size={14} />
                         Updated {formatDate(document.updatedAt)}
                       </small>
-                    </div>
+                    </header>
                     <button
                       onClick={() => handleDeleteDocument(document.id)}
                       data-outline
@@ -115,16 +115,16 @@ export function DocumentHistory() {
                     >
                       <Trash2 size={16} />
                     </button>
-                  </div>
+                  </section>
                 </header>
 
-                <div data-document-stats>
+                <footer data-document-stats>
                   <small>
                     {document.sections.length} sections • 
                     {document.sections.filter(s => s.content).length} completed • 
                     Target: {document.config.targetWordCount} words
                   </small>
-                </div>
+                </footer>
 
                 <details>
                   <summary>Sections</summary>
@@ -143,7 +143,7 @@ export function DocumentHistory() {
                 </details>
               </article>
             ))}
-          </div>
+          </section>
         )}
       </section>
     </article>

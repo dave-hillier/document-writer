@@ -194,7 +194,7 @@ export function KnowledgeBaseManager() {
                             <Database size={20} aria-hidden="true" />
                             {kb.name}
                           </h3>
-                          <div className="actions">
+                          <section className="actions">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -215,7 +215,7 @@ export function KnowledgeBaseManager() {
                             >
                               <Trash2 size={16} aria-hidden="true" />
                             </button>
-                          </div>
+                          </section>
                         </header>
                         {kb.description && <p>{kb.description}</p>}
                         <footer>
