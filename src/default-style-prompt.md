@@ -12,6 +12,7 @@
 ## Tone and Voice
 
 The default writing style should be:
+
 - Professional yet accessible
 - Clear and direct
 - Engaging without being overly casual
@@ -36,6 +37,7 @@ The default writing style should be:
 ## Section Structure Approach
 
 - Structure sections to serve the document's specific purpose and audience needs
-- Choose section roles that logically progress toward the document's objectives
-- Adapt section types to match the content domain and user requirements
-- Ensure each section has a clear purpose within the overall narrative flow
+- Create descriptive section roles that explain what each section accomplishes
+- Write roles as complete phrases that describe the section's function (e.g., "Explores the underlying causes of the phenomenon" not just "Causes")
+- Avoid generic role names; make each role specific to the content's unique requirements
+- Ensure each section has a clear, describable purpose within the overall narrative flow

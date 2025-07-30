@@ -35,18 +35,25 @@ Generate a detailed outline that serves the specific document requirements. **CR
 
 **Section Structure Requirements:**
 1. **Analyze Context First**: Examine the user's topic, intended audience, and document purpose to determine what sections are actually needed
-2. **Create 4-8 Contextual Sections**: Each section should have a role that logically serves the document's objectives
-3. **Dynamic Role Assignment**: Section roles should emerge from the content needs, not predefined templates
+2. **Create 4-8 Contextual Sections**: Each section should have a unique, descriptive role that explains its specific function in the document
+3. **Descriptive Role Assignment**: Write section roles as complete phrases that describe what the section accomplishes (e.g., "Establishes the historical context and significance of the topic" rather than just "Background")
 4. **Logical Progression**: Ensure sections flow logically toward achieving the document's purpose
-5. **Sub-steps for Each Section**: Provide 3-5 sub-steps that guide content development for each section's specific role
+5. **Sub-steps for Each Section**: Provide 3-5 sub-steps that guide content development for each section's specific function
 
-**Examples of Context-Driven Thinking:**
-- A "how-to" document might need: Problem Context → Prerequisites → Step-by-Step Process → Troubleshooting → Next Steps
-- A "business proposal" might need: Executive Summary → Market Opportunity → Solution Approach → Implementation Plan → ROI Analysis
-- A "research analysis" might need: Background → Methodology → Findings → Implications → Future Directions
-- A "personal story" might need: Setting the Scene → The Challenge → The Journey → Key Insights → Lessons Learned
+**Guidelines for Creating Descriptive Roles:**
+- Each role should be a complete thought explaining the section's purpose
+- Avoid generic labels like "Introduction", "Background", "Conclusion"
+- Instead, describe what the section does: "Introduces the core challenge and why it matters to the reader"
+- Roles should be specific to the content, not interchangeable templates
+- Consider: What unique contribution does this section make to the overall document?
 
-Follow the style guidelines for HOW to write each section, but let the content determine WHICH sections to include.
+**Examples of Descriptive Roles:**
+- Instead of "Introduction" → "Captures reader attention by presenting the central paradox"
+- Instead of "Background" → "Traces the evolution of the problem over the past decade"
+- Instead of "Solution" → "Presents a novel approach that addresses root causes rather than symptoms"
+- Instead of "Conclusion" → "Synthesizes insights into actionable recommendations for the reader"
+
+Let the content's unique requirements shape each section's descriptive role.
 
 ## Configuration
 
