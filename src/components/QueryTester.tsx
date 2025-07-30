@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Copy, RotateCw, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useAppContext } from '../contexts/useAppContext';
 import * as knowledgeBaseService from '../services/knowledgeBase';
 
@@ -15,6 +16,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const [rewriteQuery, setRewriteQuery] = useState(true);
   const [maxResults, setMaxResults] = useState(10);
   const [showRawJson, setShowRawJson] = useState(false);
+  const [searchOutlines, setSearchOutlines] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,8 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
     try {
       const result = await knowledgeBaseService.search(knowledgeBaseId, query, {
         maxResults,
-        rewriteQuery
+        rewriteQuery,
+        searchOutlines
       });
       
       dispatch({ type: 'QUERY_TEST_EXECUTED', payload: { result } });
@@ -53,6 +56,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
           <input
             type="text"
             value={query}
+            style={{ minWidth: '200px' }}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Enter your search query..."
             aria-label="Search query"
@@ -73,6 +77,16 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
         </div>
 
         <div className="search-options">
+          <label>
+            <input
+              type="checkbox"
+              role="switch"
+              checked={searchOutlines}
+              onChange={(e) => setSearchOutlines(e.target.checked)}
+            />
+            Search outlines {searchOutlines ? '(for generating document structure)' : '(search content examples)'}
+          </label>
+
           <label>
             <input
               type="checkbox"
@@ -154,9 +168,13 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
                           </header>
                           <div className="result-content">
                             {result.content.map((chunk, chunkIndex) => (
-                              <p key={chunkIndex} className="content-chunk">
-                                {chunk.text}
-                              </p>
+                              <div key={chunkIndex} className="content-chunk">
+                                {searchOutlines ? (
+                                  <ReactMarkdown>{chunk.text}</ReactMarkdown>
+                                ) : (
+                                  <p>{chunk.text}</p>
+                                )}
+                              </div>
                             ))}
                           </div>
                           {result.attributes && Object.keys(result.attributes).length > 0 && (
@@ -319,6 +337,34 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
           margin: 0.5rem 0;
           font-size: 0.9rem;
           line-height: 1.5;
+        }
+
+        .content-chunk > p {
+          margin: 0;
+        }
+
+        .content-chunk h1,
+        .content-chunk h2,
+        .content-chunk h3,
+        .content-chunk h4,
+        .content-chunk h5,
+        .content-chunk h6 {
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+        }
+
+        .content-chunk ul,
+        .content-chunk ol {
+          margin: 0.5rem 0;
+          padding-left: 1.5rem;
+        }
+
+        .content-chunk li {
+          margin-bottom: 0.25rem;
+        }
+
+        .content-chunk *:last-child {
+          margin-bottom: 0;
         }
 
         .result-attributes {
