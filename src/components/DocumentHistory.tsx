@@ -66,7 +66,7 @@ export function DocumentHistory() {
       </header>
 
       <section>
-        <div style={{ marginBottom: '1rem' }}>
+        <div data-search-container>
           <input
             type="search"
             placeholder="Search documents..."
@@ -77,43 +77,40 @@ export function DocumentHistory() {
         </div>
 
         {filteredDocuments.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <FileText size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
+          <div data-empty-state>
+            <FileText size={48} data-empty-icon aria-hidden="true" />
             <p>
               {searchQuery ? 'No documents match your search.' : 'No documents saved yet.'}
             </p>
-            <Link to="/" role="button" className="contrast">
+            <Link to="/" role="button" data-variant="contrast">
               Create New Document
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '1rem' }}>
+          <div data-documents-grid>
             {filteredDocuments.map((document) => (
               <article
                 key={document.id}
-                style={{
-                  border: '1px solid var(--pico-muted-border-color)',
-                  borderRadius: 'var(--pico-border-radius)',
-                  padding: '1rem'
-                }}
+                data-document-card
               >
-                <header style={{ marginBottom: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <header data-card-header>
+                  <div data-card-header-content>
                     <div>
-                      <h3 style={{ margin: 0 }}>
-                        <Link to={document.url} style={{ textDecoration: 'none' }}>
+                      <h3>
+                        <Link to={document.url} data-document-link>
                           {document.title}
                         </Link>
                       </h3>
-                      <small style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                      <small data-timestamp>
                         <Clock size={14} />
                         Updated {formatDate(document.updatedAt)}
                       </small>
                     </div>
                     <button
                       onClick={() => handleDeleteDocument(document.id)}
-                      className="outline secondary"
-                      style={{ padding: '0.25rem', minWidth: 'auto' }}
+                      data-outline
+                      data-variant="secondary"
+                      data-icon-button
                       aria-label={`Delete document: ${document.title}`}
                     >
                       <Trash2 size={16} />
@@ -121,7 +118,7 @@ export function DocumentHistory() {
                   </div>
                 </header>
 
-                <div style={{ marginBottom: '0.5rem' }}>
+                <div data-document-stats>
                   <small>
                     {document.sections.length} sections • 
                     {document.sections.filter(s => s.content).length} completed • 
@@ -131,13 +128,13 @@ export function DocumentHistory() {
 
                 <details>
                   <summary>Sections</summary>
-                  <ul style={{ marginTop: '0.5rem' }}>
+                  <ul data-sections-list>
                     {document.outline.sections.map((section, index) => (
-                      <li key={section.id} style={{ marginBottom: '0.25rem' }}>
+                      <li key={section.id} data-section-item>
                         <small>
                           {index + 1}. {section.title}
                           {document.sections.find(s => s.id === section.id)?.content && 
-                            <span style={{ color: 'var(--pico-primary-color)', marginLeft: '0.5rem' }}>✓</span>
+                            <span data-completed-check>✓</span>
                           }
                         </small>
                       </li>

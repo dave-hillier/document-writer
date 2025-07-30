@@ -83,7 +83,7 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
             placeholder="examples, anecdotes, statistics..."
             aria-describedby="allowed-hint"
           />
-          <small id="allowed-hint" className="form-hint">Comma-separated list of narrative elements to include</small>
+          <small id="allowed-hint" data-hint>Comma-separated list of narrative elements to include</small>
         </label>
 
         <label htmlFor="denied-elements">
@@ -96,7 +96,7 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
             placeholder="personal opinions, speculation..."
             aria-describedby="denied-hint"
           />
-          <small id="denied-hint" className="form-hint">Comma-separated list of narrative elements to avoid</small>
+          <small id="denied-hint" data-hint>Comma-separated list of narrative elements to avoid</small>
         </label>
 
         <label htmlFor="word-count">
@@ -117,18 +117,16 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           onChange={setKnowledgeBaseId}
         />
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
-          <div style={{ flex: 1 }}>
-            <StylePromptSelector 
-              selectedId={stylePromptId}
-              onChange={setStylePromptId}
-            />
-          </div>
+        <div data-style-selector-group>
+          <StylePromptSelector 
+            selectedId={stylePromptId}
+            onChange={setStylePromptId}
+          />
           <button
             type="button"
             onClick={() => setShowStyleManager(true)}
-            className="secondary"
-            style={{ marginBottom: '0', whiteSpace: 'nowrap' }}
+            data-variant="secondary"
+            data-manage-button
           >
             Manage Styles
           </button>
@@ -148,10 +146,10 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           <header>
             <h3>Generating Outline...</h3>
           </header>
-          <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+          <pre>
             {streamingContent}
-            <span className="cursor" aria-label="Generating">▋</span>
-          </div>
+            <span data-cursor aria-label="Generating">▋</span>
+          </pre>
         </article>
       )}
       

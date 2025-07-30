@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface EditableTextProps {
   value: string;
@@ -9,57 +9,98 @@ interface EditableTextProps {
 }
 
 export function EditableText({ value, onSave, ariaLabel, className, element = 'span' }: EditableTextProps) {
-  const elementRef = useRef<HTMLElement>(null);
+  const [editValue, setEditValue] = useState(value);
+  const [isEditing, setIsEditing] = useState(false);
   const Element = element;
 
   useEffect(() => {
-    if (elementRef.current && elementRef.current.textContent !== value) {
-      elementRef.current.textContent = value;
-    }
+    setEditValue(value);
   }, [value]);
 
+  const handleInput = (e: React.FormEvent<HTMLElement>) => {
+    const newValue = e.currentTarget.textContent || '';
+    setEditValue(newValue);
+  };
+
   const handleBlur = () => {
-    if (elementRef.current) {
-      const newValue = elementRef.current.textContent?.trim() || '';
-      if (newValue && newValue !== value) {
-        onSave(newValue);
-      } else {
-        elementRef.current.textContent = value;
-      }
+    const newValue = editValue.trim();
+    if (newValue && newValue !== value) {
+      onSave(newValue);
+    } else {
+      setEditValue(value);
     }
+    setIsEditing(false);
+  };
+
+  const handleFocus = () => {
+    setIsEditing(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      elementRef.current?.blur();
+      (e.currentTarget as HTMLElement).blur();
     } else if (e.key === 'Escape') {
-      if (elementRef.current) {
-        elementRef.current.textContent = value;
-        elementRef.current.blur();
-      }
+      setEditValue(value);
+      (e.currentTarget as HTMLElement).blur();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      selection.deleteFromDocument();
+      selection.getRangeAt(0).insertNode(document.createTextNode(text));
+      selection.collapseToEnd();
+      const event = new Event('input', { bubbles: true });
+      if (elementRef.current) {
+        elementRef.current.dispatchEvent(event);
+      }
+    }
   };
+
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  if (element === 'h1' || element === 'h3') {
+    const HeadingElement = element;
+    return (
+      <HeadingElement
+        ref={elementRef as React.RefObject<HTMLHeadingElement>}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onBlur={handleBlur}
+        onFocus={handleFocus}
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+        aria-label={ariaLabel}
+        className={className}
+        data-editable
+        data-min-width
+      >
+        {isEditing ? editValue : value}
+      </HeadingElement>
+    );
+  }
 
   return (
     <Element
-      ref={elementRef as any}
+      ref={elementRef}
       contentEditable
       suppressContentEditableWarning
+      onInput={handleInput}
       onBlur={handleBlur}
+      onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       aria-label={ariaLabel}
       className={className}
-      style={{ cursor: 'text', minWidth: '1em' }}
+      data-editable
+      data-min-width
     >
-      {value}
+      {isEditing ? editValue : value}
     </Element>
   );
 }

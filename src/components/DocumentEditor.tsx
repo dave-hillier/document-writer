@@ -110,12 +110,12 @@ export function DocumentEditor() {
             <span aria-label="Sections completed">{sections.filter(s => s.content).length} of {sections.length} sections completed</span>
           </p>
         </hgroup>
-        <nav aria-label="Document actions" style={{ display: 'flex', gap: '12px' }}>
+        <nav aria-label="Document actions" data-action-bar>
         <BulkGenerationButton />
           <button
             onClick={handleExport}
             disabled={isStreaming || sections.every(s => !s.content)}
-            className="contrast"
+            data-variant="contrast"
             aria-label="Export document as Markdown"
           >
             <Download size={18} aria-hidden="true" />
@@ -129,9 +129,9 @@ export function DocumentEditor() {
       <ol>
         {sections.map((section, index) => (
           <li key={section.id}>
-            <section className="document-section" aria-labelledby={`section-${section.id}-title`}>
+            <section data-document-section aria-labelledby={`section-${section.id}-title`}>
               <header>
-                <div className={`section-indicator ${section.content ? 'completed' : ''}`} aria-hidden="true">
+                <div data-section-indicator data-completed={section.content ? "true" : "false"} aria-hidden="true">
                   {section.content ? (
                     <FileText size={20} />
                   ) : (
@@ -177,11 +177,11 @@ export function DocumentEditor() {
 
               {section.content ? (
                 <>
-                  <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
+                  <pre data-content>
                     {section.content}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', gap: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  </pre>
+                  <div data-section-footer>
+                    <div data-metrics-group>
                       <output aria-label={`Section word count: ${section.wordCount}`}>
                         {section.wordCount} words
                       </output>
@@ -193,7 +193,7 @@ export function DocumentEditor() {
                     <button
                       onClick={() => handleGenerateSection(section.id, true)}
                       disabled={isStreaming || isGenerating}
-                      className="outline"
+                      data-outline
                       aria-label={`Regenerate content for section: ${section.title}`}
                     >
                       <RotateCcw size={16} aria-hidden="true" />
@@ -202,10 +202,10 @@ export function DocumentEditor() {
                   </div>
                 </>
               ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (
-                <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
+                <pre data-content>
                   {streamingContent}
-                  <span className="cursor" aria-label="Generating content">▋</span>
-                </div>
+                  <span data-cursor aria-label="Generating content">▋</span>
+                </pre>
               ) : (
                 <button
                   onClick={() => handleGenerateSection(section.id)}

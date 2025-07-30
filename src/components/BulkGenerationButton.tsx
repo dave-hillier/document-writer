@@ -138,7 +138,7 @@ function BulkGenerationButtonContent({ uiState }: { uiState: BulkGenerationUISta
         <Square size={18} aria-hidden="true" />
         Stop Generation
         {currentSection && (
-          <small style={{ display: 'block', marginTop: '4px' }}>
+          <small data-generating-info>
             Generating: {currentSection.title}
           </small>
         )}
@@ -245,7 +245,7 @@ export function BulkGenerationButton() {
     <button
       onClick={handleClick}
       disabled={uiState.disabled}
-      className="secondary"
+      data-variant="secondary"
       aria-label={uiState.ariaLabel}
     >
       <BulkGenerationButtonContent uiState={uiState} />

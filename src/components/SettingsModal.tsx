@@ -90,14 +90,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   return (
-    <dialog open className="modal" role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
+    <dialog open data-modal role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
       <article>
         <header>
           <button
             aria-label="Close settings"
             rel="prev"
             onClick={onClose}
-            className="close"
+            data-close
           >
             <X size={20} aria-hidden="true" />
           </button>
@@ -115,7 +115,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             aria-describedby="api-key-hint"
             required
           />
-          <small id="api-key-hint" className="form-hint">
+          <small id="api-key-hint" data-hint>
             Your API key is stored locally and never sent to any server except OpenAI.
           </small>
         </label>
@@ -142,7 +142,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               ))
             )}
           </select>
-          <small id="model-hint" className="form-hint">
+          <small id="model-hint" data-hint>
             {isLoadingModels 
               ? 'Fetching available models...' 
               : modelsError 
@@ -163,7 +163,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             Advanced Model Settings
           </summary>
           
-          <p className="form-hint">Configure different models for each stage of document generation.</p>
+          <p data-hint>Configure different models for each stage of document generation.</p>
           
           <label htmlFor="preprocessing-model">
             Pre-processing Model
@@ -180,7 +180,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="preprocessing-hint" className="form-hint">
+            <small id="preprocessing-hint" data-hint>
               Used for knowledge base search and query rewriting. Lighter models work well here.
             </small>
           </label>
@@ -200,7 +200,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="outline-hint" className="form-hint">
+            <small id="outline-hint" data-hint>
               Creates the document structure. Benefits from good reasoning capabilities.
             </small>
           </label>
@@ -220,20 +220,21 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="generation-hint" className="form-hint">
+            <small id="generation-hint" data-hint>
               Writes the actual content for each section. Consider using your most capable model here.
             </small>
           </label>
 
           <button
             type="button"
-            className="secondary outline"
+            data-variant="secondary"
+            data-outline
             onClick={() => {
               setPreprocessingModel(selectedModel);
               setOutlineModel(selectedModel);
               setGenerationModel(selectedModel);
             }}
-            style={{ marginTop: '1rem' }}
+            data-reset-button
           >
             Reset to Default Model
           </button>
@@ -253,7 +254,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <p>This will delete all your documents and knowledge bases. This action cannot be undone.</p>
             <button 
               onClick={handleResetDatabase}
-              className="secondary"
+              data-variant="secondary"
             >
               Reset Database
             </button>
@@ -263,7 +264,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <footer>
           <button
             onClick={onClose}
-            className="secondary"
+            data-variant="secondary"
           >
             Cancel
           </button>

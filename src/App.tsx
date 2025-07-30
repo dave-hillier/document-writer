@@ -70,8 +70,7 @@ function HomePage() {
   };
 
   return (
-    <section aria-labelledby="config-heading">
-      <h2 id="config-heading" className="visually-hidden">Document Configuration</h2>
+    <section aria-label="Document Configuration">
       <DocumentConfig onSubmit={handleGenerateOutline} />
     </section>
   );
@@ -117,14 +116,13 @@ function DocumentPage() {
             dispatch({ type: 'RESET_DOCUMENT' });
             navigate('/');
           }}
-          className="secondary"
+          data-variant="secondary"
         >
           ← Start New Document
         </button>
       </nav>
       
-      <section aria-labelledby="editor-heading">
-        <h2 id="editor-heading" className="visually-hidden">Document Editor</h2>
+      <section aria-label="Document Editor">
         <DocumentEditor />
       </section>
     </>
@@ -166,8 +164,8 @@ function AppContent() {
 
   return (
     <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
-      <header className="app-header container">
+      <a href="#main-content" data-skip-link>Skip to main content</a>
+      <header data-app-header className="container">
         <nav aria-label="Main navigation">
           <ul>
             <li><h1>Document Writer</h1></li>
@@ -193,7 +191,8 @@ function AppContent() {
                 onClick={() => setIsSettingsOpen(true)}
                 aria-label="Open settings"
                 data-tooltip="Settings"
-                className="contrast outline"
+                data-variant="contrast"
+                data-outline
               >
                 <Settings size={24} aria-hidden="true" />
               </button>
@@ -202,7 +201,7 @@ function AppContent() {
         </nav>
       </header>
 
-      <main id="main-content" className="container" style={{ flex: 1 }}>
+      <main id="main-content" className="container" data-flex>
         {state.error && (
           <div role="alert" aria-live="assertive">
             {state.error}

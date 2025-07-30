@@ -51,9 +51,9 @@ The project uses strict TypeScript settings with `verbatimModuleSyntax` enabled,
 
 This project follows a **classless CSS approach** using Pico.css as the foundation:
 
-- **Taxonomic Classes Only**: Use classes to describe what a component IS, not how it looks
-  - ✅ Good: `className="query-tester"`, `className="document-editor"`, `className="secondary"`
-  - ❌ Bad: `className="small"`, `className="spinning"`, `className="primary"` (when used for styling)
+- **Taxonomic Classes Only**: Use classes to describe what a component IS or its semantic role, not purely visual styling
+  - ✅ Good: `className="query-tester"`, `className="document-editor"`, `className="primary"`, `className="secondary"`
+  - ❌ Bad: `className="spinning"`, `className="red-button"`, `className="large-text"`
 - **Semantic HTML First**: Use proper semantic elements as the primary structure
   - `<article>`, `<section>`, `<header>`, `<footer>`, `<nav>`, `<aside>`, `<fieldset>`
 - **CSS Selector Strategy**: Target semantic elements within taxonomic contexts

@@ -17,16 +17,16 @@ export const CacheMetrics: FC<CacheMetricsProps> = ({
   const savings = cacheMetrics.cachedTokens > 0 ? "75%" : "0%"; // Based on OpenAI's 75% cost savings
 
   return (
-    <details className="cache-metrics">
+    <details data-cache-metrics>
       <summary>
         {label}
         {cacheMetrics.cachedTokens > 0 && (
-          <small style={{ color: 'green', marginLeft: '0.5rem' }}>
+          <small data-cache-hit>
             ✓ {hitRate}% cached
           </small>
         )}
       </summary>
-      <div style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+      <div data-metrics-details>
         <p>
           <strong>Tokens:</strong> {cacheMetrics.cachedTokens.toLocaleString()} cached / {cacheMetrics.totalTokens.toLocaleString()} total
         </p>
