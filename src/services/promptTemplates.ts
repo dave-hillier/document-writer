@@ -99,10 +99,10 @@ ${knowledgeBaseContext ? `## Knowledge Base Context\n\n${knowledgeBaseContext}\n
 
 - **Section**: ${section.title} (Section ${currentSectionIndex + 1} of ${outline.sections.length})
 - **Role**: ${section.role}
-- **Sub-steps to cover**: ${section.subSteps.join(', ')}${section.directions && section.directions.length > 0 ? `
+- **Sub-steps to cover**: ${section.subSteps.join(', ')}${section.cues && section.cues.length > 0 ? `
 
-**IMPORTANT - Cues to Respond To:**
-${section.directions.map((cue, i) => `${i + 1}. ${cue}`).join('\n')}
+**IMPORTANT - Cues:**
+${section.cues.map((cue, i) => `${i + 1}. ${cue}`).join('\n')}
 
 Your content must directly address each of these cues as if answering the prompts.` : ''}`;
 }

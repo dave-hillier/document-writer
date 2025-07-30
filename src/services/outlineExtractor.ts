@@ -14,7 +14,9 @@ const getOpenAIClient = (): OpenAI => {
 
 const OUTLINE_EXTRACTION_PROMPT = `You are an expert at analyzing documents and extracting their structural outline.
 
-Given a document, extract its outline in the following JSON format:
+**CRITICAL**: Analyze the document to determine the optimal section structure - do not follow rigid templates.
+
+Extract the document's outline in the following JSON format:
 {
   "title": "Document Title",
   "sections": [
@@ -28,10 +30,10 @@ Given a document, extract its outline in the following JSON format:
         "Fourth key point or sub-topic (optional)",
         "Fifth key point or sub-topic (optional)"
       ],
-      "directions": [
-        "What problem does this section address?",
-        "How does this concept work?",
-        "What are the key steps or considerations?"
+      "cues": [
+        "Define microservices as distributed system architecture",
+        "Compare microservices benefits over monolithic limitations", 
+        "Address scalability challenges with horizontal scaling"
       ],
       "narrativeElements": [
         "examples",
@@ -51,17 +53,26 @@ Given a document, extract its outline in the following JSON format:
   ]
 }
 
-Guidelines:
-1. Extract the main title and logical sections from the document
-2. Assign appropriate roles to each section based on its purpose
-3. For each section, identify 3-5 key sub-steps or topics covered
-4. For each section, identify 2-4 implicit cues or questions that the section is responding to. Think: "What questions is this section answering?"
-5. For each section, identify 2-5 single-word narrative elements that capture how the content is communicated. Generate descriptive words that represent the essence of the section's approach (e.g., examples, statistics, anecdotes, stories, quotes, analogies, experiences, history, visuals, instructions, comparisons, specifications, testimonials, research, opinions, surveys, benchmarks, dialogue, metaphors, frameworks, processes, insights, lessons, principles, strategies, tactics, methods, tools, concepts, theories, models, patterns, trends, facts, observations, experiments)
-6. Generate elements based on what's actually present - don't use a fixed list, but create words that truly describe the communication style
-7. Frame directions as questions or prompts that would generate similar content
-8. Ensure the outline captures the document's structure, not just its content
-9. Use clear, concise language for titles, sub-steps, and directions
-10. If the document doesn't have clear sections, infer logical divisions
+**Section Structure Requirements:**
+1. **Analyze Context First**: Examine the document's topic, intended audience, and purpose to determine what sections are actually needed
+2. **Extract 4-8 Logical Sections**: Each section should have a clear, specific purpose in the document
+3. **Concise Role Assignment**: Write section roles as just a few words that describe the section's purpose (e.g., "Introduction", "Problem", "Solution", "Implementation")
+4. **Logical Progression**: Ensure sections flow logically toward achieving the document's purpose
+5. **Brief Sub-steps**: Provide 3-5 concise sub-steps that guide content development for each section
+6. **Cues**: For each section, provide 2-4 imperative cues that guide content generation. These are direct prompts or commands that the section should respond to
+7. **Narrative Elements**: For each section, identify appropriate narrative elements that would enhance the content
+
+**Cues Guidelines:**
+- Think of cues as imperative writing prompts that each section must address
+- Frame as direct commands or prompts that trigger specific responses
+- Use cue-response format: "Define microservices as distributed system architecture"
+- Keep cues focused and specific to the section's purpose
+- Ensure each cue can be meaningfully answered within the section
+
+**Narrative Elements Guidelines:**
+- Generate single-word elements that capture the essence of the section's communication style
+- Generate elements based on what's actually present - don't use a fixed list
+- Create words that truly describe the communication style (e.g., examples, statistics, anecdotes, case-studies, quotes, analogies, personal-experiences, historical-references, data-visualizations, step-by-step-instructions, comparisons, technical-specifications)
 
 Return ONLY valid JSON without any markdown formatting or explanation.`;
 
@@ -94,12 +105,12 @@ export async function extractOutlineFromFile(file: File): Promise<DocumentOutlin
     // Add IDs to sections
     const outline: DocumentOutline = {
       title: outlineData.title || 'Untitled Document',
-      sections: (outlineData.sections || []).map((section: { title: string; role: string; subSteps?: string[]; directions?: string[]; narrativeElements?: string[] }, index: number) => ({
+      sections: (outlineData.sections || []).map((section: { title: string; role: string; subSteps?: string[]; cues?: string[]; narrativeElements?: string[] }, index: number) => ({
         id: `section-${Date.now()}-${index}`,
         title: section.title,
         role: section.role,
         subSteps: section.subSteps || [],
-        directions: section.directions || [],
+        cues: section.cues || [],
         narrativeElements: section.narrativeElements || []
       }))
     };
@@ -122,10 +133,10 @@ export function outlineToMarkdown(outline: DocumentOutline): string {
       markdown += `- ${step}\n`;
     });
     
-    if (section.directions && section.directions.length > 0) {
-      markdown += `\n**Cues to Address:**\n`;
-      section.directions.forEach(direction => {
-        markdown += `- ${direction}\n`;
+    if (section.cues && section.cues.length > 0) {
+      markdown += `\n**Cues:**\n`;
+      section.cues.forEach(cue => {
+        markdown += `- ${cue}\n`;
       });
     }
     

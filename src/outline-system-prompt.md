@@ -10,7 +10,7 @@ Generate a detailed outline that serves the specific document requirements. **CR
 3. **Concise Role Assignment**: Write section roles as just a few words that describe the section's purpose (e.g., "Introduction", "Problem", "Solution", "Implementation")
 4. **Logical Progression**: Ensure sections flow logically toward achieving the document's purpose
 5. **Brief Sub-steps**: Provide 3-5 concise sub-steps that guide content development for each section
-6. **Directions (Cue & Response)**: For each section, provide 2-4 cues that the section should respond to. These are prompts or questions that guide the content generation
+6. **Cues**: For each section, provide 2-4 imperative cues that guide content generation. These are direct prompts or commands and expected outcome/response
 7. **Narrative Elements**: For each section, identify appropriate narrative elements that would enhance the content
 
 **Guidelines for Role Names:**
@@ -30,24 +30,21 @@ Generate a detailed outline that serves the specific document requirements. **CR
 
 Keep titles and sub-steps equally concise and direct.
 
-**Directions (Cue & Response) Guidelines:**
-- Think of directions as writing prompts that each section must address
-- Frame as questions or cues that the content should respond to
+**Cues Guidelines:**
+- Think of cues as imperative writing prompts that each section must address
+- Frame as direct commands or prompts that trigger specific responses
 - Examples:
-  - "What specific problem does this solve?"
-  - "How does this compare to existing solutions?"
-  - "What are the step-by-step instructions?"
-  - "What are the key benefits for users?"
-  - "What common mistakes should be avoided?"
-- Keep directions focused and specific to the section's purpose
+  - "Define microservices as distributed system architecture"
+  - "Compare microservices benefits over monolithic limitations"
+  - "Address scalability challenges with horizontal scaling"
+- Keep cues focused and specific to the section's purpose
 - Ensure each cue can be meaningfully answered within the section
 
 **Narrative Elements Guidelines:**
 - Generate single-word elements that capture the essence of the section's communication style
-- Each element should be a descriptive word that represents how the content is delivered or structured
-- Examples of narrative elements: examples, statistics, anecdotes, stories, quotes, analogies, experiences, history, visuals, instructions, comparisons, specifications, testimonials, research, opinions, surveys, benchmarks, dialogue, metaphors, frameworks, processes, insights, lessons, principles, strategies, tactics, methods, tools, concepts, theories, models, patterns, trends, facts, observations, experiments, case-studies
+- Generate elements based on what's actually present - don't use a fixed list
+- Create words that truly describe the communication style (e.g., examples, statistics, anecdotes, case-studies, quotes, analogies, personal-experiences, historical-references, data-visualizations, step-by-step-instructions, comparisons, technical-specifications)
 - Choose 2-5 narrative elements per section based on the section's actual content and communication approach
-- Elements should reflect how the information is presented, not just what information is present
 
 ## Output Format
 
@@ -58,12 +55,34 @@ Keep titles and sub-steps equally concise and direct.
   "title": "Document Title",
   "sections": [
     {
-      "id": "unique-id",
       "title": "Section Title",
-      "role": "Section Role",
-      "subSteps": ["step1", "step2", "step3"],
-      "directions": ["What problem does this solve?", "How does it work?"],
-      "narrativeElements": ["examples", "statistics", "analogies"]
+      "role": "Introduction|Background/Context|Problem/Challenge|Analysis|Solution/Approach|Implementation|Results/Outcomes|Conclusion",
+      "subSteps": [
+        "First key point or sub-topic",
+        "Second key point or sub-topic",
+        "Third key point or sub-topic",
+        "Fourth key point or sub-topic (optional)",
+        "Fifth key point or sub-topic (optional)"
+      ],
+      "cues": [
+        "Define microservices as distributed system architecture",
+        "Compare microservices benefits over monolithic limitations",
+        "Address scalability challenges with horizontal scaling"
+      ],
+      "narrativeElements": [
+        "examples",
+        "statistics",
+        "anecdotes",
+        "case-studies",
+        "quotes",
+        "analogies",
+        "personal-experiences",
+        "historical-references",
+        "data-visualizations",
+        "step-by-step-instructions",
+        "comparisons",
+        "technical-specifications"
+      ]
     }
   ]
 }

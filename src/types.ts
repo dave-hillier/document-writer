@@ -8,7 +8,7 @@ export interface Section {
   title: string;
   role: string;
   subSteps: string[];
-  directions?: string[];
+  cues?: string[];
   narrativeElements?: string[];
   content?: string;
   wordCount?: number;
@@ -148,7 +148,7 @@ export type AppAction =
   | { type: 'OUTLINE_GENERATED'; payload: { responseId: string; outline: DocumentOutline; cacheMetrics?: CacheMetrics } }
   | { type: 'OUTLINE_GENERATION_FAILED'; payload: string }
   | { type: 'OUTLINE_TITLE_UPDATED'; payload: { title: string } }
-  | { type: 'SECTION_UPDATED'; payload: { sectionId: string; updates: Partial<Pick<Section, 'title' | 'role' | 'subSteps' | 'directions' | 'narrativeElements'>> } }
+  | { type: 'SECTION_UPDATED'; payload: { sectionId: string; updates: Partial<Pick<Section, 'title' | 'role' | 'subSteps' | 'cues' | 'narrativeElements'>> } }
   
   // Section generation events
   | { type: 'SECTION_GENERATION_STARTED'; payload: { sectionId: string } }

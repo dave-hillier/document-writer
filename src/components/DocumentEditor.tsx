@@ -175,14 +175,14 @@ export function DocumentEditor() {
                 />
               </details>
 
-              {section.directions && section.directions.length > 0 && (
+              {section.cues && section.cues.length > 0 && (
                 <details open={!section.content}>
                   <summary>Writing Cues</summary>
                   <EditableList
-                    items={section.directions}
-                    onSave={(newDirections) => dispatch({ 
+                    items={section.cues}
+                    onSave={(newCues) => dispatch({ 
                       type: 'SECTION_UPDATED', 
-                      payload: { sectionId: section.id, updates: { directions: newDirections } } 
+                      payload: { sectionId: section.id, updates: { cues: newCues } } 
                     })}
                     ariaLabel={`Writing cues for section ${index + 1}`}
                   />
