@@ -63,3 +63,123 @@ Each outline should contain:
 - Include smooth transitions between ideas
 - Support claims with reasoning
 - Keep sections focused on their designated role
+
+## Example Outlines
+
+### Example 1: Technical Guide
+```json
+{
+  "title": "Implementing Real-Time Data Processing with Apache Kafka",
+  "sections": [
+    {
+      "title": "Introduction to Real-Time Data Processing",
+      "role": "Introduction",
+      "subSteps": [
+        "Define real-time data processing and its importance",
+        "Introduce Apache Kafka as a solution",
+        "Preview the implementation journey",
+        "Set expectations for technical requirements"
+      ]
+    },
+    {
+      "title": "Understanding Kafka Architecture",
+      "role": "Background/Context",
+      "subSteps": [
+        "Explain the publish-subscribe model",
+        "Detail Kafka's core components (brokers, topics, partitions)",
+        "Describe how Kafka ensures reliability and scalability",
+        "Compare with traditional messaging systems"
+      ]
+    },
+    {
+      "title": "Setting Up Your Kafka Environment",
+      "role": "Implementation",
+      "subSteps": [
+        "List system requirements and prerequisites",
+        "Walk through installation and configuration",
+        "Create your first topic and test messages",
+        "Troubleshoot common setup issues"
+      ]
+    },
+    {
+      "title": "Building Producer and Consumer Applications",
+      "role": "Solution/Approach",
+      "subSteps": [
+        "Design a producer for your use case",
+        "Implement consumer groups and offset management",
+        "Handle errors and ensure message delivery",
+        "Optimize for performance and throughput"
+      ]
+    },
+    {
+      "title": "Best Practices and Production Considerations",
+      "role": "Conclusion",
+      "subSteps": [
+        "Summarize key implementation patterns",
+        "Discuss monitoring and maintenance strategies",
+        "Address security and compliance requirements",
+        "Suggest next steps for scaling your system"
+      ]
+    }
+  ]
+}
+```
+
+### Example 2: Business Strategy Document
+```json
+{
+  "title": "Digital Transformation Strategy for Retail Operations",
+  "sections": [
+    {
+      "title": "The Imperative for Digital Transformation",
+      "role": "Introduction",
+      "subSteps": [
+        "Establish the changing retail landscape",
+        "Define digital transformation in retail context",
+        "Present the document's strategic framework",
+        "Outline expected outcomes and benefits"
+      ]
+    },
+    {
+      "title": "Current State Assessment",
+      "role": "Problem/Challenge",
+      "subSteps": [
+        "Analyze existing technology infrastructure",
+        "Identify operational inefficiencies",
+        "Benchmark against industry leaders",
+        "Quantify the cost of maintaining status quo"
+      ]
+    },
+    {
+      "title": "Strategic Transformation Roadmap",
+      "role": "Solution/Approach",
+      "subSteps": [
+        "Define the target digital ecosystem",
+        "Prioritize transformation initiatives",
+        "Create phased implementation timeline",
+        "Allocate resources and budget requirements"
+      ]
+    },
+    {
+      "title": "Implementation Framework",
+      "role": "Implementation",
+      "subSteps": [
+        "Detail governance and project structure",
+        "Describe change management approach",
+        "Outline technology adoption methodology",
+        "Define success metrics and KPIs"
+      ]
+    },
+    {
+      "title": "Expected Outcomes and ROI",
+      "role": "Results/Outcomes",
+      "subSteps": [
+        "Project financial benefits and timeline",
+        "Describe operational improvements",
+        "Highlight customer experience enhancements",
+        "Address risk mitigation strategies"
+      ]
+    }
+  ]
+}
+```

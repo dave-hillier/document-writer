@@ -24,12 +24,33 @@ export async function generateOutline(
     shouldStop?: () => boolean,
     stylePrompt?: StylePrompt
   ): Promise<void> {
-    // Search knowledge base if configured
+    // Search knowledge base for outline examples if configured
     let knowledgeBaseContext = '';
     if (config.knowledgeBaseId) {
       try {
         const knowledgeBase = await indexedDBService.getKnowledgeBase(config.knowledgeBaseId);
-        if (knowledgeBase) {
+        if (knowledgeBase && knowledgeBase.outlineVectorStoreId) {
+          // Search the outline vector store for relevant outline examples
+          const searchResults = await vectorStore.search(
+            knowledgeBase.outlineVectorStoreId,
+            userPrompt,
+            { maxResults: 3, rewriteQuery: true }
+          );
+          
+          if (searchResults.results.length > 0) {
+            knowledgeBaseContext = 'Example outlines from similar documents:\n\n';
+            searchResults.results.forEach((result, index) => {
+              knowledgeBaseContext += `[${index + 1}] ${result.filename} (relevance: ${(result.score * 100).toFixed(1)}%):\n`;
+              result.content.forEach(chunk => {
+                if (chunk.type === 'text') {
+                  knowledgeBaseContext += chunk.text + '\n';
+                }
+              });
+              knowledgeBaseContext += '\n---\n\n';
+            });
+          }
+        } else if (knowledgeBase) {
+          // Fallback to content store for backward compatibility
           const searchResults = await vectorStore.search(
             knowledgeBase.vectorStoreId,
             userPrompt,

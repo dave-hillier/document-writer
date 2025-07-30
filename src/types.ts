@@ -54,6 +54,7 @@ export interface KnowledgeBase {
   name: string;
   description?: string;
   vectorStoreId: string;
+  outlineVectorStoreId?: string;
   createdAt: number;
   updatedAt: number;
   fileCount: number;
@@ -123,6 +124,8 @@ export type AppAction =
   | { type: 'OUTLINE_CONTENT_STREAMED'; payload: string }
   | { type: 'OUTLINE_GENERATED'; payload: { responseId: string; outline: DocumentOutline; cacheMetrics?: CacheMetrics } }
   | { type: 'OUTLINE_GENERATION_FAILED'; payload: string }
+  | { type: 'OUTLINE_TITLE_UPDATED'; payload: { title: string } }
+  | { type: 'SECTION_UPDATED'; payload: { sectionId: string; updates: Partial<Pick<Section, 'title' | 'role' | 'subSteps'>> } }
   
   // Section generation events
   | { type: 'SECTION_GENERATION_STARTED'; payload: { sectionId: string } }

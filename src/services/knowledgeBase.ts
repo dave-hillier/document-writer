@@ -3,18 +3,23 @@ import type { ComparisonFilter, CompoundFilter } from 'openai/resources/shared';
 import * as vectorStore from './vectorStore';
 import { indexedDBService } from './indexeddb';
 import { v4 as uuidv4 } from 'uuid';
+import { extractOutlineFromFile, outlineToMarkdown } from './outlineExtractor';
 
 export const createKnowledgeBase = async (name: string, description?: string): Promise<KnowledgeBase> => {
   try {
-    // Create vector store in OpenAI
-    const { id: vectorStoreId } = await vectorStore.createVectorStore(name);
+    // Create two vector stores in OpenAI - one for content, one for outlines
+    const [contentStore, outlineStore] = await Promise.all([
+      vectorStore.createVectorStore(`${name} - Content`),
+      vectorStore.createVectorStore(`${name} - Outlines`)
+    ]);
     
     // Create knowledge base metadata
     const knowledgeBase: KnowledgeBase = {
       id: uuidv4(),
       name,
       description,
-      vectorStoreId,
+      vectorStoreId: contentStore.id,
+      outlineVectorStoreId: outlineStore.id,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       fileCount: 0
@@ -68,8 +73,12 @@ export const deleteKnowledgeBase = async (knowledgeBaseId: string): Promise<void
       throw new Error('Knowledge base not found');
     }
     
-    // Delete from OpenAI
-    await vectorStore.deleteVectorStore(knowledgeBase.vectorStoreId);
+    // Delete both vector stores from OpenAI
+    const deletePromises = [vectorStore.deleteVectorStore(knowledgeBase.vectorStoreId)];
+    if (knowledgeBase.outlineVectorStoreId) {
+      deletePromises.push(vectorStore.deleteVectorStore(knowledgeBase.outlineVectorStoreId));
+    }
+    await Promise.all(deletePromises);
     
     // Delete from IndexedDB
     await indexedDBService.deleteKnowledgeBase(knowledgeBaseId);
@@ -102,12 +111,48 @@ export const uploadFile = async (
       throw new Error('Knowledge base not found');
     }
     
-    // Upload to OpenAI
+    // Upload original file to content vector store
     const { fileId, filename } = await vectorStore.uploadFile(
       knowledgeBase.vectorStoreId,
       file,
       attributes
     );
+    
+    let outlineFileId: string | undefined;
+    
+    // Extract and upload outline if outline store exists
+    if (knowledgeBase.outlineVectorStoreId) {
+      try {
+        // Extract outline from file
+        const outline = await extractOutlineFromFile(file);
+        
+        // Convert outline to markdown format
+        const outlineMarkdown = outlineToMarkdown(outline);
+        
+        // Create a new file with the outline
+        const outlineFile = new File(
+          [outlineMarkdown], 
+          `${filename}_outline.md`,
+          { type: 'text/markdown' }
+        );
+        
+        // Upload outline to outline vector store
+        const outlineUpload = await vectorStore.uploadFile(
+          knowledgeBase.outlineVectorStoreId,
+          outlineFile,
+          { 
+            ...attributes,
+            originalFileId: fileId,
+            outlineData: JSON.stringify(outline)
+          }
+        );
+        
+        outlineFileId = outlineUpload.fileId;
+      } catch (error) {
+        console.error('Failed to extract/upload outline:', error);
+        // Continue without outline - don't fail the entire upload
+      }
+    }
     
     // Store file metadata in IndexedDB for faster access
     await indexedDBService.saveFileMetadata({
@@ -116,7 +161,8 @@ export const uploadFile = async (
       filename,
       size: file.size,
       uploadedAt: Date.now(),
-      attributes
+      attributes,
+      outlineFileId
     });
     
     // Create file response
@@ -146,8 +192,21 @@ export const deleteFile = async (knowledgeBaseId: string, fileId: string): Promi
       throw new Error('Knowledge base not found');
     }
     
-    // Delete from OpenAI
+    // Get file metadata to find outline file ID
+    const fileMetadata = await indexedDBService.getFileMetadata(fileId);
+    
+    // Delete from content vector store
     await vectorStore.deleteFile(knowledgeBase.vectorStoreId, fileId);
+    
+    // Delete outline file if it exists
+    if (fileMetadata?.outlineFileId && knowledgeBase.outlineVectorStoreId) {
+      try {
+        await vectorStore.deleteFile(knowledgeBase.outlineVectorStoreId, fileMetadata.outlineFileId);
+      } catch (error) {
+        console.error('Failed to delete outline file:', error);
+        // Continue even if outline deletion fails
+      }
+    }
     
     // Delete file metadata from IndexedDB
     await indexedDBService.deleteFileMetadata(fileId);

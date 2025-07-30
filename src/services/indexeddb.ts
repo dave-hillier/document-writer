@@ -1,7 +1,7 @@
 import type { DocumentHistoryItem, KnowledgeBase, StylePrompt } from '../types';
 
 const DB_NAME = 'DocumentWriterDB';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 const DOCUMENTS_STORE = 'documents';
 const KNOWLEDGE_BASES_STORE = 'knowledgeBases';
 const FILE_METADATA_STORE = 'fileMetadata';
@@ -264,6 +264,7 @@ export class IndexedDBService {
     size?: number;
     uploadedAt: number;
     attributes?: Record<string, unknown>;
+    outlineFileId?: string;
   }): Promise<void> {
     if (!this.db) {
       await this.init();
@@ -287,6 +288,7 @@ export class IndexedDBService {
     size?: number;
     uploadedAt: number;
     attributes?: Record<string, unknown>;
+    outlineFileId?: string;
   } | null> {
     if (!this.db) {
       await this.init();
@@ -312,6 +314,7 @@ export class IndexedDBService {
     size?: number;
     uploadedAt: number;
     attributes?: Record<string, unknown>;
+    outlineFileId?: string;
   }>> {
     if (!this.db) {
       await this.init();
