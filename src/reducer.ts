@@ -272,10 +272,11 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         knowledgeBaseFiles: {
           ...state.knowledgeBaseFiles,
-          [action.payload.knowledgeBaseId]: [
-            ...(state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []),
-            { ...action.payload.file, startedAt: Date.now() }
-          ]
+          [action.payload.knowledgeBaseId]: (state.knowledgeBaseFiles[action.payload.knowledgeBaseId] || []).map(file =>
+            file.id === action.payload.file.id
+              ? { ...action.payload.file, startedAt: Date.now() }
+              : file
+          )
         }
       };
     

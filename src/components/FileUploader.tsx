@@ -142,12 +142,17 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   const processUploadQueue = async () => {
     setIsUploading(true);
     
-    // Process queue items one by one, updating state after each
-    let currentQueue = [...uploadQueue];
-    
-    while (currentQueue.length > 0) {
-      const item = currentQueue[0];
-      if (!item) break;
+    // Process queue items one by one, checking state each time
+    while (true) {
+      // Get current queue from state
+      const currentItem = await new Promise<UploadQueueItem | undefined>(resolve => {
+        setUploadQueue(queue => {
+          resolve(queue[0]);
+          return queue;
+        });
+      });
+      
+      if (!currentItem) break;
       
       // Update status to uploading
       dispatch({
@@ -155,9 +160,9 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
         payload: {
           knowledgeBaseId,
           file: {
-            id: item.id,
-            filename: item.file.name,
-            size: item.file.size,
+            id: currentItem.id,
+            filename: currentItem.file.name,
+            size: currentItem.file.size,
             uploadedAt: Date.now(),
             status: 'uploading',
             progress: 0
@@ -172,7 +177,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
             type: 'KNOWLEDGE_BASE_FILE_PROGRESS_UPDATED',
             payload: {
               knowledgeBaseId,
-              fileId: item.id,
+              fileId: currentItem.id,
               progress,
               stage
             }
@@ -181,21 +186,25 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
 
         const uploadedFile = await knowledgeBaseService.uploadFileWithProgress(
           knowledgeBaseId, 
-          item.file, 
+          currentItem.file, 
           progressCallback
         );
         
+        // First update the batch state
         dispatch({
           type: 'KNOWLEDGE_BASE_FILE_UPLOAD_COMPLETED',
-          payload: { knowledgeBaseId, fileId: item.id }
+          payload: { knowledgeBaseId, fileId: currentItem.id }
         });
 
-        // Update with real file data by replacing the temp file
+        // Then immediately replace the temporary file with the uploaded file
+        // This ensures the file doesn't appear in both sections
         dispatch({
           type: 'KNOWLEDGE_BASE_FILES_LOADED',
           payload: {
             knowledgeBaseId,
-            files: files.map(f => f.id === item.id ? uploadedFile : f)
+            files: state.knowledgeBaseFiles[knowledgeBaseId].map(f => 
+              f.id === currentItem.id ? { ...uploadedFile, status: 'completed' } : f
+            )
           }
         });
       } catch (error) {
@@ -204,15 +213,14 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           type: 'KNOWLEDGE_BASE_FILE_UPLOAD_FAILED',
           payload: {
             knowledgeBaseId,
-            fileId: item.id,
+            fileId: currentItem.id,
             error: error instanceof Error ? error.message : 'Upload failed'
           }
         });
       }
       
-      // Remove processed item from both local queue and state
-      currentQueue = currentQueue.slice(1);
-      setUploadQueue(currentQueue);
+      // Remove processed item from queue
+      setUploadQueue(queue => queue.slice(1));
     }
     
     setIsUploading(false);
@@ -297,15 +305,18 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   const getOverallProgress = () => {
     if (!batchState || batchState.totalFiles === 0) return 0;
     
-    // Calculate progress by accounting for individual file progress
-    const activeFiles = files.filter(f => f.status === 'queued' || f.status === 'uploading');
-    const completedFiles = files.filter(f => f.status === 'completed' || f.status === 'failed');
+    // Use batch state counts for completed/failed files
+    const completedCount = batchState.completedFiles + batchState.failedFiles;
+    const remainingFiles = batchState.totalFiles - completedCount;
     
-    // Completed files count as 100% each
-    let totalProgress = completedFiles.length * 100;
+    // Calculate progress: completed files are 100% each
+    let totalProgress = completedCount * 100;
     
-    // Add individual progress for active files
-    totalProgress += activeFiles.reduce((sum, file) => sum + (file.progress || 0), 0);
+    // Add progress for currently uploading files
+    if (remainingFiles > 0) {
+      const uploadingFiles = files.filter(f => f.status === 'uploading');
+      totalProgress += uploadingFiles.reduce((sum, file) => sum + (file.progress || 0), 0);
+    }
     
     // Calculate percentage based on total possible progress (totalFiles * 100)
     return Math.round(totalProgress / (batchState.totalFiles * 100) * 100);
