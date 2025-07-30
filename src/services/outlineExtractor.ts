@@ -37,17 +37,9 @@ Extract the document's outline in the following JSON format:
       ],
       "narrativeElements": [
         "examples",
-        "statistics",
-        "anecdotes",
-        "case-studies",
-        "quotes",
-        "analogies",
-        "personal-experiences",
-        "historical-references",
-        "data-visualizations",
-        "step-by-step-instructions",
-        "comparisons",
-        "technical-specifications"
+        "breath work",
+        "progressive relaxation",
+        "visualization" 
       ]
     }
   ]
@@ -71,8 +63,9 @@ Extract the document's outline in the following JSON format:
 
 **Narrative Elements Guidelines:**
 - Generate single-word elements that capture the essence of the section's communication style
-- Generate elements based on what's actually present - don't use a fixed list
-- Create words that truly describe the communication style (e.g., examples, statistics, anecdotes, case-studies, quotes, analogies, personal-experiences, historical-references, data-visualizations, step-by-step-instructions, comparisons, technical-specifications)
+- Generate elements based on what's actually needed for the specific content - don't use a fixed list
+- Create words that truly describe how the section should communicate its ideas
+- Choose 2-5 contextually appropriate elements per section
 
 Return ONLY valid JSON without any markdown formatting or explanation.`;
 

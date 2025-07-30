@@ -42,9 +42,9 @@ Keep titles and sub-steps equally concise and direct.
 
 **Narrative Elements Guidelines:**
 - Generate single-word elements that capture the essence of the section's communication style
-- Generate elements based on what's actually present - don't use a fixed list
-- Create words that truly describe the communication style (e.g., examples, statistics, anecdotes, case-studies, quotes, analogies, personal-experiences, historical-references, data-visualizations, step-by-step-instructions, comparisons, technical-specifications)
-- Choose 2-5 narrative elements per section based on the section's actual content and communication approach
+- Generate elements based on what's actually needed for the specific content - don't use a fixed list
+- Create words that truly describe how the section should communicate its ideas
+- Choose 2-5 contextually appropriate elements per section based on the section's actual content and communication approach
 
 ## Output Format
 
@@ -71,17 +71,8 @@ Keep titles and sub-steps equally concise and direct.
       ],
       "narrativeElements": [
         "examples",
-        "statistics",
-        "anecdotes",
-        "case-studies",
-        "quotes",
-        "analogies",
-        "personal-experiences",
-        "historical-references",
-        "data-visualizations",
-        "step-by-step-instructions",
-        "comparisons",
-        "technical-specifications"
+        "data-points",
+        "frameworks"
       ]
     }
   ]
