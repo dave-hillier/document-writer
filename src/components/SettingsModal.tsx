@@ -3,6 +3,7 @@ import { X, AlertTriangle } from 'lucide-react';
 import { ModelsService } from '../services/models';
 import type { ModelInfo } from '../services/models';
 import { indexedDBService } from '../services/indexeddb';
+import OpenAI from 'openai';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isDeletingFiles, setIsDeletingFiles] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState<string>('');
 
   useEffect(() => {
     if (isOpen) {
@@ -86,6 +89,67 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       window.location.reload();
     } catch (error) {
       alert(`Failed to reset database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleDeleteAllFiles = async () => {
+    if (!confirm('This will delete ALL files from OpenAI Files API (purpose: assistants). This action cannot be undone. Are you sure?')) {
+      return;
+    }
+
+    if (!confirm('Are you absolutely sure? This will permanently delete all uploaded files from OpenAI servers.')) {
+      return;
+    }
+
+    setIsDeletingFiles(true);
+    setDeleteProgress('Getting files from OpenAI...');
+
+    try {
+      const apiKey = localStorage.getItem('openai-api-key');
+      if (!apiKey) {
+        throw new Error('No OpenAI API key found');
+      }
+
+      const openai = new OpenAI({
+        apiKey,
+        dangerouslyAllowBrowser: true
+      });
+
+      // Get all files with purpose 'assistants'
+      setDeleteProgress('Listing all files...');
+      const files = await openai.files.list({
+        purpose: 'assistants'
+      });
+      
+      if (files.data.length === 0) {
+        setDeleteProgress('No files found');
+        setTimeout(() => {
+          setIsDeletingFiles(false);
+          setDeleteProgress('');
+        }, 2000);
+        return;
+      }
+
+      setDeleteProgress(`Found ${files.data.length} files. Deleting...`);
+
+      // Delete each file
+      for (let i = 0; i < files.data.length; i++) {
+        const file = files.data[i];
+        setDeleteProgress(`Deleting file ${i + 1}/${files.data.length}: ${file.filename}`);
+        await openai.files.delete(file.id);
+      }
+
+      setDeleteProgress('All files deleted successfully!');
+      setTimeout(() => {
+        setIsDeletingFiles(false);
+        setDeleteProgress('');
+      }, 2000);
+    } catch (error) {
+      setDeleteProgress(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setTimeout(() => {
+        setIsDeletingFiles(false);
+        setDeleteProgress('');
+      }, 3000);
     }
   };
 
@@ -247,6 +311,24 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <AlertTriangle size={16} aria-hidden="true" />
             {' '}Danger Zone
           </h4>
+          <article>
+            <header>
+              <strong>Delete All Files from OpenAI</strong>
+            </header>
+            <p>This will delete all files from OpenAI Files API (purpose: assistants). Use this when local cache gets out of sync with OpenAI.</p>
+            {isDeletingFiles && (
+              <div aria-live="polite" aria-busy="true">
+                <p><strong>Progress:</strong> {deleteProgress}</p>
+              </div>
+            )}
+            <button 
+              onClick={handleDeleteAllFiles}
+              data-variant="secondary"
+              disabled={isDeletingFiles}
+            >
+              {isDeletingFiles ? 'Deleting Files...' : 'Delete All Files'}
+            </button>
+          </article>
           <article>
             <header>
               <strong>Reset Database</strong>
