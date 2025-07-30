@@ -9,6 +9,14 @@ interface QueryTesterProps {
   knowledgeBaseService: typeof knowledgeBaseService;
 }
 
+const COMMON_NARRATIVE_ELEMENTS = [
+  'examples', 'statistics', 'anecdotes', 'case-studies', 'quotes', 
+  'analogies', 'personal-experiences', 'historical-references', 
+  'data-visualizations', 'step-by-step-instructions', 'comparisons',
+  'technical-specifications', 'testimonials', 'research-findings', 
+  'expert-opinions', 'surveys', 'benchmarks'
+];
+
 export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTesterProps) {
   const { state, dispatch } = useAppContext();
   const [query, setQuery] = useState('');
@@ -17,6 +25,8 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const [maxResults, setMaxResults] = useState(10);
   const [showRawJson, setShowRawJson] = useState(false);
   const [searchOutlines, setSearchOutlines] = useState(false);
+  const [selectedNarrativeElements, setSelectedNarrativeElements] = useState<string[]>([]);
+  const [fuzzyMatchNarratives, setFuzzyMatchNarratives] = useState(true);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +34,16 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
 
     setIsSearching(true);
     try {
+      const narrativeOptions = selectedNarrativeElements.length > 0 ? {
+        includeElements: selectedNarrativeElements,
+        fuzzyMatch: fuzzyMatchNarratives
+      } : undefined;
+
       const result = await knowledgeBaseService.search(knowledgeBaseId, query, {
         maxResults,
         rewriteQuery,
-        searchOutlines
+        searchOutlines,
+        narrativeOptions
       });
       
       dispatch({ type: 'QUERY_TEST_EXECUTED', payload: { result } });
@@ -45,6 +61,14 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
 
   const clearResults = () => {
     dispatch({ type: 'QUERY_TEST_RESULTS_CLEARED' });
+  };
+
+  const toggleNarrativeElement = (element: string) => {
+    setSelectedNarrativeElements(prev => 
+      prev.includes(element) 
+        ? prev.filter(e => e !== element)
+        : [...prev, element]
+    );
   };
 
   const latestResult = state.queryTestResults[0];
@@ -106,6 +130,37 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
             />
           </label>
         </fieldset>
+
+        {searchOutlines && (
+          <fieldset>
+            <legend>Narrative Elements Filter</legend>
+            <label>
+              <input
+                type="checkbox"
+                checked={fuzzyMatchNarratives}
+                onChange={(e) => setFuzzyMatchNarratives(e.target.checked)}
+              />
+              Enable fuzzy matching for narrative elements
+            </label>
+            
+            <div data-narrative-elements-grid>
+              {COMMON_NARRATIVE_ELEMENTS.map(element => (
+                <label key={element} data-narrative-element>
+                  <input
+                    type="checkbox"
+                    checked={selectedNarrativeElements.includes(element)}
+                    onChange={() => toggleNarrativeElement(element)}
+                  />
+                  {element.replace(/-/g, ' ')}
+                </label>
+              ))}
+            </div>
+            
+            {selectedNarrativeElements.length > 0 && (
+              <p><strong>Selected:</strong> {selectedNarrativeElements.join(', ')}</p>
+            )}
+          </fieldset>
+        )}
       </form>
 
       {state.queryTestResults.length > 0 && (
@@ -177,7 +232,12 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
                           </div>
                           {result.attributes && Object.keys(result.attributes).length > 0 && (
                             <footer>
-                              <strong>Attributes:</strong> {JSON.stringify(result.attributes)}
+                              <div><strong>Attributes:</strong> {JSON.stringify(result.attributes)}</div>
+                              {searchOutlines && result.attributes.narrativeElements && Array.isArray(result.attributes.narrativeElements) ? (
+                                <div>
+                                  <strong>Narrative Elements:</strong> {(result.attributes.narrativeElements as string[]).filter(el => typeof el === 'string').join(', ')}
+                                </div>
+                              ) : null}
                             </footer>
                           )}
                         </li>

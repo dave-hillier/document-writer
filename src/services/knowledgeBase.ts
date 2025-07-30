@@ -1,4 +1,4 @@
-import type { KnowledgeBase, KnowledgeBaseFile, QueryTestResult } from '../types';
+import type { KnowledgeBase, KnowledgeBaseFile, QueryTestResult, NarrativeSearchOptions } from '../types';
 import type { ComparisonFilter, CompoundFilter } from 'openai/resources/shared';
 import * as vectorStore from './vectorStore';
 import { indexedDBService } from './indexeddb';
@@ -375,6 +375,7 @@ export const search = async (
     rewriteQuery?: boolean;
     attributeFilter?: ComparisonFilter | CompoundFilter;
     searchOutlines?: boolean;
+    narrativeOptions?: NarrativeSearchOptions;
   }
 ): Promise<QueryTestResult> => {
   try {
@@ -390,18 +391,54 @@ export const search = async (
     
     const startTime = Date.now();
     
+    // Create enhanced query if narrative elements are specified
+    let enhancedQuery = query;
+    if (options?.narrativeOptions?.includeElements?.length) {
+      const narrativeTerms = options.narrativeOptions.includeElements.join(' OR ');
+      enhancedQuery = options.narrativeOptions.fuzzyMatch 
+        ? `${query} (${narrativeTerms})`
+        : `${query} AND (${narrativeTerms})`;
+    }
+    
     const { results, rewrittenQuery } = await vectorStore.search(
       vectorStoreId,
-      query,
+      enhancedQuery,
       options
     );
+    
+    // Filter and score results based on narrative elements matching
+    let filteredResults = results;
+    if (options?.narrativeOptions?.includeElements?.length && options.searchOutlines) {
+      filteredResults = results.filter(result => {
+        const narrativeElements = result.attributes?.narrativeElements as string[] || [];
+        const hasRequiredElements = options.narrativeOptions!.includeElements!.some(element => 
+          options.narrativeOptions!.fuzzyMatch
+            ? narrativeElements.some(ne => ne.includes(element) || element.includes(ne))
+            : narrativeElements.includes(element)
+        );
+        return hasRequiredElements;
+      }).map(result => {
+        // Boost score for narrative element matches
+        const narrativeElements = result.attributes?.narrativeElements as string[] || [];
+        const matchCount = options.narrativeOptions!.includeElements!.filter(element =>
+          options.narrativeOptions!.fuzzyMatch
+            ? narrativeElements.some(ne => ne.includes(element) || element.includes(ne))
+            : narrativeElements.includes(element)
+        ).length;
+        
+        return {
+          ...result,
+          score: result.score + (matchCount * 0.1) // Boost score by 10% per matching narrative element
+        };
+      });
+    }
     
     const searchTime = Date.now() - startTime;
     
     return {
       query,
       rewrittenQuery,
-      results,
+      results: filteredResults,
       searchTime,
       timestamp: Date.now()
     };
