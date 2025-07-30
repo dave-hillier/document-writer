@@ -14,6 +14,17 @@ interface UploadQueueItem {
   id: string;
 }
 
+function hashFile(file: File): string {
+  const input = `${file.name}-${file.size}-${file.lastModified}`;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
 export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUploaderProps) {
   const { state, dispatch } = useAppContext();
   const [isDragging, setIsDragging] = useState(false);
@@ -94,7 +105,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
     const tempFiles: KnowledgeBaseFile[] = [];
     
     for (const file of validFiles) {
-      const id = `temp_${Date.now()}_${Math.random()}`;
+      const id = `temp_${hashFile(file)}`;
       queueItems.push({ file, id });
       tempFiles.push({
         id,
@@ -285,7 +296,19 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
 
   const getOverallProgress = () => {
     if (!batchState || batchState.totalFiles === 0) return 0;
-    return Math.round(((batchState.completedFiles + batchState.failedFiles) / batchState.totalFiles) * 100);
+    
+    // Calculate progress by accounting for individual file progress
+    const activeFiles = files.filter(f => f.status === 'queued' || f.status === 'uploading');
+    const completedFiles = files.filter(f => f.status === 'completed' || f.status === 'failed');
+    
+    // Completed files count as 100% each
+    let totalProgress = completedFiles.length * 100;
+    
+    // Add individual progress for active files
+    totalProgress += activeFiles.reduce((sum, file) => sum + (file.progress || 0), 0);
+    
+    // Calculate percentage based on total possible progress (totalFiles * 100)
+    return Math.round(totalProgress / (batchState.totalFiles * 100) * 100);
   };
 
   return (
