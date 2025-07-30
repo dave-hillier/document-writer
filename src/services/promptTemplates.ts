@@ -35,25 +35,27 @@ Generate a detailed outline that serves the specific document requirements. **CR
 
 **Section Structure Requirements:**
 1. **Analyze Context First**: Examine the user's topic, intended audience, and document purpose to determine what sections are actually needed
-2. **Create 4-8 Contextual Sections**: Each section should have a unique, descriptive role that explains its specific function in the document
-3. **Descriptive Role Assignment**: Write section roles as complete phrases that describe what the section accomplishes (e.g., "Establishes the historical context and significance of the topic" rather than just "Background")
+2. **Create 4-8 Contextual Sections**: Each section should have a clear, specific purpose in the document
+3. **Concise Role Assignment**: Write section roles as just a few words that describe the section's purpose (e.g., "Introduction", "Problem", "Solution", "Implementation")
 4. **Logical Progression**: Ensure sections flow logically toward achieving the document's purpose
-5. **Sub-steps for Each Section**: Provide 3-5 sub-steps that guide content development for each section's specific function
+5. **Brief Sub-steps**: Provide 3-5 concise sub-steps that guide content development for each section
 
-**Guidelines for Creating Descriptive Roles:**
-- Each role should be a complete thought explaining the section's purpose
-- Avoid generic labels like "Introduction", "Background", "Conclusion"
-- Instead, describe what the section does: "Introduces the core challenge and why it matters to the reader"
-- Roles should be specific to the content, not interchangeable templates
-- Consider: What unique contribution does this section make to the overall document?
+**Guidelines for Role Names:**
+- Keep roles to 1-3 words maximum
+- Use clear, descriptive labels that indicate the section's function
+- Common effective roles: "Introduction", "Background", "Problem", "Analysis", "Solution", "Implementation", "Results", "Conclusion"
+- Roles should be immediately understandable
+- Avoid overly verbose or complex role descriptions
 
-**Examples of Descriptive Roles:**
-- Instead of "Introduction" → "Captures reader attention by presenting the central paradox"
-- Instead of "Background" → "Traces the evolution of the problem over the past decade"
-- Instead of "Solution" → "Presents a novel approach that addresses root causes rather than symptoms"
-- Instead of "Conclusion" → "Synthesizes insights into actionable recommendations for the reader"
+**Examples of Good Roles:**
+- "Introduction" - sets context and purpose
+- "Problem" - identifies challenges or gaps  
+- "Solution" - presents approaches or methods
+- "Implementation" - details execution steps
+- "Results" - describes outcomes
+- "Conclusion" - synthesizes and closes
 
-Let the content's unique requirements shape each section's descriptive role.
+Keep titles and sub-steps equally concise and direct.
 
 ## Configuration
 
