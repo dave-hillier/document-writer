@@ -31,7 +31,22 @@ ${styleContent}
 
 ## Task
 
-Generate a detailed outline following the structure described in the workflow guidelines. The outline should have 4-8 sections, each with a clear role and 3-5 sub-steps. Follow the style guidelines provided above.
+Generate a detailed outline that serves the specific document requirements. **CRITICAL**: Analyze the user's request to determine the optimal section structure - do not follow rigid templates.
+
+**Section Structure Requirements:**
+1. **Analyze Context First**: Examine the user's topic, intended audience, and document purpose to determine what sections are actually needed
+2. **Create 4-8 Contextual Sections**: Each section should have a role that logically serves the document's objectives
+3. **Dynamic Role Assignment**: Section roles should emerge from the content needs, not predefined templates
+4. **Logical Progression**: Ensure sections flow logically toward achieving the document's purpose
+5. **Sub-steps for Each Section**: Provide 3-5 sub-steps that guide content development for each section's specific role
+
+**Examples of Context-Driven Thinking:**
+- A "how-to" document might need: Problem Context → Prerequisites → Step-by-Step Process → Troubleshooting → Next Steps
+- A "business proposal" might need: Executive Summary → Market Opportunity → Solution Approach → Implementation Plan → ROI Analysis
+- A "research analysis" might need: Background → Methodology → Findings → Implications → Future Directions
+- A "personal story" might need: Setting the Scene → The Challenge → The Journey → Key Insights → Lessons Learned
+
+Follow the style guidelines for HOW to write each section, but let the content determine WHICH sections to include.
 
 ## Configuration
 

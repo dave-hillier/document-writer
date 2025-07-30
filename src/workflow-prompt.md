@@ -41,6 +41,27 @@ Each outline should contain:
   - A clear role (e.g., "Introduction", "Problem Statement", "Analysis", "Solution", "Implementation", "Results", "Conclusion")
   - 3-5 sub-steps that guide the content
 
-### Section Roles
+### Section Roles - Context-Driven Selection
 
-Section roles should be defined in the style prompt to match the specific writing approach and document type requirements.
+**IMPORTANT**: Section roles must be determined dynamically based on the specific document topic, audience, and objectives - not from rigid templates.
+
+**Guidelines for Section Role Selection:**
+
+1. **Analyze the User Request**: Consider what the document needs to accomplish and what structure would best serve those goals
+
+2. **Consider the Audience**: Different audiences need different information flows (executives vs. technical implementers vs. general readers)
+
+3. **Match Content Domain**: Technical topics, business strategies, academic research, creative pieces, and how-to guides each benefit from different structural approaches
+
+4. **Adapt to Document Purpose**: 
+   - Persuasive documents need different sections than informational ones
+   - Problem-solving documents differ from explanatory ones
+   - Process documentation differs from analytical reports
+
+5. **Examples of Context-Driven Variation**:
+   - "CI/CD Implementation Guide" (Technical) → Overview, Prerequisites, Setup, Configuration, Testing, Troubleshooting
+   - "Business Case for CI/CD" (Business) → Executive Summary, Current Challenges, Proposed Solution, ROI Analysis, Implementation Roadmap
+   - "CI/CD Research Study" (Academic) → Introduction, Literature Review, Methodology, Case Analysis, Discussion, Implications
+   - "My Journey with CI/CD" (Personal/Creative) → The Problem I Faced, First Attempts, Learning Through Failure, What Finally Worked, Lessons Learned
+
+**Key Principle**: Let the content and context determine structure, not the writing style. The style affects HOW you write each section, not WHICH sections you need.

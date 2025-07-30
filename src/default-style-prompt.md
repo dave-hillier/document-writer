@@ -33,13 +33,9 @@ The default writing style should be:
 - Use parallel structure in lists and series
 - Maintain consistency in terminology throughout the document
 
-## Section Roles
+## Section Structure Approach
 
-- **Introduction**: Sets context, establishes purpose, engages reader
-- **Background/Context**: Provides necessary information, history, or setup
-- **Problem/Challenge**: Identifies issues, gaps, or opportunities
-- **Analysis**: Examines details, explores implications, considers perspectives
-- **Solution/Approach**: Presents methods, strategies, or recommendations
-- **Implementation**: Details execution, steps, or processes
-- **Results/Outcomes**: Describes impacts, benefits, or findings
-- **Conclusion**: Synthesizes key points, provides closure, suggests next steps
+- Structure sections to serve the document's specific purpose and audience needs
+- Choose section roles that logically progress toward the document's objectives
+- Adapt section types to match the content domain and user requirements
+- Ensure each section has a clear purpose within the overall narrative flow
