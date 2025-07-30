@@ -229,6 +229,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           cursor: pointer;
           transition: all 0.2s;
           background: var(--card-background-color);
+          color: var(--color);
         }
 
         .upload-zone:hover {
@@ -243,6 +244,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
 
         .upload-zone p {
           margin: 1rem 0 0.5rem;
+          color: var(--color);
         }
 
         .upload-zone small {
