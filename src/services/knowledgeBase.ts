@@ -141,9 +141,8 @@ export const uploadFile = async (
           knowledgeBase.outlineVectorStoreId,
           outlineFile,
           { 
-            ...attributes,
             originalFileId: fileId,
-            outlineData: JSON.stringify(outline)
+            type: 'outline'
           }
         );
         
@@ -280,6 +279,7 @@ export const search = async (
     maxResults?: number;
     rewriteQuery?: boolean;
     attributeFilter?: ComparisonFilter | CompoundFilter;
+    searchOutlines?: boolean;
   }
 ): Promise<QueryTestResult> => {
   try {
@@ -288,10 +288,15 @@ export const search = async (
       throw new Error('Knowledge base not found');
     }
     
+    // Determine which vector store to search
+    const vectorStoreId = options?.searchOutlines && knowledgeBase.outlineVectorStoreId
+      ? knowledgeBase.outlineVectorStoreId
+      : knowledgeBase.vectorStoreId;
+    
     const startTime = Date.now();
     
     const { results, rewrittenQuery } = await vectorStore.search(
-      knowledgeBase.vectorStoreId,
+      vectorStoreId,
       query,
       options
     );
