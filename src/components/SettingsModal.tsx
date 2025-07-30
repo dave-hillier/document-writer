@@ -12,14 +12,31 @@ interface SettingsModalProps {
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [key, setKey] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
+  const [preprocessingModel, setPreprocessingModel] = useState('');
+  const [outlineModel, setOutlineModel] = useState('');
+  const [generationModel, setGenerationModel] = useState('');
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setKey(localStorage.getItem('openai-api-key') || '');
-      setSelectedModel(localStorage.getItem('openai-model') || 'gpt-4.1-nano');
+      const defaultModel = localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+      setSelectedModel(defaultModel);
+      
+      // Load advanced model settings with fallback to default model
+      setPreprocessingModel(localStorage.getItem('openai-model-preprocessing') || defaultModel);
+      setOutlineModel(localStorage.getItem('openai-model-outline') || defaultModel);
+      setGenerationModel(localStorage.getItem('openai-model-generation') || defaultModel);
+      
+      // Show advanced section if any model differs from default
+      const hasCustomModels = 
+        (localStorage.getItem('openai-model-preprocessing') && localStorage.getItem('openai-model-preprocessing') !== defaultModel) ||
+        (localStorage.getItem('openai-model-outline') && localStorage.getItem('openai-model-outline') !== defaultModel) ||
+        (localStorage.getItem('openai-model-generation') && localStorage.getItem('openai-model-generation') !== defaultModel);
+      setShowAdvanced(!!hasCustomModels);
     }
   }, [isOpen]);
 
@@ -49,6 +66,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const handleSave = () => {
     localStorage.setItem('openai-api-key', key);
     localStorage.setItem('openai-model', selectedModel);
+    
+    // Save advanced model settings
+    localStorage.setItem('openai-model-preprocessing', preprocessingModel);
+    localStorage.setItem('openai-model-outline', outlineModel);
+    localStorage.setItem('openai-model-generation', generationModel);
+    
     onClose();
   };
 
@@ -128,6 +151,93 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             }
           </small>
         </label>
+
+        <details open={showAdvanced}>
+          <summary 
+            role="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowAdvanced(!showAdvanced);
+            }}
+          >
+            Advanced Model Settings
+          </summary>
+          
+          <p className="form-hint">Configure different models for each stage of document generation.</p>
+          
+          <label htmlFor="preprocessing-model">
+            Pre-processing Model
+            <select
+              id="preprocessing-model"
+              value={preprocessingModel}
+              onChange={(e) => setPreprocessingModel(e.target.value)}
+              disabled={isLoadingModels || !key}
+              aria-describedby="preprocessing-hint"
+            >
+              {models.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.id}
+                </option>
+              ))}
+            </select>
+            <small id="preprocessing-hint" className="form-hint">
+              Used for knowledge base search and query rewriting. Lighter models work well here.
+            </small>
+          </label>
+
+          <label htmlFor="outline-model">
+            Outline Generation Model
+            <select
+              id="outline-model"
+              value={outlineModel}
+              onChange={(e) => setOutlineModel(e.target.value)}
+              disabled={isLoadingModels || !key}
+              aria-describedby="outline-hint"
+            >
+              {models.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.id}
+                </option>
+              ))}
+            </select>
+            <small id="outline-hint" className="form-hint">
+              Creates the document structure. Benefits from good reasoning capabilities.
+            </small>
+          </label>
+
+          <label htmlFor="generation-model">
+            Content Generation Model
+            <select
+              id="generation-model"
+              value={generationModel}
+              onChange={(e) => setGenerationModel(e.target.value)}
+              disabled={isLoadingModels || !key}
+              aria-describedby="generation-hint"
+            >
+              {models.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.id}
+                </option>
+              ))}
+            </select>
+            <small id="generation-hint" className="form-hint">
+              Writes the actual content for each section. Consider using your most capable model here.
+            </small>
+          </label>
+
+          <button
+            type="button"
+            className="secondary outline"
+            onClick={() => {
+              setPreprocessingModel(selectedModel);
+              setOutlineModel(selectedModel);
+              setGenerationModel(selectedModel);
+            }}
+            style={{ marginTop: '1rem' }}
+          >
+            Reset to Default Model
+          </button>
+        </details>
 
         <hr />
         

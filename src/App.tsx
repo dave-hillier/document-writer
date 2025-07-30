@@ -11,6 +11,7 @@ import { DocumentHistory } from './components/DocumentHistory';
 import { KnowledgeBaseManager } from './components/KnowledgeBaseManager';
 import { generateOutline } from './business/documentOperations';
 import { indexedDBService } from './services/indexeddb';
+import { migrateModelSettings } from './utils/migration';
 import type { DocumentConfig as IDocumentConfig, DocumentHistoryItem } from './types';
 import './App.css';
 
@@ -145,6 +146,9 @@ function AppContent() {
     // Initialize database and load document history on app start
     const initializeApp = async () => {
       try {
+        // Run migrations
+        migrateModelSettings();
+        
         // Ensure database is initialized
         await indexedDBService.init();
         console.log('Database initialized successfully');

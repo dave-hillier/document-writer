@@ -88,6 +88,9 @@ export async function generateOutline(
     // Use cache key based on document configuration
     const cacheKey = `outline-${hashString(`${config.tone}-${config.targetWordCount}`)}`;
     
+    // Use outline-specific model
+    const outlineModel = localStorage.getItem('openai-model-outline') || localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+    
     await createResponse(
       prompt,
       responseId,
@@ -110,7 +113,8 @@ export async function generateOutline(
       },
       onError,
       shouldStop,
-      cacheKey
+      cacheKey,
+      outlineModel
     );
   }
 
@@ -185,6 +189,9 @@ export async function generateSection(
     // Cache key for sections with same document configuration
     const cacheKey = `section-${hashString(`${config.tone}-${outline.title}`)}`;
     
+    // Use generation-specific model
+    const generationModel = localStorage.getItem('openai-model-generation') || localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+    
     await createResponse(
       prompt,
       responseId,
@@ -201,6 +208,7 @@ export async function generateSection(
       },
       onError,
       shouldStop,
-      cacheKey
+      cacheKey,
+      generationModel
     );
   }

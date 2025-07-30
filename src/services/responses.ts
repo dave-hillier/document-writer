@@ -18,7 +18,8 @@ export async function createResponse(
   onComplete: (responseId: string, cacheMetrics?: { cachedTokens: number; totalTokens: number }) => void,
   onError: (error: Error) => void,
   shouldStop?: () => boolean,
-  promptCacheKey?: string
+  promptCacheKey?: string,
+  model?: string
 ): Promise<void> {
   try {
     const openai = createOpenAIClient();
@@ -26,7 +27,7 @@ export async function createResponse(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await (openai as any).responses.create({
       input,
-      model: localStorage.getItem('openai-model') || 'gpt-4.1-nano',
+      model: model || localStorage.getItem('openai-model') || 'gpt-4.1-nano',
       stream: true,
       previous_response_id: previousResponseId,
       store: true,
