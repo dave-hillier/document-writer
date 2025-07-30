@@ -6,6 +6,8 @@ import { exportDocumentAsMarkdown } from '../business/exportUtils';
 import { saveCurrentDocument } from '../business/historyOperations';
 import { BulkGenerationButton } from './BulkGenerationButton';
 import { CacheMetrics } from './CacheMetrics';
+import { EditableText } from './EditableText';
+import { EditableList } from './EditableList';
 
 export function DocumentEditor() {
   const { state, dispatch } = useAppContext();
@@ -97,7 +99,12 @@ export function DocumentEditor() {
     <article aria-label="Document editor">
       <header>
         <hgroup>
-          <h1>{outline.title}</h1>
+          <EditableText
+            value={outline.title}
+            onSave={(newTitle) => dispatch({ type: 'OUTLINE_TITLE_UPDATED', payload: { title: newTitle } })}
+            ariaLabel="Document title"
+            element="h1"
+          />
           <p>
             <span aria-label="Total word count">{totalWordCount} words</span> • 
             <span aria-label="Sections completed">{sections.filter(s => s.content).length} of {sections.length} sections completed</span>
@@ -133,18 +140,39 @@ export function DocumentEditor() {
                 </div>
                 
                 <hgroup>
-                  <h3 id={`section-${section.id}-title`}>{section.title}</h3>
-                  <p><small>Role: {section.role}</small></p>
+                  <EditableText
+                    value={section.title}
+                    onSave={(newTitle) => dispatch({ 
+                      type: 'SECTION_UPDATED', 
+                      payload: { sectionId: section.id, updates: { title: newTitle } } 
+                    })}
+                    ariaLabel={`Section ${index + 1} title`}
+                    element="h3"
+                  />
+                  <p>
+                    <small>Role: </small>
+                    <EditableText
+                      value={section.role}
+                      onSave={(newRole) => dispatch({ 
+                        type: 'SECTION_UPDATED', 
+                        payload: { sectionId: section.id, updates: { role: newRole } } 
+                      })}
+                      ariaLabel={`Section ${index + 1} role`}
+                    />
+                  </p>
                 </hgroup>
               </header>
               
-              <details>
+              <details open={!section.content}>
                 <summary>Sub-steps</summary>
-                <ul>
-                  {section.subSteps.map((step, i) => (
-                    <li key={i}>{step}</li>
-                  ))}
-                </ul>
+                <EditableList
+                  items={section.subSteps}
+                  onSave={(newSubSteps) => dispatch({ 
+                    type: 'SECTION_UPDATED', 
+                    payload: { sectionId: section.id, updates: { subSteps: newSubSteps } } 
+                  })}
+                  ariaLabel={`Sub-steps for section ${index + 1}`}
+                />
               </details>
 
               {section.content ? (

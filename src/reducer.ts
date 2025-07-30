@@ -123,6 +123,34 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         isGenerating: false
       };
     
+    case 'OUTLINE_TITLE_UPDATED':
+      if (!state.outline) return state;
+      return {
+        ...state,
+        outline: {
+          ...state.outline,
+          title: action.payload.title
+        }
+      };
+    
+    case 'SECTION_UPDATED':
+      return {
+        ...state,
+        sections: state.sections.map(section =>
+          section.id === action.payload.sectionId
+            ? { ...section, ...action.payload.updates }
+            : section
+        ),
+        outline: state.outline ? {
+          ...state.outline,
+          sections: state.outline.sections.map(section =>
+            section.id === action.payload.sectionId
+              ? { ...section, ...action.payload.updates }
+              : section
+          )
+        } : null
+      };
+    
     // Section generation events
     case 'SECTION_GENERATION_STARTED':
     case 'SECTION_REGENERATION_STARTED':
