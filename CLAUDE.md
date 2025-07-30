@@ -47,6 +47,23 @@ The project uses strict TypeScript settings with `verbatimModuleSyntax` enabled,
 4. Each section generation includes all previous sections as context
 5. Sections must be generated in order to maintain narrative consistency
 
+### CSS and Styling Guidelines
+
+This project follows a **classless CSS approach** using Pico.css as the foundation:
+
+- **Taxonomic Classes Only**: Use classes to describe what a component IS, not how it looks
+  - ✅ Good: `className="query-tester"`, `className="document-editor"`, `className="secondary"`
+  - ❌ Bad: `className="small"`, `className="spinning"`, `className="primary"` (when used for styling)
+- **Semantic HTML First**: Use proper semantic elements as the primary structure
+  - `<article>`, `<section>`, `<header>`, `<footer>`, `<nav>`, `<aside>`, `<fieldset>`
+- **CSS Selector Strategy**: Target semantic elements within taxonomic contexts
+  - ✅ Good: `.query-tester form fieldset`, `.document-editor section header`
+  - ❌ Bad: `.search-form .search-options`, `.result-item .result-header`
+- **No Embedded Styles**: Never use `<style>` blocks in components - all CSS goes in App.css
+- **State via Data Attributes**: Use `data-*` attributes only for actual state, not styling
+  - ✅ Good: `data-loading="true"`, `data-completed="true"`
+  - ❌ Bad: `data-primary`, `data-small` (these are styling, not state)
+
 ### Accessibility Guidelines
 
 - Use semantic HTML elements (`<main>`, `<article>`, `<section>`, `<nav>`, etc.)
