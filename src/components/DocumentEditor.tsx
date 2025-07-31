@@ -17,6 +17,7 @@ export function DocumentEditor() {
     isGenerating,
     isStreaming,
     streamingContent,
+    currentlyGeneratingSectionId,
     outlineCacheMetrics,
     sectionCacheMetrics
   } = state;
@@ -189,7 +190,12 @@ export function DocumentEditor() {
                 </details>
               )}
 
-              {section.content ? (
+              {isStreaming && isGenerating && currentlyGeneratingSectionId === section.id ? (
+                <pre data-content>
+                  {streamingContent}
+                  <span data-cursor aria-label="Generating content">▋</span>
+                </pre>
+              ) : section.content ? (
                 <>
                   <pre data-content>
                     {section.content}
@@ -215,11 +221,6 @@ export function DocumentEditor() {
                     </button>
                   </div>
                 </>
-              ) : isStreaming && isGenerating && sections.findIndex(s => s.id === section.id) === sections.findIndex(s => !s.content) ? (
-                <pre data-content>
-                  {streamingContent}
-                  <span data-cursor aria-label="Generating content">▋</span>
-                </pre>
               ) : (
                 <button
                   onClick={() => handleGenerateSection(section.id)}

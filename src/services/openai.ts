@@ -104,7 +104,15 @@ export async function generateOutline(
           const jsonMatch = fullResponse.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
           const jsonContent = jsonMatch ? jsonMatch[1].trim() : fullResponse.trim();
           
-          const outline = JSON.parse(jsonContent) as DocumentOutline;
+          const parsedOutline = JSON.parse(jsonContent) as DocumentOutline;
+          // Add unique IDs to sections based on title hash
+          const outline: DocumentOutline = {
+            ...parsedOutline,
+            sections: parsedOutline.sections.map((section, index) => ({
+              ...section,
+              id: `section-${hashString(section.title)}-${index}`
+            }))
+          };
           onComplete(newResponseId, outline, cacheMetrics);
         } catch {
           console.error('Failed to parse JSON response:', fullResponse);
@@ -186,8 +194,8 @@ export async function generateSection(
 
     let fullContent = '';
     
-    // Cache key for sections with same document configuration
-    const cacheKey = `section-${hashString(`${config.tone}-${outline.title}`)}`;
+    // Cache key that includes section ID to ensure uniqueness per section
+    const cacheKey = `section-${hashString(`${config.tone}-${outline.title}-${section.title}-${section.id}`)}`;
     
     // Use generation-specific model
     const generationModel = localStorage.getItem('openai-model-generation') || localStorage.getItem('openai-model') || 'gpt-4.1-nano';

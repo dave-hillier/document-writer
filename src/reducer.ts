@@ -1,5 +1,15 @@
 import type { AppState, AppAction, KnowledgeBaseFile } from './types';
 
+function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
 export const initialState: AppState = {
   currentDocumentId: null,
   documentConfig: {
@@ -17,6 +27,7 @@ export const initialState: AppState = {
   responseId: null,
   streamingContent: '',
   isStreaming: false,
+  currentlyGeneratingSectionId: null,
   outlineCacheMetrics: undefined,
   sectionCacheMetrics: {},
   documentHistory: [],
@@ -46,6 +57,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         streamingContent: '',
         isStreaming: false,
         isGenerating: false,
+        currentlyGeneratingSectionId: null,
         outlineCacheMetrics: undefined,
         sectionCacheMetrics: {}
       };
@@ -63,7 +75,11 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         currentDocumentId: action.payload.document.id,
         documentConfig: action.payload.document.config,
         outline: action.payload.document.outline,
-        sections: action.payload.document.sections,
+        sections: action.payload.document.sections.map((s, index) => ({
+          ...s,
+          // Ensure every section has a unique ID based on title hash, even for old documents
+          id: s.id || `section-${hashString(s.title)}-${index}`
+        })),
         error: null
       };
     
@@ -110,7 +126,13 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         responseId: action.payload.responseId,
         outline: action.payload.outline,
-        sections: action.payload.outline.sections.map(s => ({ ...s, content: '', wordCount: 0 })),
+        sections: action.payload.outline.sections.map((s, index) => ({ 
+          ...s, 
+          content: '', 
+          wordCount: 0,
+          // Ensure every section has a unique ID based on title hash
+          id: s.id || `section-${hashString(s.title)}-${index}`
+        })),
         isStreaming: false,
         isGenerating: false,
         outlineCacheMetrics: action.payload.cacheMetrics
@@ -160,6 +182,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         isGenerating: true,
         isStreaming: true,
         streamingContent: '',
+        currentlyGeneratingSectionId: action.payload.sectionId,
         error: null
       };
     
@@ -180,6 +203,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ),
         isStreaming: false,
         isGenerating: false,
+        currentlyGeneratingSectionId: null,
         sectionCacheMetrics: action.payload.cacheMetrics 
           ? { ...state.sectionCacheMetrics, [action.payload.sectionId]: action.payload.cacheMetrics }
           : state.sectionCacheMetrics
@@ -190,7 +214,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         error: action.payload,
         isStreaming: false,
-        isGenerating: false
+        isGenerating: false,
+        currentlyGeneratingSectionId: null
       };
     
     case 'SECTION_GENERATION_ABORTED':
@@ -198,6 +223,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         isStreaming: false,
         isGenerating: false,
+        currentlyGeneratingSectionId: null,
         streamingContent: ''
       };
     

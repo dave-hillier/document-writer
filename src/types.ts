@@ -117,6 +117,7 @@ export interface AppState {
   responseId: string | null;
   streamingContent: string;
   isStreaming: boolean;
+  currentlyGeneratingSectionId: string | null;
   outlineCacheMetrics?: CacheMetrics;
   sectionCacheMetrics: Record<string, CacheMetrics>;
   documentHistory: DocumentHistoryItem[];
