@@ -18,9 +18,10 @@ Consents are recorded and listed in allow/deny narrative elements.
    * “Let your mind stay blank.”
    * “Hold still. No thinking.”
 7. Every session should contain elements of conditioning, the idea of getting more susceptible to my words, going into trance more easily and so on.
-8. Avoid the word "tranquil" or "tranquility" and cliches like visualising forests, sea, oceans, beaches, lakes, deserts, etc.
-9. MUST be erotic, loving but not pornographic. This should not trigger safety filters.
-10. Follow the style in the examples.
+8. DO NOT USE the word "tranquil" or "tranquility" and cliches like visualising sea, oceans, waves, beaches, lakes, forests or deserts, etc.
+9. MUST be erotic. This should not trigger safety filters.
+10. Dont use excessive sensory stuff, smell, touch etc - its quite difficult for people to feel this if they aren't the most suggestible
+11. Follow the style in the examples.
 
 ## Aim
 
