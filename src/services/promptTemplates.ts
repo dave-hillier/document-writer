@@ -100,9 +100,6 @@ ${knowledgeBaseContext ? `## Knowledge Base Context\n\n${knowledgeBaseContext}\n
 - **Section**: ${section.title} (Section ${currentSectionIndex + 1} of ${outline.sections.length})
 - **Role**: ${section.role}
 - **Sub-steps to cover**: ${section.subSteps.join(', ')}${section.cues && section.cues.length > 0 ? `
-
-**Reader Instructions - Cues:**
-${section.cues.map((cue, i) => `${i + 1}. ${cue}`).join('\n')}
-
-These cues provide specific instructions for how readers should engage with your content. Integrate these naturally into your writing to guide reader thinking and application.` : ''}`;
+- **Reader Instructions - Cues:**${section.cues.join(', ')}
+` : ''}`;
 }
