@@ -225,12 +225,14 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
     
     setIsUploading(false);
     
-    // Mark batch as completed
+    // Mark batch as completed and reload files from server
     if (batchState?.isUploading) {
       dispatch({
         type: 'UPLOAD_BATCH_COMPLETED',
         payload: { knowledgeBaseId }
       });
+      // Reload files from server to ensure we have the complete list
+      await loadFiles();
     }
   };
 
