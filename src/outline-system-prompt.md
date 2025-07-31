@@ -31,6 +31,7 @@ Generate a detailed outline that serves the specific document requirements. **CR
 Keep titles and sub-steps equally concise and direct.
 
 **Cues Guidelines:**
+
 - Use cues ONLY when they provide reader instructions not covered by sub-steps
 - Focus on how the reader should engage with, interpret, or apply the content
 - Frame as imperatives for the reader, not the writer
@@ -42,6 +43,7 @@ Keep titles and sub-steps equally concise and direct.
 - Never duplicate information already present in sub-steps
 
 **Narrative Elements Guidelines:**
+
 - Generate single-word elements that capture the essence of the section's communication style
 - Generate elements based on what's actually needed for the specific content - don't use a fixed list
 - Create words that truly describe how the section should communicate its ideas
