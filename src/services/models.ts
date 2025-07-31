@@ -43,7 +43,7 @@ export class ModelsService {
     } catch (error) {
       // Return fallback models if API call fails
       const fallbackModels: ModelInfo[] = [
-        { id: 'gpt-4.1-nano', object: 'model', created: 0, owned_by: 'openai' },
+        { id: 'gpt-4o', object: 'model', created: 0, owned_by: 'openai' },
         { id: 'gpt-4o', object: 'model', created: 0, owned_by: 'openai' },
         { id: 'gpt-4o-mini', object: 'model', created: 0, owned_by: 'openai' },
         { id: 'gpt-4-turbo', object: 'model', created: 0, owned_by: 'openai' },

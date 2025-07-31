@@ -22,7 +22,7 @@ export async function createResponse(
   model?: string,
   logType?: 'outline_generation' | 'section_generation'
 ): Promise<void> {
-  const actualModel = model || localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+  const actualModel = model || localStorage.getItem('openai-model') || 'gpt-4o';
   const startTime = Date.now();
   
   // Log the prompt

@@ -26,7 +26,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   useEffect(() => {
     if (isOpen) {
       setKey(localStorage.getItem('openai-api-key') || '');
-      const defaultModel = localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+      const defaultModel = localStorage.getItem('openai-model') || 'gpt-4o';
       setSelectedModel(defaultModel);
       
       // Load advanced model settings with fallback to default model

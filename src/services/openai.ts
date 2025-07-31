@@ -89,7 +89,7 @@ export async function generateOutline(
     const cacheKey = `outline-${hashString(`${config.tone}-${config.targetWordCount}`)}`;
     
     // Use outline-specific model
-    const outlineModel = localStorage.getItem('openai-model-outline') || localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+    const outlineModel = localStorage.getItem('openai-model-outline') || localStorage.getItem('openai-model') || 'gpt-4o';
     
     await createResponse(
       prompt,
@@ -199,7 +199,7 @@ export async function generateSection(
     const cacheKey = `section-${hashString(`${config.tone}-${outline.title}-${section.title}-${section.id}`)}`;
     
     // Use generation-specific model
-    const generationModel = localStorage.getItem('openai-model-generation') || localStorage.getItem('openai-model') || 'gpt-4.1-nano';
+    const generationModel = localStorage.getItem('openai-model-generation') || localStorage.getItem('openai-model') || 'gpt-4o';
     
     await createResponse(
       prompt,
