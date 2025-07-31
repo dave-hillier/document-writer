@@ -97,7 +97,7 @@ export function DocumentEditor() {
   
 
   return (
-    <article aria-label="Document editor">
+    <article className="document-editor" aria-label="Document editor">
       <header>
         <hgroup>
           <EditableText
@@ -111,7 +111,7 @@ export function DocumentEditor() {
             <span aria-label="Sections completed">{sections.filter(s => s.content).length} of {sections.length} sections completed</span>
           </p>
         </hgroup>
-        <nav aria-label="Document actions" className="action-bar">
+        <nav aria-label="Document actions">
         <BulkGenerationButton />
           <button
             onClick={handleExport}
@@ -132,7 +132,7 @@ export function DocumentEditor() {
           <li key={section.id}>
             <section className="document-section" aria-labelledby={`section-${section.id}-title`}>
               <header>
-                <div data-section-indicator data-completed={section.content ? "true" : "false"} aria-hidden="true">
+                <div data-completed={section.content ? "true" : "false"} aria-hidden="true">
                   {section.content ? (
                     <FileText size={20} />
                   ) : (
@@ -191,13 +191,13 @@ export function DocumentEditor() {
               )}
 
               {isStreaming && isGenerating && currentlyGeneratingSectionId === section.id ? (
-                <pre data-content>
+                <pre>
                   {streamingContent}
-                  <span data-cursor aria-label="Generating content">▋</span>
+                  <span aria-label="Generating content">▋</span>
                 </pre>
               ) : section.content ? (
                 <>
-                  <pre data-content>
+                  <pre>
                     {section.content}
                   </pre>
                   <div className="section-footer">

@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { Check } from 'lucide-react';
 
 interface CacheMetricsProps {
   cacheMetrics?: { cachedTokens: number; totalTokens: number };
@@ -17,16 +18,16 @@ export const CacheMetrics: FC<CacheMetricsProps> = ({
   const savings = cacheMetrics.cachedTokens > 0 ? "75%" : "0%"; // Based on OpenAI's 75% cost savings
 
   return (
-    <details data-cache-metrics>
+    <details>
       <summary>
         {label}
         {cacheMetrics.cachedTokens > 0 && (
-          <small data-cache-hit>
-            ✓ {hitRate}% cached
+          <small>
+            <Check size={12} /> {hitRate}% cached
           </small>
         )}
       </summary>
-      <div data-metrics-details>
+      <div>
         <p>
           <strong>Tokens:</strong> {cacheMetrics.cachedTokens.toLocaleString()} cached / {cacheMetrics.totalTokens.toLocaleString()} total
         </p>

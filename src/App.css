@@ -42,7 +42,7 @@ body {
 }
 
 /* Document editor layout */
-[data-action-bar] {
+.document-editor nav {
   display: flex;
   gap: 12px;
 }
@@ -62,11 +62,10 @@ body {
 }
 
 /* Content areas */
-pre[data-content] {
+.document-editor pre {
   white-space: pre-wrap;
   font-family: inherit;
 }
-
 
 /* Editable elements need minimum width when empty */
 [data-editable] {
@@ -87,102 +86,85 @@ button[data-reset-button] {
   margin-top: 1rem;
 }
 
-/* Generating info */
-small[data-generating-info] {
-  display: block;
-  margin-top: 4px;
-}
+/* Generating info - remove if unused */
 
 /* Cache metrics */
-small[data-cache-hit] {
+details small {
   color: green;
   margin-left: 0.5rem;
 }
 
-[data-metrics-details] {
+details > div {
   font-size: 0.9rem;
   margin-top: 0.5rem;
 }
 
 /* Document History */
-[data-search-container] {
+.document-history search {
   position: relative;
   margin-bottom: 1rem;
 }
 
-[data-search-container] [data-loading-indicator] {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--pico-primary);
-  animation: spin 1s linear infinite;
-}
-
-[data-empty-state] {
+.document-history .empty-state {
   text-align: center;
   padding: 2rem;
 }
 
-[data-empty-icon] {
+.document-history .empty-state svg {
   opacity: 0.5;
   margin-bottom: 1rem;
 }
 
-[data-documents-grid] {
+.document-history > section > section {
   display: grid;
   gap: 1rem;
 }
 
-[data-document-card] {
+.document-history article {
   border: 1px solid var(--pico-muted-border-color);
   border-radius: var(--pico-border-radius);
   padding: 1rem;
 }
 
-[data-card-header] {
-  margin-bottom: 0.5rem;
-}
-
-[data-card-header-content] {
+.document-history article > header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-bottom: 0.5rem;
 }
 
-[data-card-header] h3 {
+.document-history article h3 {
   margin: 0;
 }
 
-[data-document-link] {
+.document-history article h3 a {
   text-decoration: none;
 }
 
-[data-timestamp] {
+.document-history article time {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  margin-top: 0.25rem;
 }
 
-[data-icon-button] {
+.document-history article button {
   padding: 0.25rem;
   min-width: auto;
 }
 
-[data-document-stats] {
+.document-history article footer {
   margin-bottom: 0.5rem;
 }
 
-[data-sections-list] {
+.document-history article details ul {
   margin-top: 0.5rem;
 }
 
-[data-section-item] {
+.document-history article details li {
   margin-bottom: 0.25rem;
 }
 
-[data-completed-check] {
+.document-history article details li svg {
   color: var(--pico-primary);
   margin-left: 0.5rem;
 }
@@ -421,7 +403,7 @@ small[data-cache-hit] {
   align-items: start;
 }
 
-[data-section-indicator] {
+.document-editor .document-section header > div:first-child {
   flex-shrink: 0;
   width: 2.5rem;
   height: 2.5rem;
@@ -434,7 +416,7 @@ small[data-cache-hit] {
   font-weight: bold;
 }
 
-[data-section-indicator][data-completed="true"] {
+.document-editor .document-section header > div:first-child[data-completed="true"] {
   background-color: var(--pico-primary);
   color: var(--pico-primary-inverse);
 }
@@ -451,11 +433,11 @@ ol > li {
 }
 
 /* Use CSS counters for section indicators */
-[data-section-indicator]:not([data-completed="true"])::before {
+.document-editor .document-section header > div:first-child:not([data-completed="true"])::before {
   content: counter(section-counter);
 }
 
-[data-section-indicator]:not([data-completed="true"]) span {
+.document-editor .document-section header > div:first-child:not([data-completed="true"]) span {
   display: none;
 }
 
@@ -467,41 +449,18 @@ output {
   margin-top: 0.5rem;
 }
 
-/* Modal styles - use CSS-only approach */
-dialog[data-modal] {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  border: none;
-}
+/* Modal styles - removed, Pico.css handles dialog styling */
 
-/* Form enhancements */
-small[data-hint] {
-  font-size: 0.875rem;
-  color: var(--pico-muted-color);
-  margin-top: 0.25rem;
-}
+/* Form enhancements - removed, using standard small elements */
 
-/* Button enhancements */
+/* Button enhancements - removed, Pico.css handles button styling */
 button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Alert and status message styles */
-[role="alert"] {
-  background-color: var(--pico-del-color);
-  color: white;
-  padding: 1rem;
-  border-radius: var(--pico-border-radius);
-  margin-bottom: 1rem;
-}
+/* Alert and status message styles - can be simplified with Pico classes */
 
 /* Skip link for accessibility */
 a[data-skip-link] {
@@ -534,7 +493,7 @@ a[data-skip-link]:focus {
 }
 
 /* Streaming cursor animation */
-[data-cursor] {
+.document-editor pre span[aria-label="Generating content"] {
   animation: blink 1s infinite;
   color: var(--pico-primary);
 }
@@ -560,39 +519,13 @@ a[data-skip-link]:focus {
   margin-top: 1rem;
 }
 
-/* Modal styling */
-dialog.modal {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  border: none;
-}
+/* Modal styling - duplicate removed, Pico handles this */
 
-/* Hint styling */
-.hint {
-  font-size: 0.875rem;
-  color: var(--pico-muted-color);
-  margin-top: 0.25rem;
-}
+/* Hint styling - duplicate removed, use standard small */
 
-/* Close button styling */
-button.close {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-}
+/* Close button styling - can use Pico outline class */
 
-/* Outline button modifier */
-button.outline {
-  background-color: transparent;
-  border: 1px solid currentColor;
-}
+/* Outline button modifier - Pico.css already provides .outline class */
 
 /* Knowledge Base Manager */
 .knowledge-base-manager {

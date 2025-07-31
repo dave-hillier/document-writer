@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Clock, Trash2 } from 'lucide-react';
+import { FileText, Clock, Trash2, Check } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
 import { indexedDBService } from '../services/indexeddb';
 import type { DocumentHistoryItem } from '../types';
@@ -59,14 +59,14 @@ export function DocumentHistory() {
   };
 
   return (
-    <article>
+    <article className="document-history">
       <header>
         <h1>Document History</h1>
         <p>Manage your saved documents and continue working on them.</p>
       </header>
 
       <section>
-        <aside data-search-container>
+        <search>
           <input
             type="search"
             placeholder="Search documents..."
@@ -74,11 +74,11 @@ export function DocumentHistory() {
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Search documents"
           />
-        </aside>
+        </search>
 
         {filteredDocuments.length === 0 ? (
-          <section data-empty-state>
-            <FileText size={48} data-empty-icon aria-hidden="true" />
+          <section className="empty-state">
+            <FileText size={48} aria-hidden="true" />
             <p>
               {searchQuery ? 'No documents match your search.' : 'No documents saved yet.'}
             </p>
@@ -87,37 +87,35 @@ export function DocumentHistory() {
             </Link>
           </section>
         ) : (
-          <section data-documents-grid>
+          <section>
             {filteredDocuments.map((document) => (
-              <article
-                key={document.id}
-                data-document-card
-              >
-                <header data-card-header>
-                  <section data-card-header-content>
-                    <header>
-                      <h3>
-                        <Link to={document.url} data-document-link>
-                          {document.title}
-                        </Link>
-                      </h3>
-                      <small data-timestamp>
+              <article key={document.id}>
+                <header>
+                  <hgroup>
+                    <h3>
+                      <Link to={document.url}>
+                        {document.title}
+                      </Link>
+                    </h3>
+                    <p>
+                      <small>
                         <Clock size={14} />
-                        Updated {formatDate(document.updatedAt)}
+                        <time dateTime={new Date(document.updatedAt).toISOString()}>
+                          Updated {formatDate(document.updatedAt)}
+                        </time>
                       </small>
-                    </header>
-                    <button
-                      onClick={() => handleDeleteDocument(document.id)}
-                      className="outline secondary"
-                      data-icon-button
-                      aria-label={`Delete document: ${document.title}`}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </section>
+                    </p>
+                  </hgroup>
+                  <button
+                    onClick={() => handleDeleteDocument(document.id)}
+                    className="outline secondary"
+                    aria-label={`Delete document: ${document.title}`}
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </header>
 
-                <footer data-document-stats>
+                <footer>
                   <small>
                     {document.sections.length} sections • 
                     {document.sections.filter(s => s.content).length} completed • 
@@ -127,13 +125,13 @@ export function DocumentHistory() {
 
                 <details>
                   <summary>Sections</summary>
-                  <ul data-sections-list>
+                  <ul>
                     {document.outline.sections.map((section, index) => (
-                      <li key={section.id} data-section-item>
+                      <li key={section.id}>
                         <small>
                           {index + 1}. {section.title}
                           {document.sections.find(s => s.id === section.id)?.content && 
-                            <span data-completed-check>✓</span>
+                            <Check size={12} />
                           }
                         </small>
                       </li>
