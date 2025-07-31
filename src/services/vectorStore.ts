@@ -57,6 +57,15 @@ export const uploadFile = async (
   attributes?: Record<string, unknown>
 ): Promise<{ fileId: string; filename: string }> => {
   const openai = getOpenAIClient();
+  const startTime = Date.now();
+  
+  console.log(`📁 [FILE-UPLOAD] Starting upload: ${file.name}`, {
+    filename: file.name,
+    size: `${(file.size / 1024).toFixed(2)} KB`,
+    vectorStoreId,
+    attributes
+  });
+  
   try {
     const fileUpload = await openai.files.create({
       file,
@@ -93,10 +102,19 @@ export const uploadFile = async (
       }
     }
 
+    const duration = Date.now() - startTime;
+    console.log(`✅ [FILE-UPLOAD] Completed in ${duration}ms`, {
+      fileId: vectorStoreFile.id,
+      filename: file.name,
+      duration
+    });
+    
     return { fileId: vectorStoreFile.id, filename: file.name };
   } catch (error) {
-    console.error('Failed to upload file:', error);
-    throw new Error('Failed to upload file to knowledge base');
+    const duration = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Failed to upload file to knowledge base';
+    console.error(`❌ [FILE-UPLOAD] Failed after ${duration}ms:`, errorMessage);
+    throw new Error(errorMessage);
   }
 };
 
@@ -164,6 +182,14 @@ export const search = async (
   }
 ): Promise<{ results: SearchResult[]; rewrittenQuery?: string }> => {
   const openai = getOpenAIClient();
+  const startTime = Date.now();
+  
+  console.log(`🔍 [KNOWLEDGE-BASE-SEARCH] Starting search`, {
+    query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
+    vectorStoreId,
+    options
+  });
+  
   try {
     const searchResults = await openai.vectorStores.search(
       vectorStoreId,
@@ -183,13 +209,25 @@ export const search = async (
       attributes: result.attributes || undefined
     }));
     
+    const duration = Date.now() - startTime;
+    console.log(`✅ [KNOWLEDGE-BASE-SEARCH] Found ${results.length} results in ${duration}ms`, {
+      resultCount: results.length,
+      duration,
+      topResults: results.slice(0, 3).map(r => ({
+        filename: r.filename,
+        score: r.score.toFixed(3)
+      }))
+    });
+    
     return {
       results,
       rewrittenQuery: undefined // search_query property is not available in the type
     };
   } catch (error) {
-    console.error('Failed to search vector store:', error);
-    throw new Error('Failed to search knowledge base');
+    const duration = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Failed to search knowledge base';
+    console.error(`❌ [KNOWLEDGE-BASE-SEARCH] Failed after ${duration}ms:`, errorMessage);
+    throw new Error(errorMessage);
   }
 };
 

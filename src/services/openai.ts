@@ -122,7 +122,8 @@ export async function generateOutline(
       onError,
       shouldStop,
       cacheKey,
-      outlineModel
+      outlineModel,
+      'outline_generation'
     );
   }
 
@@ -217,6 +218,7 @@ export async function generateSection(
       onError,
       shouldStop,
       cacheKey,
-      generationModel
+      generationModel,
+      'section_generation'
     );
   }
