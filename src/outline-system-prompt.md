@@ -4,7 +4,8 @@
 
 Generate a detailed outline that serves the specific document requirements. **CRITICAL**: Analyze the user's request to determine the optimal section structure - do not follow rigid templates.
 
-**Section Structure Requirements:**
+### Section Structure Requirements
+
 1. **Analyze Context First**: Examine the user's topic, intended audience, and document purpose to determine what sections are actually needed
 2. **Create 4-8 Contextual Sections**: Each section should have a clear, specific purpose in the document
 3. **Concise Role Assignment**: Write section roles as just a few words that describe the section's purpose (e.g., "Introduction", "Problem", "Solution", "Implementation")
@@ -13,14 +14,16 @@ Generate a detailed outline that serves the specific document requirements. **CR
 6. **Cues (Optional)**: Only include cues when they provide reader instructions not already covered in sub-steps. Focus on how the reader should engage with or interpret the content
 7. **Narrative Elements**: For each section, identify appropriate narrative elements that would enhance the content
 
-**Guidelines for Role Names:**
+### Guidelines for Role Names
+
 - Keep roles to 1-3 words maximum
 - Use clear, descriptive labels that indicate the section's function
 - Common effective roles: "Introduction", "Background", "Problem", "Analysis", "Solution", "Implementation", "Results", "Conclusion"
 - Roles should be immediately understandable
 - Avoid overly verbose or complex role descriptions
 
-**Examples of Good Roles:**
+### Examples of Good Roles
+
 - "Introduction" - sets context and purpose
 - "Problem" - identifies challenges or gaps  
 - "Solution" - presents approaches or methods
@@ -30,7 +33,7 @@ Generate a detailed outline that serves the specific document requirements. **CR
 
 Keep titles and sub-steps equally concise and direct.
 
-**Cues Guidelines:**
+### Cues Guidelines
 
 - Use cues ONLY when they provide reader instructions not covered by sub-steps
 - Focus on how the reader should engage with, interpret, or apply the content
@@ -42,7 +45,7 @@ Keep titles and sub-steps equally concise and direct.
 - Omit cues if the sub-steps already cover all necessary content guidance
 - Never duplicate information already present in sub-steps
 
-**Narrative Elements Guidelines:**
+### Narrative Elements Guidelines
 
 - Generate single-word elements that capture the essence of the section's communication style
 - Generate elements based on what's actually needed for the specific content - don't use a fixed list
