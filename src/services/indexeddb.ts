@@ -235,7 +235,6 @@ export class IndexedDBService {
         
         transaction.onerror = () => reject(new Error('Transaction failed'));
       } catch (error) {
-        console.error('Error accessing knowledge bases store:', error);
         reject(error);
       }
     });
@@ -427,7 +426,6 @@ export class IndexedDBService {
         
         transaction.onerror = () => reject(new Error('Transaction failed'));
       } catch (error) {
-        console.error('Error accessing style prompts store:', error);
         reject(error);
       }
     });
@@ -456,7 +454,6 @@ export class IndexedDBService {
       const deleteReq = indexedDB.deleteDatabase(DB_NAME);
       
       deleteReq.onsuccess = () => {
-        console.log('Database deleted successfully');
         resolve();
       };
       
@@ -466,7 +463,6 @@ export class IndexedDBService {
       };
       
       deleteReq.onblocked = () => {
-        console.warn('Database deletion blocked - close all tabs and try again');
         reject(new Error('Database deletion blocked - close all tabs using this app'));
       };
     });

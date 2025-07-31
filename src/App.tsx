@@ -37,6 +37,7 @@ function HomePage() {
         }
       );
       
+      
       // Generate document ID and navigate to document URL
       const documentId = uuidv4();
       dispatch({ type: 'DOCUMENT_ID_ASSIGNED', payload: { documentId } });
@@ -57,8 +58,8 @@ function HomePage() {
       try {
         await indexedDBService.saveDocument(documentItem);
         dispatch({ type: 'DOCUMENT_SAVED_TO_HISTORY', payload: { document: documentItem } });
-      } catch (error) {
-        console.error('Failed to save document to IndexedDB:', error);
+      } catch {
+        // Error saving document to history
       }
       
       navigate(`/document/${documentId}`);
@@ -94,8 +95,7 @@ function DocumentPage() {
           // Document not found, redirect to home
           navigate('/');
         }
-      } catch (error) {
-        console.error('Failed to load document:', error);
+      } catch {
         navigate('/');
       }
     };
@@ -150,13 +150,12 @@ function AppContent() {
         
         // Ensure database is initialized
         await indexedDBService.init();
-        console.log('Database initialized successfully');
         
         // Load document history
         const documents = await indexedDBService.getAllDocuments();
         dispatch({ type: 'HISTORY_LOADED', payload: { documents } });
-      } catch (error) {
-        console.error('Failed to initialize app:', error);
+      } catch {
+        // Error loading documents from history
       }
     };
 

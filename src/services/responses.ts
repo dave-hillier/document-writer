@@ -59,8 +59,7 @@ export async function createResponse(
       } else if (event.type === 'response.created') {
         // Response started, no action needed
       } else {
-        // Log unexpected event types for debugging
-        console.debug('Unexpected event type:', event.type);
+        // Unexpected event type
       }
     }
 

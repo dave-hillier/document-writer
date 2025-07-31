@@ -90,9 +90,7 @@ export const deleteKnowledgeBase = async (knowledgeBaseId: string): Promise<void
 
 export const getAllKnowledgeBases = async (): Promise<KnowledgeBase[]> => {
   try {
-    console.log('Getting all knowledge bases from IndexedDB...');
     const knowledgeBases = await indexedDBService.getAllKnowledgeBases();
-    console.log('Retrieved knowledge bases:', knowledgeBases);
     return knowledgeBases;
   } catch (error) {
     console.error('Failed to get knowledge bases:', error);
@@ -333,8 +331,8 @@ export const getFiles = async (knowledgeBaseId: string): Promise<KnowledgeBaseFi
           attributes: file.attributes
         }));
       }
-    } catch (error) {
-      console.warn('Failed to get files from IndexedDB, falling back to API:', error);
+    } catch {
+      // Failed to get files from IndexedDB, falling back to API
     }
     
     // Fallback to OpenAI API if IndexedDB is empty or fails
@@ -349,8 +347,8 @@ export const getFiles = async (knowledgeBaseId: string): Promise<KnowledgeBaseFi
           filename: file.filename,
           uploadedAt: file.createdAt
         });
-      } catch (error) {
-        console.warn('Failed to cache file metadata:', error);
+      } catch {
+        // Failed to cache file metadata
       }
     }
     
