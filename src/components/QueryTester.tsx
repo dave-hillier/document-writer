@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Copy, RotateCw, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useAppContext } from '../contexts/useAppContext';
@@ -14,6 +14,7 @@ interface QueryTesterProps {
 export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTesterProps) {
   const { state, dispatch } = useAppContext();
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [rewriteQuery, setRewriteQuery] = useState(true);
   const [maxResults, setMaxResults] = useState(10);
@@ -24,8 +25,23 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const [availableNarrativeElements, setAvailableNarrativeElements] = useState<string[]>([]);
   const [customNarrativeElement, setCustomNarrativeElement] = useState('');
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Debounce the query value
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Auto-search when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery.trim() && !isSearching) {
+      performSearch();
+    }
+  }, [debouncedQuery]);
+
+  const performSearch = async () => {
     if (!query.trim() || isSearching) return;
 
     setIsSearching(true);
@@ -59,6 +75,11 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch();
   };
 
   const copyToClipboard = (text: string) => {
@@ -101,28 +122,21 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   return (
     <article className="query-tester">
       <form onSubmit={handleSearch}>
-        <div>
+        <aside data-search-container>
           <input
-            type="text"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter your search query..."
+            placeholder="Search... (auto-searches after 1 second)"
             aria-label="Search query"
             disabled={isSearching}
           />
-          <button
-            type="submit"
-            disabled={!query.trim() || isSearching}
-            aria-label="Search"
-            data-loading={isSearching}
-          >
-            {isSearching ? (
+          {isSearching && (
+            <span data-loading-indicator>
               <RotateCw size={20} aria-hidden="true" />
-            ) : (
-              <Search size={20} aria-hidden="true" />
-            )}
-          </button>
-        </div>
+            </span>
+          )}
+        </aside>
 
         <fieldset>
           <label>

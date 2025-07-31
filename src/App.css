@@ -125,7 +125,17 @@ small[data-cache-hit] {
 
 /* Document History */
 [data-search-container] {
+  position: relative;
   margin-bottom: 1rem;
+}
+
+[data-search-container] [data-loading-indicator] {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--pico-primary);
+  animation: spin 1s linear infinite;
 }
 
 [data-empty-state] {
