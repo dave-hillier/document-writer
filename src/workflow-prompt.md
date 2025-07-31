@@ -39,7 +39,8 @@ Each outline should contain:
 - Each section should have:
   - A descriptive title
   - A clear role (e.g., "Introduction", "Problem Statement", "Analysis", "Solution", "Implementation", "Results", "Conclusion")
-  - 3-5 sub-steps that guide the content
+  - 3-5 sub-steps that guide the content structure and topics
+  - Optional cues that provide reader instructions not covered by sub-steps
 
 ### Section Roles - Context-Driven Selection
 

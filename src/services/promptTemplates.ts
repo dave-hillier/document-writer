@@ -101,8 +101,8 @@ ${knowledgeBaseContext ? `## Knowledge Base Context\n\n${knowledgeBaseContext}\n
 - **Role**: ${section.role}
 - **Sub-steps to cover**: ${section.subSteps.join(', ')}${section.cues && section.cues.length > 0 ? `
 
-**IMPORTANT - Cues:**
+**Reader Instructions - Cues:**
 ${section.cues.map((cue, i) => `${i + 1}. ${cue}`).join('\n')}
 
-Your content must directly address each of these cues as if answering the prompts.` : ''}`;
+These cues provide specific instructions for how readers should engage with your content. Integrate these naturally into your writing to guide reader thinking and application.` : ''}`;
 }

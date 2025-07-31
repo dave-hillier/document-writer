@@ -9,8 +9,8 @@ Generate a detailed outline that serves the specific document requirements. **CR
 2. **Create 4-8 Contextual Sections**: Each section should have a clear, specific purpose in the document
 3. **Concise Role Assignment**: Write section roles as just a few words that describe the section's purpose (e.g., "Introduction", "Problem", "Solution", "Implementation")
 4. **Logical Progression**: Ensure sections flow logically toward achieving the document's purpose
-5. **Brief Sub-steps**: Provide 3-5 concise sub-steps that guide content development for each section
-6. **Cues**: For each section, provide 2-4 imperative cues that guide content generation. These are direct prompts or commands and expected outcome/response
+5. **Brief Sub-steps**: Provide 3-5 concise sub-steps that outline the content structure and topics to cover
+6. **Cues (Optional)**: Only include cues when they provide reader instructions not already covered in sub-steps. Focus on how the reader should engage with or interpret the content
 7. **Narrative Elements**: For each section, identify appropriate narrative elements that would enhance the content
 
 **Guidelines for Role Names:**
@@ -31,14 +31,15 @@ Generate a detailed outline that serves the specific document requirements. **CR
 Keep titles and sub-steps equally concise and direct.
 
 **Cues Guidelines:**
-- Think of cues as imperative writing prompts that each section must address
-- Frame as direct commands or prompts that trigger specific responses
-- Examples:
-  - "Define microservices as distributed system architecture"
-  - "Compare microservices benefits over monolithic limitations"
-  - "Address scalability challenges with horizontal scaling"
-- Keep cues focused and specific to the section's purpose
-- Ensure each cue can be meaningfully answered within the section
+- Use cues ONLY when they provide reader instructions not covered by sub-steps
+- Focus on how the reader should engage with, interpret, or apply the content
+- Frame as imperatives for the reader, not the writer
+- Examples of when to use cues:
+  - "Evaluate which approach best fits your current infrastructure"
+  - "Consider the cost-benefit tradeoffs for your organization"
+  - "Apply these principles to your specific use case"
+- Omit cues if the sub-steps already cover all necessary content guidance
+- Never duplicate information already present in sub-steps
 
 **Narrative Elements Guidelines:**
 - Generate single-word elements that capture the essence of the section's communication style
@@ -65,9 +66,8 @@ Keep titles and sub-steps equally concise and direct.
         "Fifth key point or sub-topic (optional)"
       ],
       "cues": [
-        "Define microservices as distributed system architecture",
-        "Compare microservices benefits over monolithic limitations",
-        "Address scalability challenges with horizontal scaling"
+        "Evaluate which architecture pattern best fits your requirements",
+        "Consider the operational complexity tradeoffs for your team"
       ],
       "narrativeElements": [
         "examples",
