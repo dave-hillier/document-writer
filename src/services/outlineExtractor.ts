@@ -78,7 +78,7 @@ export async function extractOutlineFromFile(file: File): Promise<DocumentOutlin
     
     // Extract outline using OpenAI
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: localStorage.getItem('openai-model-outline') || localStorage.getItem('openai-model') || 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
