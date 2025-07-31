@@ -154,14 +154,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   return (
-    <dialog open data-modal role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
+    <dialog open className="modal" role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
       <article>
         <header>
           <button
             aria-label="Close settings"
             rel="prev"
             onClick={onClose}
-            data-close
+            className="close"
           >
             <X size={20} aria-hidden="true" />
           </button>
@@ -179,7 +179,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             aria-describedby="api-key-hint"
             required
           />
-          <small id="api-key-hint" data-hint>
+          <small id="api-key-hint" className="hint">
             Your API key is stored locally and never sent to any server except OpenAI.
           </small>
         </label>
@@ -206,7 +206,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               ))
             )}
           </select>
-          <small id="model-hint" data-hint>
+          <small id="model-hint" className="hint">
             {isLoadingModels 
               ? 'Fetching available models...' 
               : modelsError 
@@ -227,7 +227,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             Advanced Model Settings
           </summary>
           
-          <p data-hint>Configure different models for each stage of document generation.</p>
+          <p className="hint">Configure different models for each stage of document generation.</p>
           
           <label htmlFor="preprocessing-model">
             Pre-processing Model
@@ -244,7 +244,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="preprocessing-hint" data-hint>
+            <small id="preprocessing-hint" className="hint">
               Used for knowledge base search and query rewriting. Lighter models work well here.
             </small>
           </label>
@@ -264,7 +264,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="outline-hint" data-hint>
+            <small id="outline-hint" className="hint">
               Creates the document structure. Benefits from good reasoning capabilities.
             </small>
           </label>
@@ -284,21 +284,19 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="generation-hint" data-hint>
+            <small id="generation-hint" className="hint">
               Writes the actual content for each section. Consider using your most capable model here.
             </small>
           </label>
 
           <button
             type="button"
-            data-variant="secondary"
-            data-outline
+            className="secondary outline"
             onClick={() => {
               setPreprocessingModel(selectedModel);
               setOutlineModel(selectedModel);
               setGenerationModel(selectedModel);
             }}
-            data-reset-button
           >
             Reset to Default Model
           </button>
@@ -307,13 +305,16 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <hr />
         
         <section>
-          <h4>
-            <AlertTriangle size={16} aria-hidden="true" />
-            {' '}Danger Zone
-          </h4>
-          <article>
+          <header>
+            <h4>
+              <AlertTriangle size={16} aria-hidden="true" />
+              Danger Zone
+            </h4>
+          </header>
+          
+          <article className="danger-zone-item">
             <header>
-              <strong>Delete All Files from OpenAI</strong>
+              <h5>Delete All Files from OpenAI</h5>
             </header>
             <p>This will delete all files from OpenAI Files API (purpose: assistants). Use this when local cache gets out of sync with OpenAI.</p>
             {isDeletingFiles && (
@@ -321,32 +322,37 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <p><strong>Progress:</strong> {deleteProgress}</p>
               </div>
             )}
-            <button 
-              onClick={handleDeleteAllFiles}
-              data-variant="secondary"
-              disabled={isDeletingFiles}
-            >
-              {isDeletingFiles ? 'Deleting Files...' : 'Delete All Files'}
-            </button>
+            <footer>
+              <button 
+                onClick={handleDeleteAllFiles}
+                className="secondary"
+                disabled={isDeletingFiles}
+              >
+                {isDeletingFiles ? 'Deleting Files...' : 'Delete All Files'}
+              </button>
+            </footer>
           </article>
-          <article>
+          
+          <article className="danger-zone-item">
             <header>
-              <strong>Reset Database</strong>
+              <h5>Reset Database</h5>
             </header>
             <p>This will delete all your documents and knowledge bases. This action cannot be undone.</p>
-            <button 
-              onClick={handleResetDatabase}
-              data-variant="secondary"
-            >
-              Reset Database
-            </button>
+            <footer>
+              <button 
+                onClick={handleResetDatabase}
+                className="secondary"
+              >
+                Reset Database
+              </button>
+            </footer>
           </article>
         </section>
       
         <footer>
           <button
             onClick={onClose}
-            data-variant="secondary"
+            className="secondary"
           >
             Cancel
           </button>

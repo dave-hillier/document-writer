@@ -94,7 +94,7 @@ export function KnowledgeBaseManager() {
   };
 
   return (
-    <div className="knowledge-base-manager">
+    <article className="knowledge-base-manager" aria-label="Knowledge Base Manager">
       <header>
         <nav aria-label="Knowledge base navigation">
           <button
@@ -104,125 +104,141 @@ export function KnowledgeBaseManager() {
             ← Back to Documents
           </button>
         </nav>
-        <h1>Knowledge Bases</h1>
-        <p>Manage knowledge bases to enhance document generation with domain-specific content.</p>
+        <hgroup>
+          <h1>Knowledge Bases</h1>
+          <p>Manage knowledge bases to enhance document generation with domain-specific content.</p>
+        </hgroup>
+        <nav aria-label="Knowledge base actions">
+          <button
+            onClick={() => setIsCreating(true)}
+            className="primary"
+            aria-label="Create new knowledge base"
+          >
+            <Plus size={20} aria-hidden="true" />
+            New Knowledge Base
+          </button>
+        </nav>
       </header>
 
       {state.isLoadingKnowledgeBases ? (
-        <div aria-busy="true">Loading knowledge bases...</div>
+        <section aria-busy="true">Loading knowledge bases...</section>
       ) : (
-        <section className="knowledge-base-list">
-            <header>
-              <h2>Your Knowledge Bases</h2>
-              <button
-                onClick={() => setIsCreating(true)}
-                className="primary"
-                aria-label="Create new knowledge base"
-              >
-                <Plus size={20} aria-hidden="true" />
-                <span>New Knowledge Base</span>
-              </button>
-            </header>
-
+        <section>
             {isCreating && (
-              <article className="knowledge-base-form">
+              <article>
                 <form onSubmit={handleCreate}>
-                  <label htmlFor="new-kb-name">
-                    Name
-                    <input
-                      id="new-kb-name"
-                      name="name"
-                      type="text"
-                      placeholder="e.g., Technical Documentation"
-                      required
-                      autoFocus
-                    />
-                  </label>
-                  <label htmlFor="new-kb-description">
-                    Description
-                    <textarea
-                      id="new-kb-description"
-                      name="description"
-                      rows={2}
-                      placeholder="Optional description"
-                    />
-                  </label>
-                  <div className="form-actions">
-                    <button type="submit" className="primary" disabled={isCreatingKnowledgeBase} aria-busy={isCreatingKnowledgeBase}>
+                  <fieldset>
+                    <legend>Create New Knowledge Base</legend>
+                    <label htmlFor="new-kb-name">
+                      Name
+                      <input
+                        id="new-kb-name"
+                        name="name"
+                        type="text"
+                        placeholder="e.g., Technical Documentation"
+                        required
+                        autoFocus
+                      />
+                    </label>
+                    <label htmlFor="new-kb-description">
+                      Description
+                      <textarea
+                        id="new-kb-description"
+                        name="description"
+                        rows={2}
+                        placeholder="Optional description"
+                      />
+                    </label>
+                  </fieldset>
+                  <footer>
+                    <button type="submit" disabled={isCreatingKnowledgeBase} aria-busy={isCreatingKnowledgeBase}>
                       {isCreatingKnowledgeBase ? 'Creating...' : 'Create'}
                     </button>
                     <button type="button" onClick={() => setIsCreating(false)} className="secondary" disabled={isCreatingKnowledgeBase}>
                       Cancel
                     </button>
-                  </div>
+                  </footer>
                 </form>
               </article>
             )}
 
             {state.knowledgeBases.length === 0 ? (
-              <p className="empty-state">No knowledge bases yet. Create one to get started!</p>
+              <section className="empty-state">
+                <Database size={48} aria-hidden="true" />
+                <p>No knowledge bases yet. Create one to get started!</p>
+              </section>
             ) : (
-              <ul className="knowledge-base-items">
+              <ul className="knowledge-base-list">
                 {state.knowledgeBases.map(kb => (
                   <li key={kb.id}>
                     {editingId === kb.id ? (
                       <form onSubmit={(e) => handleUpdate(e, kb)}>
-                        <input
-                          name="name"
-                          type="text"
-                          defaultValue={kb.name}
-                          required
-                          autoFocus
-                        />
-                        <textarea
-                          name="description"
-                          rows={2}
-                          defaultValue={kb.description || ''}
-                        />
-                        <div className="form-actions">
-                          <button type="submit" className="primary">Save</button>
+                        <fieldset>
+                          <legend>Edit Knowledge Base</legend>
+                          <label htmlFor={`edit-kb-name-${kb.id}`}>
+                            Name
+                            <input
+                              id={`edit-kb-name-${kb.id}`}
+                              name="name"
+                              type="text"
+                              defaultValue={kb.name}
+                              required
+                              autoFocus
+                            />
+                          </label>
+                          <label htmlFor={`edit-kb-description-${kb.id}`}>
+                            Description
+                            <textarea
+                              id={`edit-kb-description-${kb.id}`}
+                              name="description"
+                              rows={2}
+                              defaultValue={kb.description || ''}
+                            />
+                          </label>
+                        </fieldset>
+                        <footer>
+                          <button type="submit">Save</button>
                           <button type="button" onClick={() => setEditingId(null)} className="secondary">
                             Cancel
                           </button>
-                        </div>
+                        </footer>
                       </form>
                     ) : (
-                      <article
-                        className="knowledge-base-item"
-                        onClick={() => handleKnowledgeBaseClick(kb)}
-                      >
+                      <article className="knowledge-base-item" onClick={() => handleKnowledgeBaseClick(kb)}>
                         <header>
                           <h3>
                             <Database size={20} aria-hidden="true" />
                             {kb.name}
                           </h3>
-                          <section className="actions">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingId(kb.id);
-                              }}
-                              aria-label={`Edit ${kb.name}`}
-                              className="icon-button"
-                            >
-                              <Edit size={16} aria-hidden="true" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(kb);
-                              }}
-                              aria-label={`Delete ${kb.name}`}
-                              className="icon-button danger"
-                            >
-                              <Trash2 size={16} aria-hidden="true" />
-                            </button>
-                          </section>
+                          <nav aria-label={`Actions for ${kb.name}`}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingId(kb.id);
+                                }}
+                                aria-label={`Edit ${kb.name}`}
+                                className="icon-button"
+                              >
+                                <Edit size={16} aria-hidden="true" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(kb);
+                                }}
+                                aria-label={`Delete ${kb.name}`}
+                                className="icon-button danger"
+                              >
+                                <Trash2 size={16} aria-hidden="true" />
+                              </button>
+                          </nav>
                         </header>
+                        
                         {kb.description && <p>{kb.description}</p>}
+                        
                         <footer>
-                          <span>{kb.fileCount} files</span>
-                          <span>Updated {new Date(kb.updatedAt).toLocaleDateString()}</span>
+                          <small>{kb.fileCount} files</small>
+                          <small>Updated {new Date(kb.updatedAt).toLocaleDateString()}</small>
                         </footer>
                       </article>
                     )}
@@ -238,59 +254,52 @@ export function KnowledgeBaseManager() {
           padding: 1rem 0;
         }
 
-        .knowledge-base-list {
-          margin-top: 2rem;
+        .knowledge-base-manager > header {
+          margin-bottom: 2rem;
         }
 
-        .knowledge-base-list header {
+        .knowledge-base-manager nav[aria-label*="actions"] {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
+          gap: 0.5rem;
         }
 
-        .knowledge-base-list button {
+        .knowledge-base-manager nav[aria-label*="actions"] button {
           display: flex;
           align-items: center;
           gap: 0.5rem;
         }
 
-        .knowledge-base-form {
-          background: var(--card-background-color);
-          padding: 1rem;
-          border-radius: var(--border-radius);
-          margin-bottom: 1rem;
-        }
-
-        .form-actions {
+        .knowledge-base-manager article > form > footer {
           display: flex;
           gap: 0.5rem;
           margin-top: 1rem;
         }
 
-        .knowledge-base-items {
+        .knowledge-base-list {
           list-style: none;
           padding: 0;
+          display: grid;
+          gap: 1rem;
         }
 
         .knowledge-base-item {
-          background: var(--card-background-color);
+          background: var(--pico-card-background-color);
           padding: 1rem;
-          border-radius: var(--border-radius);
-          margin-bottom: 0.5rem;
+          border-radius: var(--pico-border-radius);
+          border: 1px solid var(--pico-muted-border-color);
           cursor: pointer;
           transition: background-color 0.2s;
         }
 
         .knowledge-base-item:hover {
-          background: var(--card-sectionning-background-color);
+          background: var(--pico-card-sectionning-background-color);
         }
-
 
         .knowledge-base-item header {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          margin-bottom: 0.5rem;
         }
 
         .knowledge-base-item h3 {
@@ -301,7 +310,7 @@ export function KnowledgeBaseManager() {
           font-size: 1.1rem;
         }
 
-        .knowledge-base-item .actions {
+        .knowledge-base-item nav {
           display: flex;
           gap: 0.5rem;
         }
@@ -311,32 +320,37 @@ export function KnowledgeBaseManager() {
           border: none;
           padding: 0.25rem;
           cursor: pointer;
-          color: var(--muted-color);
+          color: var(--pico-muted-color);
           transition: color 0.2s;
         }
 
         .icon-button:hover {
-          color: var(--primary);
+          color: var(--pico-primary);
         }
 
         .icon-button.danger:hover {
-          color: var(--del-color);
+          color: var(--pico-del-color);
         }
 
         .knowledge-base-item footer {
           display: flex;
           justify-content: space-between;
           font-size: 0.875rem;
-          color: var(--muted-color);
+          color: var(--pico-muted-color);
           margin-top: 0.5rem;
         }
 
         .empty-state {
           text-align: center;
-          color: var(--muted-color);
+          color: var(--pico-muted-color);
           padding: 2rem;
         }
+
+        .empty-state svg {
+          opacity: 0.5;
+          margin-bottom: 1rem;
+        }
       `}</style>
-    </div>
+    </article>
   );
 }

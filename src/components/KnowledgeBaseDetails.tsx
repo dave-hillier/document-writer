@@ -76,7 +76,7 @@ export function KnowledgeBaseDetails() {
         <nav aria-label="Knowledge base navigation">
           <button
             onClick={() => navigate('/knowledge-bases')}
-            data-variant="secondary"
+            className="secondary"
           >
             ← Back to Knowledge Bases
           </button>
@@ -140,7 +140,7 @@ export function KnowledgeBaseDetails() {
         .tabs {
           display: flex;
           gap: 1rem;
-          border-bottom: 1px solid var(--muted-border-color);
+          border-bottom: 1px solid var(--pico-muted-border-color);
           margin-top: 1rem;
         }
 
@@ -152,18 +152,18 @@ export function KnowledgeBaseDetails() {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          color: var(--muted-color);
+          color: var(--pico-muted-color);
           border-bottom: 2px solid transparent;
           transition: all 0.2s;
         }
 
         .tabs button:hover {
-          color: var(--primary);
+          color: var(--pico-primary);
         }
 
         .tabs button.active {
-          color: var(--primary);
-          border-bottom-color: var(--primary);
+          color: var(--pico-primary);
+          border-bottom-color: var(--pico-primary);
         }
 
         .tab-content {
