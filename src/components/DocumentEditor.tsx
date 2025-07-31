@@ -111,7 +111,7 @@ export function DocumentEditor() {
             <span aria-label="Sections completed">{sections.filter(s => s.content).length} of {sections.length} sections completed</span>
           </p>
         </hgroup>
-        <nav aria-label="Document actions" data-action-bar>
+        <nav aria-label="Document actions" className="action-bar">
         <BulkGenerationButton />
           <button
             onClick={handleExport}
@@ -130,7 +130,7 @@ export function DocumentEditor() {
       <ol>
         {sections.map((section, index) => (
           <li key={section.id}>
-            <section data-document-section aria-labelledby={`section-${section.id}-title`}>
+            <section className="document-section" aria-labelledby={`section-${section.id}-title`}>
               <header>
                 <div data-section-indicator data-completed={section.content ? "true" : "false"} aria-hidden="true">
                   {section.content ? (
@@ -200,8 +200,8 @@ export function DocumentEditor() {
                   <pre data-content>
                     {section.content}
                   </pre>
-                  <div data-section-footer>
-                    <div data-metrics-group>
+                  <div className="section-footer">
+                    <div className="metrics-group">
                       <output aria-label={`Section word count: ${section.wordCount}`}>
                         {section.wordCount} words
                       </output>

@@ -117,7 +117,7 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           onChange={setKnowledgeBaseId}
         />
 
-        <div data-style-selector-group>
+        <div className="style-selector-group">
           <StylePromptSelector 
             selectedId={stylePromptId}
             onChange={setStylePromptId}
@@ -125,8 +125,7 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           <button
             type="button"
             onClick={() => setShowStyleManager(true)}
-            className="secondary"
-            data-manage-button
+            className="secondary manage-button"
           >
             Manage Styles
           </button>

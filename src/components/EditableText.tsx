@@ -78,7 +78,6 @@ export function EditableText({ value, onSave, ariaLabel, className, element = 's
         aria-label={ariaLabel}
         className={className}
         data-editable
-        data-min-width
       >
         {isEditing ? editValue : value}
       </HeadingElement>
@@ -98,7 +97,6 @@ export function EditableText({ value, onSave, ariaLabel, className, element = 's
       aria-label={ariaLabel}
       className={className}
       data-editable
-      data-min-width
     >
       {isEditing ? editValue : value}
     </Element>
