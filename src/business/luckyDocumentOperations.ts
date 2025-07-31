@@ -10,65 +10,19 @@ export interface LuckyGenerationCallbacks {
   shouldStop?: () => boolean;
 }
 
-interface LuckyPromptTemplate {
-  topic: string;
-  allowedElements: string[];
-  deniedElements: string[];
+interface LuckyPrompt {
+  exampleContent: string;
   targetWordCount: number;
 }
 
-// Sample prompts to use when no knowledge base is available
-const FALLBACK_PROMPTS: LuckyPromptTemplate[] = [
-  {
-    topic: "The future of remote work and its impact on organizational culture",
-    allowedElements: ["statistics", "case studies", "expert opinions", "future predictions"],
-    deniedElements: ["personal anecdotes", "speculation without evidence"],
-    targetWordCount: 3000
-  },
-  {
-    topic: "Sustainable technology practices for modern businesses",
-    allowedElements: ["real-world examples", "cost-benefit analysis", "implementation strategies"],
-    deniedElements: ["personal opinions", "outdated practices"],
-    targetWordCount: 2500
-  },
-  {
-    topic: "The psychology of user experience design",
-    allowedElements: ["research findings", "behavioral studies", "design principles", "case studies"],
-    deniedElements: ["unsupported claims", "personal preferences"],
-    targetWordCount: 4000
-  },
-  {
-    topic: "Building resilient software architectures in the cloud era",
-    allowedElements: ["architectural patterns", "best practices", "implementation examples", "performance metrics"],
-    deniedElements: ["vendor-specific recommendations", "outdated technologies"],
-    targetWordCount: 3500
-  },
-  {
-    topic: "The evolution of artificial intelligence in creative industries",
-    allowedElements: ["creative examples", "industry trends", "artist perspectives", "technological capabilities"],
-    deniedElements: ["fear-mongering", "overly technical jargon"],
-    targetWordCount: 3000
-  }
-];
 
-function getRandomElement<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-async function analyzeKnowledgeBasePatterns(
+async function gatherKnowledgeBaseExamples(
   knowledgeBases: KnowledgeBase[], 
   preferredKnowledgeBase?: KnowledgeBase
-): Promise<LuckyPromptTemplate | null> {
-  if (knowledgeBases.length === 0) return null;
+): Promise<LuckyPrompt> {
+  if (knowledgeBases.length === 0) {
+    throw new Error('Knowledge base is required for Lucky generation');
+  }
 
   try {
     // Use preferred knowledge base if provided, otherwise use the first available
@@ -76,73 +30,36 @@ async function analyzeKnowledgeBasePatterns(
     
     console.log(`🎲 [LUCKY-GENERATION] Using knowledge base: ${selectedKB.name} (${selectedKB.id})`);
     
-    // Search for sample content to inspire the prompt
-    const searchQueries = [
-      "introduction overview summary",
-      "methodology approach strategy",
-      "analysis results findings",
-      "implementation solution"
-    ];
+    // Try to get some random content from the knowledge base
+    const searchQueries = ["the", "and", "a", "is", "of", "to", "in"];
+    let exampleContent = "";
     
-    const searchQuery = getRandomElement(searchQueries);
-    const searchResult = await knowledgeBaseService.search(selectedKB.id, searchQuery);
-    
-    if (searchResult.results.length > 0) {
-      // Analyze the content to generate a themed prompt
-      const sampleContent = searchResult.results.slice(0, 3).map(r => 
-        r.content.map(c => c.text).join(' ')
-      ).join('\n\n');
-      
-      // Extract themes and generate a contextual prompt
-      const themes = extractThemesFromContent(sampleContent);
-      
-      return {
-        topic: generateTopicFromThemes(themes),
-        allowedElements: generateAllowedElements(themes),
-        deniedElements: ["personal opinions", "unsupported claims"],
-        targetWordCount: 2500 + Math.floor(Math.random() * 2000) // 2500-4500 words
-      };
+    for (const query of searchQueries) {
+      const searchResult = await knowledgeBaseService.search(selectedKB.id, query);
+      if (searchResult.results.length > 0) {
+        // Gather 3-5 examples from the knowledge base
+        const numExamples = Math.min(searchResult.results.length, 3 + Math.floor(Math.random() * 3));
+        exampleContent = searchResult.results.slice(0, numExamples)
+          .map(r => r.content.map(c => c.text).join(' '))
+          .join('\n\n---\n\n');
+        break;
+      }
     }
+    
+    if (!exampleContent) {
+      throw new Error('Could not find any content in the knowledge base');
+    }
+    
+    return {
+      exampleContent,
+      targetWordCount: 2500 + Math.floor(Math.random() * 2000) // 2500-4500 words
+    };
   } catch (error) {
-    console.error('Failed to analyze knowledge base patterns:', error);
+    console.error('Failed to gather knowledge base examples:', error);
+    throw new Error('Could not gather examples from knowledge base');
   }
-  
-  return null;
 }
 
-function extractThemesFromContent(content: string): string[] {
-  // Simple keyword extraction - in a more sophisticated version, this could use NLP
-  const commonThemes = [
-    'technology', 'business', 'strategy', 'innovation', 'development', 
-    'management', 'analysis', 'implementation', 'process', 'system',
-    'design', 'research', 'methodology', 'optimization', 'framework'
-  ];
-  
-  const contentLower = content.toLowerCase();
-  const foundThemes = commonThemes.filter(theme => contentLower.includes(theme));
-  
-  return foundThemes.length > 0 ? foundThemes.slice(0, 3) : ['business', 'strategy'];
-}
-
-
-function generateTopicFromThemes(themes: string[]): string {
-  const topicTemplates = [
-    `Implementing effective ${themes[0]} strategies in modern organizations`,
-    `The impact of ${themes[0]} on ${themes[1] || 'business outcomes'}`,
-    `Best practices for ${themes[0]} ${themes[1] ? `and ${themes[1]}` : 'implementation'}`,
-    `Transforming ${themes[1] || 'operations'} through ${themes[0]} innovation`,
-    `A comprehensive guide to ${themes[0]} optimization`,
-  ];
-  
-  return getRandomElement(topicTemplates);
-}
-
-function generateAllowedElements(themes: string[]): string[] {
-  const baseElements = ['case studies', 'best practices', 'industry examples'];
-  const themeSpecificElements = themes.map(theme => `${theme} insights`);
-  
-  return shuffleArray([...baseElements, ...themeSpecificElements]).slice(0, 4);
-}
 
 
 export async function generateLuckyDocument(
@@ -153,20 +70,24 @@ export async function generateLuckyDocument(
   const { onStepUpdate, onSectionProgress, shouldStop } = callbacks;
   const totalSteps = 5;
   
+  // Validate that we have at least one knowledge base
+  if (knowledgeBases.length === 0) {
+    throw new Error('At least one knowledge base is required for Lucky generation');
+  }
+  
   try {
     // Step 1: Analyze knowledge base patterns
-    onStepUpdate('Analyzing knowledge base patterns...', 1, totalSteps);
+    onStepUpdate('Gathering examples from knowledge base...', 1, totalSteps);
     await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause for UX
     
     if (shouldStop?.()) {
       throw new Error('Generation cancelled by user');
     }
     
-    const kbPattern = await analyzeKnowledgeBasePatterns(knowledgeBases, selectedKnowledgeBase);
-    const template = kbPattern || getRandomElement(FALLBACK_PROMPTS);
+    const luckyPrompt = await gatherKnowledgeBaseExamples(knowledgeBases, selectedKnowledgeBase);
     
     // Step 2: Generate document configuration
-    onStepUpdate('Generating document topic...', 2, totalSteps);
+    onStepUpdate('Preparing creative prompt...', 2, totalSteps);
     await new Promise(resolve => setTimeout(resolve, 300));
     
     if (shouldStop?.()) {
@@ -179,10 +100,10 @@ export async function generateLuckyDocument(
     
     const config: DocumentConfig = {
       narrativeElements: {
-        allowed: template.allowedElements,
-        denied: template.deniedElements
+        allowed: ['creative interpretation', 'inspired variations', 'thematic exploration'],
+        denied: ['direct copying', 'verbatim repetition']
       },
-      targetWordCount: template.targetWordCount,
+      targetWordCount: luckyPrompt.targetWordCount,
       knowledgeBaseId: kbToUse?.id
     };
     
@@ -193,8 +114,17 @@ export async function generateLuckyDocument(
       throw new Error('Generation cancelled by user');
     }
     
+    // Create a prompt that asks the LLM to create something inspired by the examples
+    const inspirationPrompt = `Based on these examples from a knowledge base:
+
+${luckyPrompt.exampleContent}
+
+---
+
+Create an original document inspired by the style, themes, and approach found in these examples. Don't copy them directly, but let them inspire something new and creative.`;
+    
     const outlineResult = await generateOutline(
-      { config, prompt: template.topic, responseId: null },
+      { config, prompt: inspirationPrompt, responseId: null },
       { onChunk: onSectionProgress }
     );
     
