@@ -245,7 +245,7 @@ export function BulkGenerationButton() {
     <button
       onClick={handleClick}
       disabled={uiState.disabled}
-      data-variant="secondary"
+      className="secondary"
       aria-label={uiState.ariaLabel}
     >
       <BulkGenerationButtonContent uiState={uiState} />

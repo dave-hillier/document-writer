@@ -125,7 +125,7 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           <button
             type="button"
             onClick={() => setShowStyleManager(true)}
-            data-variant="secondary"
+            className="secondary"
             data-manage-button
           >
             Manage Styles

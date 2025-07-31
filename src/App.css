@@ -24,23 +24,6 @@ body {
   flex: 1;
 }
 
-/* Button variants */
-button[data-variant="secondary"] {
-  --pico-background-color: var(--pico-secondary-background);
-  --pico-border-color: var(--pico-secondary-border);
-  --pico-color: var(--pico-secondary);
-}
-
-button[data-variant="contrast"] {
-  --pico-background-color: var(--pico-contrast-background);
-  --pico-border-color: var(--pico-contrast-border);
-  --pico-color: var(--pico-contrast);
-}
-
-button[data-outline] {
-  background-color: transparent;
-  border: 1px solid currentColor;
-}
 
 /* Style selector group */
 [data-style-selector-group] {

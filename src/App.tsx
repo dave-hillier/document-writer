@@ -117,7 +117,7 @@ function DocumentPage() {
             dispatch({ type: 'RESET_DOCUMENT' });
             navigate('/');
           }}
-          data-variant="secondary"
+          className="secondary"
         >
           ← Start New Document
         </button>
@@ -192,8 +192,7 @@ function AppContent() {
                 onClick={() => setIsSettingsOpen(true)}
                 aria-label="Open settings"
                 data-tooltip="Settings"
-                data-variant="contrast"
-                data-outline
+                className="contrast outline"
               >
                 <Settings size={24} aria-hidden="true" />
               </button>

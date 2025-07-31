@@ -82,7 +82,7 @@ export function DocumentHistory() {
             <p>
               {searchQuery ? 'No documents match your search.' : 'No documents saved yet.'}
             </p>
-            <Link to="/" role="button" data-variant="contrast">
+            <Link to="/" role="button" className="contrast">
               Create New Document
             </Link>
           </section>
@@ -108,8 +108,7 @@ export function DocumentHistory() {
                     </header>
                     <button
                       onClick={() => handleDeleteDocument(document.id)}
-                      data-outline
-                      data-variant="secondary"
+                      className="outline secondary"
                       data-icon-button
                       aria-label={`Delete document: ${document.title}`}
                     >

@@ -116,7 +116,7 @@ export function DocumentEditor() {
           <button
             onClick={handleExport}
             disabled={isStreaming || sections.every(s => !s.content)}
-            data-variant="contrast"
+            className="contrast"
             aria-label="Export document as Markdown"
           >
             <Download size={18} aria-hidden="true" />
@@ -213,7 +213,7 @@ export function DocumentEditor() {
                     <button
                       onClick={() => handleGenerateSection(section.id, true)}
                       disabled={isStreaming || isGenerating}
-                      data-outline
+                      className="outline"
                       aria-label={`Regenerate content for section: ${section.title}`}
                     >
                       <RotateCcw size={16} aria-hidden="true" />
