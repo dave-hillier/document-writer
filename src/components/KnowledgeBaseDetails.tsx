@@ -119,57 +119,6 @@ export function KnowledgeBaseDetails() {
           />
         )}
       </main>
-
-      <style>{`
-        .knowledge-base-details {
-          padding: 1rem 0;
-        }
-
-        .knowledge-base-details header {
-          margin-bottom: 2rem;
-        }
-
-        .knowledge-base-details nav[aria-label="Knowledge base navigation"] {
-          margin-bottom: 1rem;
-        }
-
-        .knowledge-base-details h1 {
-          margin: 1rem 0 0.5rem 0;
-        }
-
-        .tabs {
-          display: flex;
-          gap: 1rem;
-          border-bottom: 1px solid var(--pico-muted-border-color);
-          margin-top: 1rem;
-        }
-
-        .tabs button {
-          background: none;
-          border: none;
-          padding: 0.5rem 1rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--pico-muted-color);
-          border-bottom: 2px solid transparent;
-          transition: all 0.2s;
-        }
-
-        .tabs button:hover {
-          color: var(--pico-primary);
-        }
-
-        .tabs button.active {
-          color: var(--pico-primary);
-          border-bottom-color: var(--pico-primary);
-        }
-
-        .tab-content {
-          padding: 1rem 0;
-        }
-      `}</style>
     </div>
   );
 }

@@ -168,7 +168,7 @@ export function KnowledgeBaseManager() {
                 <p>No knowledge bases yet. Create one to get started!</p>
               </section>
             ) : (
-              <ul className="knowledge-base-list">
+              <ul>
                 {state.knowledgeBases.map(kb => (
                   <li key={kb.id}>
                     {editingId === kb.id ? (
@@ -204,28 +204,27 @@ export function KnowledgeBaseManager() {
                         </footer>
                       </form>
                     ) : (
-                      <article className="knowledge-base-item" onClick={() => handleKnowledgeBaseClick(kb)}>
+                      <article>
                         <header>
                           <h3>
                             <Database size={20} aria-hidden="true" />
-                            {kb.name}
+                            <a href={`/knowledge-bases/${kb.id}`} onClick={(e) => {
+                              e.preventDefault();
+                              handleKnowledgeBaseClick(kb);
+                            }}>
+                              {kb.name}
+                            </a>
                           </h3>
                           <nav aria-label={`Actions for ${kb.name}`}>
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditingId(kb.id);
-                                }}
+                                onClick={() => setEditingId(kb.id)}
                                 aria-label={`Edit ${kb.name}`}
                                 className="icon-button"
                               >
                                 <Edit size={16} aria-hidden="true" />
                               </button>
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(kb);
-                                }}
+                                onClick={() => handleDelete(kb)}
                                 aria-label={`Delete ${kb.name}`}
                                 className="icon-button danger"
                               >
@@ -248,109 +247,6 @@ export function KnowledgeBaseManager() {
             )}
         </section>
       )}
-
-      <style>{`
-        .knowledge-base-manager {
-          padding: 1rem 0;
-        }
-
-        .knowledge-base-manager > header {
-          margin-bottom: 2rem;
-        }
-
-        .knowledge-base-manager nav[aria-label*="actions"] {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        .knowledge-base-manager nav[aria-label*="actions"] button {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .knowledge-base-manager article > form > footer {
-          display: flex;
-          gap: 0.5rem;
-          margin-top: 1rem;
-        }
-
-        .knowledge-base-list {
-          list-style: none;
-          padding: 0;
-          display: grid;
-          gap: 1rem;
-        }
-
-        .knowledge-base-item {
-          background: var(--pico-card-background-color);
-          padding: 1rem;
-          border-radius: var(--pico-border-radius);
-          border: 1px solid var(--pico-muted-border-color);
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-
-        .knowledge-base-item:hover {
-          background: var(--pico-card-sectionning-background-color);
-        }
-
-        .knowledge-base-item header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.5rem;
-        }
-
-        .knowledge-base-item h3 {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin: 0;
-          font-size: 1.1rem;
-        }
-
-        .knowledge-base-item nav {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        .icon-button {
-          background: none;
-          border: none;
-          padding: 0.25rem;
-          cursor: pointer;
-          color: var(--pico-muted-color);
-          transition: color 0.2s;
-        }
-
-        .icon-button:hover {
-          color: var(--pico-primary);
-        }
-
-        .icon-button.danger:hover {
-          color: var(--pico-del-color);
-        }
-
-        .knowledge-base-item footer {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.875rem;
-          color: var(--pico-muted-color);
-          margin-top: 0.5rem;
-        }
-
-        .empty-state {
-          text-align: center;
-          color: var(--pico-muted-color);
-          padding: 2rem;
-        }
-
-        .empty-state svg {
-          opacity: 0.5;
-          margin-bottom: 1rem;
-        }
-      `}</style>
     </article>
   );
 }
