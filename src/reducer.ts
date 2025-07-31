@@ -39,7 +39,14 @@ export const initialState: AppState = {
   stylePrompts: [],
   selectedStylePrompt: null,
   isLoadingStylePrompts: false,
-  uploadBatchState: {}
+  uploadBatchState: {},
+  luckyGeneration: {
+    isGenerating: false,
+    currentStep: '',
+    stepIndex: 0,
+    totalSteps: 0
+  },
+  showDocumentPreview: false
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -502,6 +509,75 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         documentConfig: action.payload.stylePrompt
           ? { ...state.documentConfig, stylePromptId: action.payload.stylePrompt.id }
           : { ...state.documentConfig, stylePromptId: undefined }
+      };
+    
+    // Lucky generation events
+    case 'LUCKY_GENERATION_STARTED':
+      return {
+        ...state,
+        luckyGeneration: {
+          isGenerating: true,
+          currentStep: 'Initializing...',
+          stepIndex: 0,
+          totalSteps: 5
+        },
+        error: null
+      };
+    
+    case 'LUCKY_GENERATION_STEP_UPDATED':
+      return {
+        ...state,
+        luckyGeneration: {
+          ...state.luckyGeneration,
+          currentStep: action.payload.step,
+          stepIndex: action.payload.stepIndex,
+          totalSteps: action.payload.totalSteps
+        }
+      };
+    
+    case 'LUCKY_GENERATION_COMPLETED':
+      return {
+        ...state,
+        luckyGeneration: {
+          ...state.luckyGeneration,
+          isGenerating: false,
+          generatedDocument: action.payload.document
+        }
+      };
+    
+    case 'LUCKY_GENERATION_FAILED':
+      return {
+        ...state,
+        luckyGeneration: {
+          ...state.luckyGeneration,
+          isGenerating: false
+        },
+        error: action.payload
+      };
+    
+    case 'LUCKY_GENERATION_CANCELLED':
+      return {
+        ...state,
+        luckyGeneration: {
+          ...state.luckyGeneration,
+          isGenerating: false,
+          currentStep: 'Cancelled',
+          stepIndex: 0,
+          totalSteps: 0
+        }
+      };
+    
+    // Document preview events
+    case 'DOCUMENT_PREVIEW_OPENED':
+      return {
+        ...state,
+        showDocumentPreview: true
+      };
+    
+    case 'DOCUMENT_PREVIEW_CLOSED':
+      return {
+        ...state,
+        showDocumentPreview: false
       };
     
     default:

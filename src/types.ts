@@ -107,6 +107,14 @@ export interface UploadBatchState {
   completedAt?: number;
 }
 
+export interface LuckyGenerationState {
+  isGenerating: boolean;
+  currentStep: string;
+  stepIndex: number;
+  totalSteps: number;
+  generatedDocument?: DocumentHistoryItem;
+}
+
 export interface AppState {
   currentDocumentId: string | null;
   documentConfig: DocumentConfig;
@@ -130,6 +138,8 @@ export interface AppState {
   selectedStylePrompt: StylePrompt | null;
   isLoadingStylePrompts: boolean;
   uploadBatchState: Record<string, UploadBatchState>; // keyed by knowledgeBaseId
+  luckyGeneration: LuckyGenerationState;
+  showDocumentPreview: boolean;
 }
 
 export type AppAction =
@@ -191,4 +201,15 @@ export type AppAction =
   | { type: 'STYLE_PROMPT_CREATED'; payload: { stylePrompt: StylePrompt } }
   | { type: 'STYLE_PROMPT_UPDATED'; payload: { stylePrompt: StylePrompt } }
   | { type: 'STYLE_PROMPT_DELETED'; payload: { stylePromptId: string } }
-  | { type: 'STYLE_PROMPT_SELECTED'; payload: { stylePrompt: StylePrompt | null } };
+  | { type: 'STYLE_PROMPT_SELECTED'; payload: { stylePrompt: StylePrompt | null } }
+  
+  // Lucky generation events
+  | { type: 'LUCKY_GENERATION_STARTED' }
+  | { type: 'LUCKY_GENERATION_STEP_UPDATED'; payload: { step: string; stepIndex: number; totalSteps: number } }
+  | { type: 'LUCKY_GENERATION_COMPLETED'; payload: { document: DocumentHistoryItem } }
+  | { type: 'LUCKY_GENERATION_FAILED'; payload: string }
+  | { type: 'LUCKY_GENERATION_CANCELLED' }
+  
+  // Document preview events
+  | { type: 'DOCUMENT_PREVIEW_OPENED' }
+  | { type: 'DOCUMENT_PREVIEW_CLOSED' };

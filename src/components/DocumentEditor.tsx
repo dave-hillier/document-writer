@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ChevronRight, FileText, Download, RotateCcw } from 'lucide-react';
+import { ChevronRight, FileText, Download, RotateCcw, Eye } from 'lucide-react';
 import { useAppContext } from '../contexts/useAppContext';
 import { generateSection } from '../business/documentOperations';
 import { exportDocumentAsMarkdown } from '../business/exportUtils';
@@ -93,6 +93,10 @@ export function DocumentEditor() {
     exportDocumentAsMarkdown(outline, sections);
   };
 
+  const handlePreview = () => {
+    dispatch({ type: 'DOCUMENT_PREVIEW_OPENED' });
+  };
+
   const totalWordCount = sections.reduce((sum, s) => sum + (s.wordCount || 0), 0);
   
 
@@ -113,6 +117,15 @@ export function DocumentEditor() {
         </hgroup>
         <nav aria-label="Document actions">
         <BulkGenerationButton />
+          <button
+            onClick={handlePreview}
+            disabled={isStreaming || sections.every(s => !s.content)}
+            className="secondary"
+            aria-label="Preview complete document"
+          >
+            <Eye size={18} aria-hidden="true" />
+            Preview Document
+          </button>
           <button
             onClick={handleExport}
             disabled={isStreaming || sections.every(s => !s.content)}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import type { DocumentConfig as IDocumentConfig } from '../types';
 import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
 import { useAppContext } from '../contexts/useAppContext';
@@ -8,11 +9,12 @@ import { StylePromptManager } from './StylePromptManager';
 
 interface DocumentConfigProps {
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
+  onLuckyGeneration?: () => void;
 }
 
-export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
+export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigProps) {
   const { state } = useAppContext();
-  const { documentConfig: config, isGenerating, isStreaming, streamingContent } = state;
+  const { documentConfig: config, isGenerating, isStreaming, streamingContent, luckyGeneration, knowledgeBases } = state;
   const formDefaults = documentConfigToFormData(config);
   const [tone, setTone] = useState(formDefaults.tone);
   const [allowed, setAllowed] = useState(formDefaults.allowed);
@@ -131,13 +133,28 @@ export function DocumentConfig({ onSubmit }: DocumentConfigProps) {
           </button>
         </div>
 
-        <button
-          type="submit"
-          disabled={isGenerating || !prompt}
-          aria-busy={isGenerating}
-        >
-          {isGenerating ? 'Generating...' : 'Generate Outline'}
-        </button>
+        <div className="generation-buttons">
+          <button
+            type="submit"
+            disabled={isGenerating || luckyGeneration.isGenerating || !prompt}
+            aria-busy={isGenerating}
+          >
+            {isGenerating ? 'Generating...' : 'Generate Outline'}
+          </button>
+          
+          {onLuckyGeneration && knowledgeBases.length > 0 && (
+            <button
+              type="button"
+              onClick={onLuckyGeneration}
+              disabled={isGenerating || luckyGeneration.isGenerating}
+              className="secondary lucky-button"
+              aria-busy={luckyGeneration.isGenerating}
+            >
+              <Sparkles size={16} />
+              {luckyGeneration.isGenerating ? 'Generating...' : "I'm Feeling Lucky"}
+            </button>
+          )}
+        </div>
       </fieldset>
       
       {isStreaming && streamingContent && (
