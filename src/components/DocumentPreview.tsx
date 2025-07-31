@@ -135,9 +135,6 @@ export function DocumentPreview({
             <strong>Title:</strong> {document.title}
           </div>
           <div className="stat-item">
-            <strong>Tone:</strong> {document.config.tone}
-          </div>
-          <div className="stat-item">
             <strong>Target Words:</strong> {document.config.targetWordCount.toLocaleString()}
           </div>
           <div className="stat-item">

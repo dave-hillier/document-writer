@@ -1,4 +1,4 @@
-import type { DocumentConfig, DocumentOutline, Section, StylePrompt } from '../types';
+import type { DocumentConfig, DocumentOutline, Section } from '../types';
 import workflowPromptContent from '../workflow-prompt.md?raw';
 import defaultStyleContent from '../default-style-prompt.md?raw';
 import outlineSystemPromptContent from '../outline-system-prompt.md?raw';
@@ -7,7 +7,6 @@ export interface OutlinePromptParams {
   config: DocumentConfig;
   userPrompt: string;
   knowledgeBaseContext?: string;
-  stylePrompt?: StylePrompt;
 }
 
 export interface SectionPromptParams {
@@ -18,23 +17,19 @@ export interface SectionPromptParams {
   outlineStructure: string;
   previousContent: string;
   knowledgeBaseContext?: string;
-  stylePrompt?: StylePrompt;
 }
 
 export function createOutlinePrompt(params: OutlinePromptParams): string {
-  const { config, userPrompt, knowledgeBaseContext, stylePrompt } = params;
-  
-  const styleContent = stylePrompt?.content || defaultStyleContent;
+  const { config, userPrompt, knowledgeBaseContext } = params;
   
   return `${workflowPromptContent}
 
-${styleContent}
+${defaultStyleContent}
 
 ${outlineSystemPromptContent}
 
 ## Configuration
 
-- **Tone**: ${config.tone}
 - **Allowed narrative elements**: ${config.narrativeElements.allowed.join(', ') || 'None specified'}
 - **Denied narrative elements**: ${config.narrativeElements.denied.join(', ') || 'None specified'}
 - **Target word count**: ${config.targetWordCount}
@@ -52,16 +47,13 @@ export function createSectionPrompt(params: SectionPromptParams): string {
     currentSectionIndex, 
     outlineStructure, 
     previousContent,
-    knowledgeBaseContext,
-    stylePrompt 
+    knowledgeBaseContext
   } = params;
-
-  const styleContent = stylePrompt?.content || defaultStyleContent;
 
   // Optimize prompt structure for maximum caching: most static content first, most variable content last
   return `${workflowPromptContent}
 
-${styleContent}
+${defaultStyleContent}
 
 ## Section Generation Task
 
@@ -82,7 +74,6 @@ Write a section with exactly 400-800 words that:
 
 ## Document Configuration
 
-- **Tone**: ${config.tone}
 - **Allowed narrative elements**: ${config.narrativeElements.allowed.join(', ') || 'None specified'}
 - **Denied narrative elements**: ${config.narrativeElements.denied.join(', ') || 'None specified'}
 

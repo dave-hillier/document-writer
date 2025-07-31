@@ -1,4 +1,4 @@
-import type { DocumentConfig, DocumentOutline, Section, StylePrompt } from '../types';
+import type { DocumentConfig, DocumentOutline, Section } from '../types';
 import { createResponse } from './responses';
 import { createOutlinePrompt, createSectionPrompt } from './promptTemplates';
 import * as vectorStore from './vectorStore';
@@ -21,8 +21,7 @@ export async function generateOutline(
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string, outline: DocumentOutline, cacheMetrics?: { cachedTokens: number; totalTokens: number }) => void,
     onError: (error: Error) => void,
-    shouldStop?: () => boolean,
-    stylePrompt?: StylePrompt
+    shouldStop?: () => boolean
   ): Promise<void> {
     // Search knowledge base for outline examples if configured
     let knowledgeBaseContext = '';
@@ -79,14 +78,13 @@ export async function generateOutline(
     const prompt = createOutlinePrompt({
       config,
       userPrompt,
-      knowledgeBaseContext,
-      stylePrompt
+      knowledgeBaseContext
     });
 
     let fullResponse = '';
     
     // Use cache key based on document configuration
-    const cacheKey = `outline-${hashString(`${config.tone}-${config.targetWordCount}`)}`;
+    const cacheKey = `outline-${hashString(`${config.targetWordCount}`)}`;
     
     // Use outline-specific model
     const outlineModel = localStorage.getItem('openai-model-outline') || localStorage.getItem('openai-model') || 'gpt-4o';
@@ -136,8 +134,7 @@ export async function generateSection(
     onChunk: (chunk: string) => void,
     onComplete: (responseId: string, content: string, wordCount: number, cacheMetrics?: { cachedTokens: number; totalTokens: number }) => void,
     onError: (error: Error) => void,
-    shouldStop?: () => boolean,
-    stylePrompt?: StylePrompt
+    shouldStop?: () => boolean
   ): Promise<void> {
     // Search knowledge base for section-specific context
     let knowledgeBaseContext = '';
@@ -189,14 +186,13 @@ export async function generateSection(
       currentSectionIndex,
       outlineStructure,
       previousContent,
-      knowledgeBaseContext,
-      stylePrompt
+      knowledgeBaseContext
     });
 
     let fullContent = '';
     
     // Cache key that includes section ID to ensure uniqueness per section
-    const cacheKey = `section-${hashString(`${config.tone}-${outline.title}-${section.title}-${section.id}`)}`;
+    const cacheKey = `section-${hashString(`${outline.title}-${section.title}-${section.id}`)}`;
     
     // Use generation-specific model
     const generationModel = localStorage.getItem('openai-model-generation') || localStorage.getItem('openai-model') || 'gpt-4o';

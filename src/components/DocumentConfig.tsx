@@ -4,8 +4,6 @@ import type { DocumentConfig as IDocumentConfig } from '../types';
 import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
 import { useAppContext } from '../contexts/useAppContext';
 import { KnowledgeBaseSelector } from './KnowledgeBaseSelector';
-import { StylePromptSelector } from './StylePromptSelector';
-import { StylePromptManager } from './StylePromptManager';
 
 interface DocumentConfigProps {
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
@@ -16,26 +14,21 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
   const { state } = useAppContext();
   const { documentConfig: config, isGenerating, isStreaming, streamingContent, luckyGeneration, knowledgeBases } = state;
   const formDefaults = documentConfigToFormData(config);
-  const [tone, setTone] = useState(formDefaults.tone);
   const [allowed, setAllowed] = useState(formDefaults.allowed);
   const [denied, setDenied] = useState(formDefaults.denied);
   const [targetWordCount, setTargetWordCount] = useState(formDefaults.targetWordCount);
   const [prompt, setPrompt] = useState('');
   const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | undefined>(config.knowledgeBaseId);
-  const [stylePromptId, setStylePromptId] = useState<string | undefined>(config.stylePromptId);
-  const [showStyleManager, setShowStyleManager] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const newConfig = createDocumentConfig({
-      tone,
       allowed,
       denied,
       targetWordCount,
       prompt,
-      knowledgeBaseId,
-      stylePromptId
+      knowledgeBaseId
     });
     
     onSubmit(newConfig, prompt);
@@ -57,22 +50,6 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
             required
             aria-required="true"
           />
-        </label>
-
-        <label htmlFor="document-tone">
-          Tone
-          <select
-            id="document-tone"
-            value={tone}
-            onChange={(e) => setTone(e.target.value)}
-            aria-label="Select document tone"
-          >
-            <option value="professional">Professional</option>
-            <option value="casual">Casual</option>
-            <option value="academic">Academic</option>
-            <option value="creative">Creative</option>
-            <option value="technical">Technical</option>
-          </select>
         </label>
 
         <label htmlFor="allowed-elements">
@@ -119,20 +96,6 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
           onChange={setKnowledgeBaseId}
         />
 
-        <div className="style-selector-group">
-          <StylePromptSelector 
-            selectedId={stylePromptId}
-            onChange={setStylePromptId}
-          />
-          <button
-            type="button"
-            onClick={() => setShowStyleManager(true)}
-            className="secondary manage-button"
-          >
-            Manage Styles
-          </button>
-        </div>
-
         <div className="generation-buttons">
           <button
             type="submit"
@@ -169,9 +132,6 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
         </article>
       )}
       
-      {showStyleManager && (
-        <StylePromptManager onClose={() => setShowStyleManager(false)} />
-      )}
     </form>
   );
 }

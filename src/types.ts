@@ -14,25 +14,14 @@ export interface Section {
   wordCount?: number;
 }
 
-export interface StylePrompt {
-  id: string;
-  name: string;
-  description?: string;
-  content: string;
-  isDefault?: boolean;
-  createdAt: number;
-  updatedAt: number;
-}
 
 export interface DocumentConfig {
-  tone: string;
   narrativeElements: {
     allowed: string[];
     denied: string[];
   };
   targetWordCount: number;
   knowledgeBaseId?: string;
-  stylePromptId?: string;
 }
 
 export interface CacheMetrics {
@@ -134,9 +123,6 @@ export interface AppState {
   knowledgeBaseFiles: Record<string, KnowledgeBaseFile[]>;
   isLoadingKnowledgeBases: boolean;
   queryTestResults: QueryTestResult[];
-  stylePrompts: StylePrompt[];
-  selectedStylePrompt: StylePrompt | null;
-  isLoadingStylePrompts: boolean;
   uploadBatchState: Record<string, UploadBatchState>; // keyed by knowledgeBaseId
   luckyGeneration: LuckyGenerationState;
   showDocumentPreview: boolean;
@@ -194,14 +180,6 @@ export type AppAction =
   // Query test events
   | { type: 'QUERY_TEST_EXECUTED'; payload: { result: QueryTestResult } }
   | { type: 'QUERY_TEST_RESULTS_CLEARED' }
-  
-  // Style prompt events
-  | { type: 'STYLE_PROMPTS_LOADING_STARTED' }
-  | { type: 'STYLE_PROMPTS_LOADED'; payload: { stylePrompts: StylePrompt[] } }
-  | { type: 'STYLE_PROMPT_CREATED'; payload: { stylePrompt: StylePrompt } }
-  | { type: 'STYLE_PROMPT_UPDATED'; payload: { stylePrompt: StylePrompt } }
-  | { type: 'STYLE_PROMPT_DELETED'; payload: { stylePromptId: string } }
-  | { type: 'STYLE_PROMPT_SELECTED'; payload: { stylePrompt: StylePrompt | null } }
   
   // Lucky generation events
   | { type: 'LUCKY_GENERATION_STARTED' }

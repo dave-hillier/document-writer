@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { DocumentConfig, DocumentHistoryItem, KnowledgeBase, StylePrompt } from '../types';
+import type { DocumentConfig, DocumentHistoryItem, KnowledgeBase } from '../types';
 import { generateOutline, generateAllSections } from './documentOperations';
 import * as knowledgeBaseService from '../services/knowledgeBase';
 import { indexedDBService } from '../services/indexeddb';
@@ -12,7 +12,6 @@ export interface LuckyGenerationCallbacks {
 
 interface LuckyPromptTemplate {
   topic: string;
-  tone: string;
   allowedElements: string[];
   deniedElements: string[];
   targetWordCount: number;
@@ -22,35 +21,30 @@ interface LuckyPromptTemplate {
 const FALLBACK_PROMPTS: LuckyPromptTemplate[] = [
   {
     topic: "The future of remote work and its impact on organizational culture",
-    tone: "professional",
     allowedElements: ["statistics", "case studies", "expert opinions", "future predictions"],
     deniedElements: ["personal anecdotes", "speculation without evidence"],
     targetWordCount: 3000
   },
   {
     topic: "Sustainable technology practices for modern businesses",
-    tone: "professional",
     allowedElements: ["real-world examples", "cost-benefit analysis", "implementation strategies"],
     deniedElements: ["personal opinions", "outdated practices"],
     targetWordCount: 2500
   },
   {
     topic: "The psychology of user experience design",
-    tone: "academic",
     allowedElements: ["research findings", "behavioral studies", "design principles", "case studies"],
     deniedElements: ["unsupported claims", "personal preferences"],
     targetWordCount: 4000
   },
   {
     topic: "Building resilient software architectures in the cloud era",
-    tone: "technical",
     allowedElements: ["architectural patterns", "best practices", "implementation examples", "performance metrics"],
     deniedElements: ["vendor-specific recommendations", "outdated technologies"],
     targetWordCount: 3500
   },
   {
     topic: "The evolution of artificial intelligence in creative industries",
-    tone: "creative",
     allowedElements: ["creative examples", "industry trends", "artist perspectives", "technological capabilities"],
     deniedElements: ["fear-mongering", "overly technical jargon"],
     targetWordCount: 3000
@@ -101,11 +95,9 @@ async function analyzeKnowledgeBasePatterns(
       
       // Extract themes and generate a contextual prompt
       const themes = extractThemesFromContent(sampleContent);
-      const tone = inferToneFromContent(sampleContent);
       
       return {
         topic: generateTopicFromThemes(themes),
-        tone,
         allowedElements: generateAllowedElements(themes),
         deniedElements: ["personal opinions", "unsupported claims"],
         targetWordCount: 2500 + Math.floor(Math.random() * 2000) // 2500-4500 words
@@ -132,19 +124,6 @@ function extractThemesFromContent(content: string): string[] {
   return foundThemes.length > 0 ? foundThemes.slice(0, 3) : ['business', 'strategy'];
 }
 
-function inferToneFromContent(content: string): string {
-  const contentLower = content.toLowerCase();
-  
-  if (contentLower.includes('research') || contentLower.includes('study') || contentLower.includes('analysis')) {
-    return 'academic';
-  } else if (contentLower.includes('technical') || contentLower.includes('system') || contentLower.includes('implementation')) {
-    return 'technical';
-  } else if (contentLower.includes('creative') || contentLower.includes('design') || contentLower.includes('user')) {
-    return 'creative';
-  } else {
-    return 'professional';
-  }
-}
 
 function generateTopicFromThemes(themes: string[]): string {
   const topicTemplates = [
@@ -165,17 +144,6 @@ function generateAllowedElements(themes: string[]): string[] {
   return shuffleArray([...baseElements, ...themeSpecificElements]).slice(0, 4);
 }
 
-async function selectRandomStylePrompt(): Promise<StylePrompt | undefined> {
-  try {
-    const stylePrompts = await indexedDBService.getAllStylePrompts();
-    if (stylePrompts.length > 0) {
-      return getRandomElement(stylePrompts);
-    }
-  } catch (error) {
-    console.error('Failed to load style prompts:', error);
-  }
-  return undefined;
-}
 
 export async function generateLuckyDocument(
   knowledgeBases: KnowledgeBase[],
@@ -205,20 +173,17 @@ export async function generateLuckyDocument(
       throw new Error('Generation cancelled by user');
     }
     
-    const stylePrompt = await selectRandomStylePrompt();
     const kbToUse = selectedKnowledgeBase || (knowledgeBases.length > 0 ? knowledgeBases[0] : undefined);
     
     console.log(`🎲 [LUCKY-GENERATION] Final knowledge base for document: ${kbToUse ? `${kbToUse.name} (${kbToUse.id})` : 'None'}`);
     
     const config: DocumentConfig = {
-      tone: template.tone,
       narrativeElements: {
         allowed: template.allowedElements,
         denied: template.deniedElements
       },
       targetWordCount: template.targetWordCount,
-      knowledgeBaseId: kbToUse?.id,
-      stylePromptId: stylePrompt?.id
+      knowledgeBaseId: kbToUse?.id
     };
     
     // Step 3: Generate outline

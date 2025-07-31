@@ -1,11 +1,10 @@
-import type { DocumentHistoryItem, KnowledgeBase, StylePrompt } from '../types';
+import type { DocumentHistoryItem, KnowledgeBase } from '../types';
 
 const DB_NAME = 'DocumentWriterDB';
 const DB_VERSION = 5;
 const DOCUMENTS_STORE = 'documents';
 const KNOWLEDGE_BASES_STORE = 'knowledgeBases';
 const FILE_METADATA_STORE = 'fileMetadata';
-const STYLE_PROMPTS_STORE = 'stylePrompts';
 
 export class IndexedDBService {
   private db: IDBDatabase | null = null;
@@ -48,14 +47,6 @@ export class IndexedDBService {
           fileStore.createIndex('uploadedAt', 'uploadedAt', { unique: false });
         }
         
-        // Create style prompts store
-        if (!db.objectStoreNames.contains(STYLE_PROMPTS_STORE)) {
-          const styleStore = db.createObjectStore(STYLE_PROMPTS_STORE, { keyPath: 'id' });
-          styleStore.createIndex('createdAt', 'createdAt', { unique: false });
-          styleStore.createIndex('updatedAt', 'updatedAt', { unique: false });
-          styleStore.createIndex('name', 'name', { unique: false });
-          styleStore.createIndex('isDefault', 'isDefault', { unique: false });
-        }
       };
 
       request.onsuccess = (event) => {
@@ -363,88 +354,6 @@ export class IndexedDBService {
     });
   }
 
-  // Style Prompt methods
-  async saveStylePrompt(stylePrompt: StylePrompt): Promise<void> {
-    if (!this.db) {
-      await this.init();
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STYLE_PROMPTS_STORE], 'readwrite');
-      const store = transaction.objectStore(STYLE_PROMPTS_STORE);
-      
-      const request = store.put(stylePrompt);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(new Error('Failed to save style prompt'));
-    });
-  }
-
-  async getStylePrompt(id: string): Promise<StylePrompt | null> {
-    if (!this.db) {
-      await this.init();
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STYLE_PROMPTS_STORE], 'readonly');
-      const store = transaction.objectStore(STYLE_PROMPTS_STORE);
-      const request = store.get(id);
-
-      request.onsuccess = () => {
-        resolve(request.result || null);
-      };
-
-      request.onerror = () => reject(new Error('Failed to get style prompt'));
-    });
-  }
-
-  async getAllStylePrompts(): Promise<StylePrompt[]> {
-    if (!this.db) {
-      await this.init();
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db!.transaction([STYLE_PROMPTS_STORE], 'readonly');
-        const store = transaction.objectStore(STYLE_PROMPTS_STORE);
-        const index = store.index('updatedAt');
-        const request = index.openCursor(null, 'prev'); // Most recently updated first
-        
-        const stylePrompts: StylePrompt[] = [];
-
-        request.onsuccess = (event) => {
-          const cursor = (event.target as IDBRequest).result;
-          if (cursor) {
-            stylePrompts.push(cursor.value);
-            cursor.continue();
-          } else {
-            resolve(stylePrompts);
-          }
-        };
-
-        request.onerror = () => reject(new Error('Failed to get all style prompts'));
-        
-        transaction.onerror = () => reject(new Error('Transaction failed'));
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  async deleteStylePrompt(id: string): Promise<void> {
-    if (!this.db) {
-      await this.init();
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([STYLE_PROMPTS_STORE], 'readwrite');
-      const store = transaction.objectStore(STYLE_PROMPTS_STORE);
-      const request = store.delete(id);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(new Error('Failed to delete style prompt'));
-    });
-  }
 
   async resetDatabase(): Promise<void> {
     // Close existing connection
