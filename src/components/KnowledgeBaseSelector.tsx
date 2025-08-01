@@ -67,31 +67,7 @@ export function KnowledgeBaseSelector({ selectedId, onChange }: KnowledgeBaseSel
         </div>
       )}
 
-      <style>{`
-        .knowledge-base-selector {
-          margin: 1rem 0;
-        }
 
-        .label-with-icon {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .knowledge-base-info {
-          background: var(--card-sectionning-background-color);
-          border-radius: var(--border-radius);
-          padding: 1rem;
-          margin-top: 0.5rem;
-        }
-
-        .knowledge-base-info .description {
-          margin: 0;
-          font-size: 0.9rem;
-          color: var(--muted-color);
-        }
-      `}</style>
     </div>
   );
 }

@@ -291,10 +291,10 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   const getFileIcon = (status: string) => {
     switch (status) {
       case 'queued':
-        return <File size={16} aria-hidden="true" style={{ opacity: 0.5 }} />;
+        return <File size={16} aria-hidden="true" />;
       case 'uploading':
       case 'processing':
-        return <Loader className="spinning" size={16} aria-hidden="true" />;
+        return <Loader size={16} aria-hidden="true" />;
       case 'completed':
         return <CheckCircle size={16} aria-hidden="true" />;
       case 'failed':
@@ -330,7 +330,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
         <div className="upload-progress-summary">
           <div className="progress-header">
             <h3>Uploading Files</h3>
-            <button onClick={handleCancelAll} className="secondary cancel-all-button">
+            <button onClick={handleCancelAll} className="secondary">
               Cancel All
             </button>
           </div>
@@ -343,8 +343,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
             <div className="failed-info">
               <AlertCircle size={16} aria-hidden="true" />
               <span>{batchState.failedFiles} failed</span>
-              <button onClick={handleRetryFailed} className="link-button">Retry</button>
-            </div>
+               <button className="secondary" onClick={handleRetryFailed}>Retry</button>            </div>
           )}
         </div>
       )}
@@ -447,7 +446,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
                         disabled={file.status === 'uploading' || file.status === 'processing' || deletingFiles.has(file.id)}
                       >
                         {deletingFiles.has(file.id) ? (
-                          <Loader className="spinning" size={16} aria-hidden="true" />
+                          <Loader size={16} aria-hidden="true" />
                         ) : (
                           <X size={16} aria-hidden="true" />
                         )}
@@ -460,223 +459,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
         </>
       )}
 
-      <style>{`
-        .upload-progress-summary {
-          background: var(--primary-background);
-          border: 1px solid var(--primary);
-          border-radius: var(--border-radius);
-          padding: 1rem;
-          margin-bottom: 1rem;
-        }
 
-        .progress-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.5rem;
-        }
-
-        .progress-header h3 {
-          margin: 0;
-          font-size: 1rem;
-        }
-
-        .cancel-all-button {
-          padding: 0.25rem 0.75rem;
-          font-size: 0.875rem;
-        }
-
-        .progress-stats {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.875rem;
-          color: var(--muted-color);
-          margin-bottom: 0.5rem;
-        }
-
-        .failed-info {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-top: 0.5rem;
-          color: var(--del-color);
-          font-size: 0.875rem;
-        }
-
-        .link-button {
-          background: none;
-          border: none;
-          color: var(--primary);
-          text-decoration: underline;
-          cursor: pointer;
-          padding: 0;
-          font-size: inherit;
-        }
-
-        .upload-completion-summary {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 1rem;
-          background: var(--ins-background);
-          border: 1px solid var(--ins-color);
-          border-radius: var(--border-radius);
-          margin-bottom: 1rem;
-        }
-
-        .upload-completion-summary h3 {
-          margin: 0;
-          font-size: 1rem;
-        }
-
-        .upload-completion-summary p {
-          margin: 0;
-          font-size: 0.875rem;
-          color: var(--muted-color);
-        }
-
-        .file-section {
-          margin-top: 1.5rem;
-        }
-
-        .file-section h4 {
-          margin-bottom: 0.5rem;
-          font-size: 0.875rem;
-          text-transform: uppercase;
-          color: var(--muted-color);
-        }
-
-        output.upload-status {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-
-        data.file-progress,
-        .file-status {
-          font-size: 0.75rem;
-          color: var(--primary);
-          font-weight: 500;
-        }
-
-        small.file-stage {
-          font-size: 0.7rem;
-          color: var(--muted-color);
-          font-style: italic;
-        }
-
-        data.file-size {
-          color: var(--muted-color);
-          font-size: 0.875rem;
-        }
-
-        .file-error {
-          font-size: 0.75rem;
-          color: var(--del-color);
-          font-weight: 500;
-        }
-        .file-uploader {
-          padding: 1rem 0;
-        }
-
-        .upload-zone {
-          border: 2px dashed var(--muted-border-color);
-          border-radius: var(--border-radius);
-          padding: 3rem;
-          text-align: center;
-          cursor: pointer;
-          transition: all 0.2s;
-          background: var(--card-background-color);
-          color: var(--color);
-        }
-
-        .upload-zone:hover {
-          border-color: var(--primary);
-          background: var(--card-sectionning-background-color);
-        }
-
-        .upload-zone.dragging {
-          border-color: var(--primary);
-          background: var(--primary-background);
-        }
-
-        .upload-zone p {
-          margin: 1rem 0 0.5rem;
-          color: var(--color);
-        }
-
-        .upload-zone small {
-          color: var(--muted-color);
-        }
-
-        .file-list {
-          list-style: none;
-          padding: 0;
-          margin-top: 1rem;
-        }
-
-        .file-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0.75rem;
-          background: var(--card-background-color);
-          border-radius: var(--border-radius);
-          margin-bottom: 0.5rem;
-        }
-
-        .file-info {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .filename {
-          font-weight: 500;
-        }
-
-
-        .delete-button {
-          background: none;
-          border: none;
-          padding: 0.25rem;
-          cursor: pointer;
-          color: var(--muted-color);
-          transition: color 0.2s;
-        }
-
-        .delete-button:hover:not(:disabled) {
-          color: var(--del-color);
-        }
-
-        .delete-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .file-item.uploading,
-        .file-item.processing {
-          opacity: 0.7;
-        }
-
-        .file-item.failed {
-          background: var(--del-background);
-        }
-
-        .empty-state {
-          text-align: center;
-          color: var(--muted-color);
-          padding: 2rem;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        .spinning {
-          animation: spin 1s linear infinite;
-        }
-      `}</style>
     </section>
   );
 }

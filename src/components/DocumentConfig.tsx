@@ -110,7 +110,7 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
               type="button"
               onClick={onLuckyGeneration}
               disabled={isGenerating || luckyGeneration.isGenerating}
-              className="secondary lucky-button"
+              className="secondary"
               aria-busy={luckyGeneration.isGenerating}
             >
               <Sparkles size={16} />
@@ -127,7 +127,7 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
           </header>
           <pre>
             {streamingContent}
-            <span data-cursor aria-label="Generating">▋</span>
+            <span aria-label="Generating">▋</span>
           </pre>
         </article>
       )}

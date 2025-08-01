@@ -19,28 +19,6 @@ body {
   width: 100%;
 }
 
-/* Flex utility */
-[data-flex] {
-  flex: 1;
-}
-
-
-/* Style selector group */
-[data-style-selector-group] {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
-[data-style-selector-group] > :first-child {
-  flex: 1;
-}
-
-[data-style-selector-group] button[data-manage-button] {
-  margin-bottom: 0;
-  white-space: nowrap;
-}
-
 /* Generation buttons */
 .generation-buttons {
   display: flex;
@@ -52,42 +30,6 @@ body {
 .generation-buttons > button[type="submit"] {
   flex: 1;
   min-width: 200px;
-}
-
-.lucky-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-  background: linear-gradient(135deg, var(--pico-secondary) 0%, var(--pico-secondary-focus) 100%);
-  border: 1px solid var(--pico-secondary-focus);
-  color: var(--pico-secondary-inverse);
-  position: relative;
-  overflow: hidden;
-}
-
-.lucky-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--pico-secondary-focus) 0%, var(--pico-secondary-hover) 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.lucky-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.lucky-button svg {
-  animation: sparkle-rotate 3s linear infinite;
-}
-
-@keyframes sparkle-rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 @media (max-width: 600px) {
@@ -133,21 +75,6 @@ body {
   min-width: 1em;
 }
 
-/* Close button */
-button[data-close] {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-}
-
-/* Reset button */
-button[data-reset-button] {
-  margin-top: 1rem;
-}
-
-/* Generating info - remove if unused */
-
 /* Cache metrics */
 details small {
   color: green;
@@ -160,7 +87,7 @@ details > div {
 }
 
 /* Document History */
-.document-history search {
+.document-history form[role="search"] {
   position: relative;
   margin-bottom: 1rem;
 }
@@ -509,21 +436,15 @@ output {
   margin-top: 0.5rem;
 }
 
-/* Modal styles - removed, Pico.css handles dialog styling */
-
-/* Form enhancements - removed, using standard small elements */
-
-/* Button enhancements - removed, Pico.css handles button styling */
+/* Button enhancements - Pico.css handles button styling */
 button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Alert and status message styles - can be simplified with Pico classes */
-
 /* Skip link for accessibility */
-a[data-skip-link] {
+.skip-link {
   position: absolute;
   left: -9999px;
   z-index: 999;
@@ -533,14 +454,14 @@ a[data-skip-link] {
   text-decoration: none;
 }
 
-a[data-skip-link]:focus {
+.skip-link:focus {
   left: 50%;
   transform: translateX(-50%);
   top: 0;
 }
 
 /* Visually hidden but accessible to screen readers */
-[data-visually-hidden] {
+.visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -578,14 +499,6 @@ a[data-skip-link]:focus {
 .danger-zone-item footer {
   margin-top: 1rem;
 }
-
-/* Modal styling - duplicate removed, Pico handles this */
-
-/* Hint styling - duplicate removed, use standard small */
-
-/* Close button styling - can use Pico outline class */
-
-/* Outline button modifier - Pico.css already provides .outline class */
 
 /* Knowledge Base Manager */
 .knowledge-base-manager {
@@ -743,7 +656,6 @@ a[data-skip-link]:focus {
   padding: 1rem 0;
 }
 
-
 /* Document editor layout */
 .editor-layout {
   display: grid;
@@ -784,6 +696,12 @@ a[data-skip-link]:focus {
   padding: 1.5rem 1.5rem 1rem;
   border-bottom: 1px solid var(--pico-muted-border-color);
   flex-shrink: 0;
+}
+
+.modal > article > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .document-preview-header h2 {
@@ -1161,3 +1079,228 @@ progress::-moz-progress-bar {
   }
 }
 
+/* Knowledge Base Selector */
+.knowledge-base-selector {
+  margin: 1rem 0;
+}
+
+.knowledge-base-selector .label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.knowledge-base-info {
+  background: var(--pico-card-sectionning-background-color);
+  border-radius: var(--pico-border-radius);
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.knowledge-base-info .description {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--pico-muted-color);
+}
+
+/* File uploader */
+.file-uploader {
+  padding: 1rem 0;
+}
+
+.upload-progress-summary {
+  background: var(--pico-card-sectionning-background-color);
+  border: 1px solid var(--pico-primary);
+  border-radius: var(--pico-border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progress-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.cancel-all-button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--pico-muted-color);
+  margin-bottom: 0.5rem;
+}
+
+.failed-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: var(--pico-del-color);
+  font-size: 0.875rem;
+}
+
+
+.upload-completion-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--pico-card-sectionning-background-color);
+  border: 1px solid var(--pico-ins-color);
+  border-radius: var(--pico-border-radius);
+  margin-bottom: 1rem;
+}
+
+.upload-completion-summary h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.upload-completion-summary p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--pico-muted-color);
+}
+
+.file-section {
+  margin-top: 1.5rem;
+}
+
+.file-section h4 {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: var(--pico-muted-color);
+}
+
+output.upload-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+data.file-progress,
+.file-status {
+  font-size: 0.75rem;
+  color: var(--pico-primary);
+  font-weight: 500;
+}
+
+small.file-stage {
+  font-size: 0.7rem;
+  color: var(--pico-muted-color);
+  font-style: italic;
+}
+
+data.file-size {
+  color: var(--pico-muted-color);
+  font-size: 0.875rem;
+}
+
+.file-error {
+  font-size: 0.75rem;
+  color: var(--pico-del-color);
+  font-weight: 500;
+}
+
+.upload-zone {
+  border: 2px dashed var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--pico-card-background-color);
+  color: var(--pico-color);
+}
+
+.upload-zone:hover {
+  border-color: var(--pico-primary);
+  background: var(--pico-card-sectionning-background-color);
+}
+
+.upload-zone.dragging {
+  border-color: var(--pico-primary);
+  background: var(--pico-primary-background);
+}
+
+.upload-zone p {
+  margin: 1rem 0 0.5rem;
+  color: var(--pico-color);
+}
+
+.upload-zone small {
+  color: var(--pico-muted-color);
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--pico-card-background-color);
+  border-radius: var(--pico-border-radius);
+  margin-bottom: 0.5rem;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filename {
+  font-weight: 500;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--pico-muted-color);
+  transition: color 0.2s;
+}
+
+.delete-button:hover:not(:disabled) {
+  color: var(--pico-del-color);
+}
+
+.delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.file-item.uploading,
+.file-item.processing {
+  opacity: 0.7;
+}
+
+.file-item.failed {
+  background: var(--pico-card-sectionning-background-color);
+}
+
+/* Spin loader icons by state */
+.file-item.uploading svg,
+.file-item.processing svg,
+button[aria-busy="true"] svg {
+  animation: spin 1s linear infinite;
+}

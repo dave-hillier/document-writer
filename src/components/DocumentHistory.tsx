@@ -66,7 +66,7 @@ export function DocumentHistory() {
       </header>
 
       <section>
-        <search>
+        <form role="search" onSubmit={(e) => e.preventDefault()}>
           <input
             type="search"
             placeholder="Search documents..."
@@ -74,7 +74,7 @@ export function DocumentHistory() {
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Search documents"
           />
-        </search>
+        </form>
 
         {filteredDocuments.length === 0 ? (
           <section className="empty-state">

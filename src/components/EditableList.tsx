@@ -75,9 +75,9 @@ export function EditableList({ items, onSave, ariaLabel }: EditableListProps) {
 
   return (
     <div role="group" aria-label={ariaLabel}>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul>
         {localItems.map((item, index) => (
-          <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <li>
             <span
               ref={el => { itemRefs.current[index] = el; }}
               contentEditable
@@ -86,7 +86,7 @@ export function EditableList({ items, onSave, ariaLabel }: EditableListProps) {
               onKeyDown={(e) => handleItemKeyDown(e, index)}
               onPaste={handlePaste}
               aria-label={`Step ${index + 1}`}
-              style={{ flex: 1, cursor: 'text', minWidth: '1em', padding: '0.25rem' }}
+
             >
               {item}
             </span>
@@ -94,7 +94,7 @@ export function EditableList({ items, onSave, ariaLabel }: EditableListProps) {
               onClick={() => handleRemoveItem(index)}
               className="outline"
               aria-label={`Remove step ${index + 1}`}
-              style={{ padding: '0.25rem', minWidth: 'auto' }}
+
             >
               <X size={16} aria-hidden="true" />
             </button>
@@ -105,7 +105,7 @@ export function EditableList({ items, onSave, ariaLabel }: EditableListProps) {
             onClick={handleAddItem}
             className="outline"
             aria-label="Add new step"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+
           >
             <Plus size={16} aria-hidden="true" />
             Add step

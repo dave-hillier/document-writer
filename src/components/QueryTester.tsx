@@ -219,13 +219,13 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
                 <p><strong>Selected elements:</strong></p>
                 <div>
                   {selectedNarrativeElements.map(element => (
-                    <span key={element} style={{display: 'inline-block', margin: '2px', padding: '4px 8px', background: 'var(--pico-primary)', color: 'white', borderRadius: '4px', fontSize: '0.9em'}}>
+                    <span key={element}>
                       {element}
                       <button 
                         type="button" 
                         onClick={() => removeNarrativeElement(element)}
-                        style={{marginLeft: '8px', background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}
                         aria-label={`Remove ${element}`}
+                        className="outline"
                       >
                         ×
                       </button>
@@ -245,13 +245,13 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
             <div>
               <button
                 onClick={() => setShowRawJson(!showRawJson)}
-                className="secondary small"
+                className="secondary"
               >
                 {showRawJson ? 'Show Formatted' : 'Show Raw JSON'}
               </button>
               <button
                 onClick={clearResults}
-                className="secondary small"
+                className="secondary"
                 aria-label="Clear results"
               >
                 <Trash2 size={16} aria-hidden="true" />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { ModelsService } from '../services/models';
 import type { ModelInfo } from '../services/models';
 import { indexedDBService } from '../services/indexeddb';
@@ -157,15 +157,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <dialog open className="modal" role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
       <article>
         <header>
-          <button
-            aria-label="Close settings"
-            rel="prev"
-            onClick={onClose}
-            className="close"
-          >
+          <h3 id="settings-title">Settings</h3>
+          <button aria-label="Close settings" className="icon-button" onClick={onClose}>
             <X size={20} aria-hidden="true" />
           </button>
-          <h3 id="settings-title">Settings</h3>
         </header>
       
         <label htmlFor="api-key">

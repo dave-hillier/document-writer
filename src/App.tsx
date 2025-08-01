@@ -268,8 +268,8 @@ function AppContent() {
 
   return (
     <>
-      <a href="#main-content" data-skip-link>Skip to main content</a>
-      <header className="container app-header">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      <header className="container app-header" role="banner">
         <nav aria-label="Main navigation">
           <ul>
             <li><h1>Document Writer</h1></li>
@@ -304,7 +304,7 @@ function AppContent() {
         </nav>
       </header>
 
-      <main id="main-content" className="container flex-main">
+      <main id="main-content" className="container">
         {state.error && (
           <section role="alert" aria-live="assertive">
             {state.error}
