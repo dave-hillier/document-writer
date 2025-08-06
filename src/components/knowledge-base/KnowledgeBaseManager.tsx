@@ -103,7 +103,7 @@ export function KnowledgeBaseManager() {
   };
 
   return (
-    <article aria-label="Knowledge Base Manager">
+    <>
       <header>
         <hgroup>
           <p>Manage knowledge bases to enhance document generation with domain-specific content.</p>
@@ -247,6 +247,6 @@ export function KnowledgeBaseManager() {
             )}
         </section>
       )}
-    </article>
+    </>
   );
 }
