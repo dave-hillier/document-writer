@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
-import { ModelsService } from '../services/models';
-import type { ModelInfo } from '../services/models';
-import { indexedDBService } from '../services/indexeddb';
+import { ModelsService } from '../../services/models';
+import type { ModelInfo } from '../../services/models';
+import { indexedDBService } from '../../services/indexeddb';
 import OpenAI from 'openai';
 
 interface SettingsModalProps {

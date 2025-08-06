@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Database } from 'lucide-react';
-import { useAppContext } from '../contexts/useAppContext';
-import * as knowledgeBaseService from '../services/knowledgeBase';
+import { useAppContext } from '../../contexts/useAppContext';
+import * as knowledgeBaseService from '../../services/knowledgeBase';
 
 interface KnowledgeBaseSelectorProps {
   selectedId?: string;

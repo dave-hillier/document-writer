@@ -1,7 +1,7 @@
-import { useAppContext } from '../contexts/useAppContext';
-import { generateAllSections } from '../business/documentOperations';
+import { useAppContext } from '../../contexts/useAppContext';
+import { generateAllSections } from '../../business/documentOperations';
 import { Play, Square, RotateCcw } from 'lucide-react';
-import type { AppState, AppAction } from '../types';
+import type { AppState, AppAction } from '../../types';
 import { useRef, useEffect, useReducer } from 'react';
 
 interface BulkGenerationUIState {

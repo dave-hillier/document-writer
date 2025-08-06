@@ -1,13 +1,12 @@
-import { useEffect } from 'react';
+import { useAutoSave } from '../../hooks/useAutoSave';
 import { ChevronRight, FileText, Download, RotateCcw, Eye } from 'lucide-react';
-import { useAppContext } from '../contexts/useAppContext';
-import { generateSection } from '../business/documentOperations';
-import { exportDocumentAsMarkdown } from '../business/exportUtils';
-import { saveCurrentDocument } from '../business/historyOperations';
-import { BulkGenerationButton } from './BulkGenerationButton';
-import { CacheMetrics } from './CacheMetrics';
-import { EditableText } from './EditableText';
-import { EditableList } from './EditableList';
+import { useAppContext } from '../../contexts/useAppContext';
+import { generateSection } from '../../business/documentOperations';
+import { exportDocumentAsMarkdown } from '../../business/exportUtils';
+import { BulkGenerationButton } from '../editor/BulkGenerationButton';
+import { CacheMetrics } from '../common/CacheMetrics';
+import { EditableText } from '../editor/EditableText';
+import { EditableList } from '../editor/EditableList';
 
 export function DocumentEditor() {
   const { state, dispatch } = useAppContext();
@@ -22,36 +21,7 @@ export function DocumentEditor() {
     sectionCacheMetrics
   } = state;
   // Auto-save document when sections are updated
-  useEffect(() => {
-    const autoSave = async () => {
-      if (state.currentDocumentId && outline && !isGenerating && !isStreaming) {
-        try {
-          await saveCurrentDocument(state);
-          dispatch({ 
-            type: 'DOCUMENT_SAVED_TO_HISTORY', 
-            payload: { 
-              document: {
-                id: state.currentDocumentId,
-                title: outline.title,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-                config: state.documentConfig,
-                outline,
-                sections,
-                url: `/document/${state.currentDocumentId}`
-              }
-            }
-          });
-        } catch (error) {
-          console.error('Failed to auto-save document:', error);
-        }
-      }
-    };
-
-    // Auto-save after a delay to avoid saving during streaming
-    const timeoutId = setTimeout(autoSave, 1000);
-    return () => clearTimeout(timeoutId);
-  }, [sections, state, dispatch, outline, isGenerating, isStreaming]);
+  useAutoSave(state, dispatch);
 
   if (!outline) {
     return null;

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Clock, Trash2, Check } from 'lucide-react';
-import { useAppContext } from '../contexts/useAppContext';
-import { indexedDBService } from '../services/indexeddb';
-import type { DocumentHistoryItem } from '../types';
+import { useAppContext } from '../../contexts/useAppContext';
+import { indexedDBService } from '../../services/indexeddb';
+import type { DocumentHistoryItem, Section } from '../../types';
 
 export function DocumentHistory() {
   const { state, dispatch } = useAppContext();
@@ -118,7 +118,7 @@ export function DocumentHistory() {
                 <footer>
                   <small>
                     {document.sections.length} sections • 
-                    {document.sections.filter(s => s.content).length} completed • 
+                    {document.sections.filter((s: Section) => s.content).length} completed • 
                     Target: {document.config.targetWordCount} words
                   </small>
                 </footer>
@@ -126,11 +126,11 @@ export function DocumentHistory() {
                 <details>
                   <summary>Sections</summary>
                   <ul>
-                    {document.outline.sections.map((section, index) => (
+                    {document.outline.sections.map((section: Section, index: number) => (
                       <li key={section.id}>
                         <small>
                           {index + 1}. {section.title}
-                          {document.sections.find(s => s.id === section.id)?.content && 
+                          {document.sections.find((s: Section) => s.id === section.id)?.content && 
                             <Check size={12} />
                           }
                         </small>

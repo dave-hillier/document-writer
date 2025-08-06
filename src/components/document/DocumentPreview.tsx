@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Download, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import type { DocumentHistoryItem } from '../types';
-import { exportDocumentAsMarkdown } from '../business/exportUtils';
+import type { DocumentHistoryItem } from '../../types';
+import { exportDocumentAsMarkdown } from '../../business/exportUtils';
 
 interface DocumentPreviewProps {
   document: DocumentHistoryItem;

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Upload, File, X, CheckCircle, AlertCircle, Loader } from 'lucide-react';
-import { useAppContext } from '../contexts/useAppContext';
-import * as knowledgeBaseService from '../services/knowledgeBase';
-import type { KnowledgeBaseFile } from '../types';
+import { useAppContext } from '../../contexts/useAppContext';
+import * as knowledgeBaseService from '../../services/knowledgeBase';
+import type { KnowledgeBaseFile } from '../../types';
 
 interface FileUploaderProps {
   knowledgeBaseId: string;

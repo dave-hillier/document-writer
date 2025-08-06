@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Database, Plus, Trash2, Edit } from 'lucide-react';
-import { useAppContext } from '../contexts/useAppContext';
-import * as knowledgeBaseService from '../services/knowledgeBase';
-import type { KnowledgeBase } from '../types';
+import { useAppContext } from '../../contexts/useAppContext';
+import * as knowledgeBaseService from '../../services/knowledgeBase';
+import type { KnowledgeBase } from '../../types';
 
 export function KnowledgeBaseManager() {
   const { state, dispatch } = useAppContext();

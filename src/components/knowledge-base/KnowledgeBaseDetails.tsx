@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FileText, Search } from 'lucide-react';
-import { useAppContext } from '../contexts/useAppContext';
-import * as knowledgeBaseService from '../services/knowledgeBase';
-import { FileUploader } from './FileUploader';
+import { useAppContext } from '../../contexts/useAppContext';
+import * as knowledgeBaseService from '../../services/knowledgeBase';
+import { FileUploader } from '../common/FileUploader';
 import { QueryTester } from './QueryTester';
-import type { KnowledgeBase } from '../types';
+import type { KnowledgeBase } from '../../types';
 
 export function KnowledgeBaseDetails() {
   const { knowledgeBaseId } = useParams<{ knowledgeBaseId: string }>();

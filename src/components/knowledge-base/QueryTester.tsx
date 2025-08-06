@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Copy, RotateCw, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useAppContext } from '../contexts/useAppContext';
-import * as knowledgeBaseService from '../services/knowledgeBase';
+import { useAppContext } from '../../contexts/useAppContext';
+import * as knowledgeBaseService from '../../services/knowledgeBase';
 
 interface QueryTesterProps {
   knowledgeBaseId: string;

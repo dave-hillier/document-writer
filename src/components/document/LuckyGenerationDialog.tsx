@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Sparkles } from 'lucide-react';
-import type { LuckyGenerationState } from '../types';
+import type { LuckyGenerationState } from '../../types';
 
 interface LuckyGenerationDialogProps {
   isOpen: boolean;

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import type { DocumentConfig as IDocumentConfig } from '../types';
-import { createDocumentConfig, documentConfigToFormData } from '../business/documentConfigHelpers';
-import { useAppContext } from '../contexts/useAppContext';
-import { KnowledgeBaseSelector } from './KnowledgeBaseSelector';
+import type { DocumentConfig as IDocumentConfig } from '../../types';
+import { createDocumentConfig, documentConfigToFormData } from '../../business/documentConfigHelpers';
+import { useAppContext } from '../../contexts/useAppContext';
+import { KnowledgeBaseSelector } from '../knowledge-base/KnowledgeBaseSelector';
 
 interface DocumentConfigProps {
   onSubmit: (config: IDocumentConfig, prompt: string) => void;
