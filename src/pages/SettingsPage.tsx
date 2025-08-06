@@ -158,8 +158,7 @@ export function SettingsPage() {
   };
 
   return (
-    <article>
-
+    <>
       <section>
         <h2>OpenAI Configuration</h2>
         
@@ -364,6 +363,6 @@ export function SettingsPage() {
           </footer>
         </article>
       </section>
-    </article>
+    </>
   );
 }
