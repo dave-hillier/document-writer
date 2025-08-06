@@ -37,8 +37,6 @@ export function DocumentConfig({ onSubmit, onLuckyGeneration }: DocumentConfigPr
   return (
     <form onSubmit={handleSubmit} aria-label="Document configuration form">
       <fieldset>
-        <legend>Document Configuration</legend>
-      
         <label htmlFor="document-topic">
           Document Topic/Request
           <textarea

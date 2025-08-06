@@ -22,10 +22,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
-      
       <AppHeader />
-      
       <AsideNavigation />
       
       <main id="main-content">
