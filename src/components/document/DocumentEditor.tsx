@@ -184,15 +184,10 @@ export function DocumentEditor() {
                     {section.content}
                   </pre>
                   <div className="section-footer">
-                    <div className="metrics-group">
-                      <output aria-label={`Section word count: ${section.wordCount}`}>
-                        {section.wordCount} words
-                      </output>
-                      <CacheMetrics 
-                        cacheMetrics={sectionCacheMetrics[section.id]} 
-                        label="Section cache"
-                      />
-                    </div>
+                    <CacheMetrics 
+                      cacheMetrics={sectionCacheMetrics[section.id]} 
+                      label="Section cache"
+                    />
                     <button
                       onClick={() => handleGenerateSection(section.id, true)}
                       disabled={isStreaming || isGenerating}
