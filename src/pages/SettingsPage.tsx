@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { AlertTriangle, Settings } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { useAppContext } from '../contexts/useAppContext';
 import { ModelsService } from '../services/models';
 import type { ModelInfo } from '../services/models';
 import { indexedDBService } from '../services/indexeddb';
 import OpenAI from 'openai';
 
 export function SettingsPage() {
+  const { dispatch } = useAppContext();
   const [key, setKey] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
   const [preprocessingModel, setPreprocessingModel] = useState('');
@@ -18,6 +20,15 @@ export function SettingsPage() {
   const [isDeletingFiles, setIsDeletingFiles] = useState(false);
   const [deleteProgress, setDeleteProgress] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  useEffect(() => {
+    dispatch({
+      type: 'PAGE_NAVIGATION_SET',
+      payload: {
+        title: 'Settings'
+      }
+    });
+  }, [dispatch]);
 
   useEffect(() => {
     setKey(localStorage.getItem('openai-api-key') || '');
@@ -148,12 +159,6 @@ export function SettingsPage() {
 
   return (
     <article>
-      <header>
-        <h1>
-          <Settings size={24} aria-hidden="true" />
-          Settings
-        </h1>
-      </header>
 
       <section>
         <h2>OpenAI Configuration</h2>

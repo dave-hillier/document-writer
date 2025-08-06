@@ -104,6 +104,14 @@ export interface LuckyGenerationState {
   generatedDocument?: DocumentHistoryItem;
 }
 
+export interface PageNavigationConfig {
+  title: string;
+  backButton?: {
+    text: string;
+    action: () => void;
+  };
+}
+
 export interface AppState {
   currentDocumentId: string | null;
   documentConfig: DocumentConfig;
@@ -126,11 +134,15 @@ export interface AppState {
   uploadBatchState: Record<string, UploadBatchState>; // keyed by knowledgeBaseId
   luckyGeneration: LuckyGenerationState;
   showDocumentPreview: boolean;
+  pageNavigation: PageNavigationConfig;
 }
 
 export type AppAction =
   // User settings and configuration
   | { type: 'RESET_DOCUMENT' }
+  
+  // Page navigation events
+  | { type: 'PAGE_NAVIGATION_SET'; payload: PageNavigationConfig }
   
   // Document management events
   | { type: 'DOCUMENT_ID_ASSIGNED'; payload: { documentId: string } }

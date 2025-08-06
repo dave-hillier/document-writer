@@ -42,7 +42,10 @@ export const initialState: AppState = {
     stepIndex: 0,
     totalSteps: 0
   },
-  showDocumentPreview: false
+  showDocumentPreview: false,
+  pageNavigation: {
+    title: 'Document Writer'
+  }
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -63,6 +66,13 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         currentlyGeneratingSectionId: null,
         outlineCacheMetrics: undefined,
         sectionCacheMetrics: {}
+      };
+    
+    // Page navigation events
+    case 'PAGE_NAVIGATION_SET':
+      return {
+        ...state,
+        pageNavigation: action.payload
       };
     
     // Document management events

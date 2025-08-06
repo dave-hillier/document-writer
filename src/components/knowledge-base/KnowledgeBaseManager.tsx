@@ -13,6 +13,15 @@ export function KnowledgeBaseManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
+    dispatch({
+      type: 'PAGE_NAVIGATION_SET',
+      payload: {
+        title: 'Knowledge Bases'
+      }
+    });
+  }, [dispatch, navigate]);
+
+  useEffect(() => {
     loadKnowledgeBases();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -94,18 +103,9 @@ export function KnowledgeBaseManager() {
   };
 
   return (
-    <article className="knowledge-base-manager" aria-label="Knowledge Base Manager">
+    <article aria-label="Knowledge Base Manager">
       <header>
-        <nav aria-label="Knowledge base navigation">
-          <button
-            onClick={() => navigate('/')}
-            className="secondary"
-          >
-            ← Back to Documents
-          </button>
-        </nav>
         <hgroup>
-          <h1>Knowledge Bases</h1>
           <p>Manage knowledge bases to enhance document generation with domain-specific content.</p>
         </hgroup>
         <nav aria-label="Knowledge base actions">

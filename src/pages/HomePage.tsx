@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppContext } from '../contexts/useAppContext';
@@ -14,6 +14,15 @@ export function HomePage() {
   const { state, dispatch } = useAppContext();
   const navigate = useNavigate();
   const luckyGenerationCancelRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    dispatch({
+      type: 'PAGE_NAVIGATION_SET',
+      payload: {
+        title: 'Document Writer'
+      }
+    });
+  }, [dispatch]);
 
   const handleGenerateOutline = async (config: IDocumentConfig, prompt: string) => {
     dispatch({ type: 'OUTLINE_GENERATION_STARTED', payload: { config } });

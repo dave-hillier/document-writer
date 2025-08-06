@@ -11,6 +11,15 @@ export function DocumentHistory() {
   const [filteredDocuments, setFilteredDocuments] = useState<DocumentHistoryItem[]>([]);
 
   useEffect(() => {
+    dispatch({
+      type: 'PAGE_NAVIGATION_SET',
+      payload: {
+        title: 'Document History'
+      }
+    });
+  }, [dispatch]);
+
+  useEffect(() => {
     const loadHistory = async () => {
       try {
         const documents = await indexedDBService.getAllDocuments();
@@ -59,9 +68,8 @@ export function DocumentHistory() {
   };
 
   return (
-    <article className="document-history">
+    <article>
       <header>
-        <h1>Document History</h1>
         <p>Manage your saved documents and continue working on them.</p>
       </header>
 

@@ -34,6 +34,24 @@ export function DocumentPage() {
     }
   }, [documentId, state.currentDocumentId, dispatch, navigate]);
 
+  useEffect(() => {
+    if (state.outline) {
+      dispatch({
+        type: 'PAGE_NAVIGATION_SET',
+        payload: {
+          title: state.outline.title,
+          backButton: {
+            text: 'Start New Document',
+            action: () => {
+              dispatch({ type: 'RESET_DOCUMENT' });
+              navigate('/');
+            }
+          }
+        }
+      });
+    }
+  }, [state.outline, dispatch, navigate]);
+
   if (!state.outline) {
     return <section>Loading document...</section>;
   }
@@ -51,18 +69,6 @@ export function DocumentPage() {
 
   return (
     <>
-      <nav aria-label="Document actions">
-        <button
-          onClick={() => {
-            dispatch({ type: 'RESET_DOCUMENT' });
-            navigate('/');
-          }}
-          className="secondary"
-        >
-          ← Start New Document
-        </button>
-      </nav>
-      
       <section aria-label="Document Editor">
         <DocumentEditor />
       </section>

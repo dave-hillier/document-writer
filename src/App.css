@@ -30,9 +30,8 @@ header.app-header {
 /* Aside navigation */
 aside[role="navigation"] {
   grid-area: aside;
-  background: var(--pico-card-background-color);
-  border-right: 1px solid var(--pico-muted-border-color);
   overflow-y: auto;
+  padding: var(--pico-spacing);
 }
 
 aside[role="navigation"] section h2 {
@@ -227,74 +226,11 @@ details > div {
   margin-top: calc(var(--pico-spacing) * 0.5);
 }
 
-/* Document History */
-.document-history form[role="search"] {
-  position: relative;
-  margin-bottom: var(--pico-spacing);
-}
-
-.document-history .empty-state {
-  text-align: center;
-  padding: calc(var(--pico-spacing) * 2);
-}
-
-.document-history .empty-state svg {
-  opacity: 0.5;
-  margin-bottom: var(--pico-spacing);
-}
-
-.document-history > section > section {
-  display: grid;
-  gap: var(--pico-spacing);
-}
-
-.document-history article {
-  border: 1px solid var(--pico-muted-border-color);
-  border-radius: var(--pico-border-radius);
-  padding: var(--pico-spacing);
-}
-
-.document-history article > header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: calc(var(--pico-spacing) * 0.5);
-}
-
-.document-history article h3 {
-  margin: 0;
-}
-
-.document-history article h3 a {
-  text-decoration: none;
-}
-
-.document-history article time {
+/* Document card styling - used across history and knowledge bases */
+article time {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-}
-
-.document-history article button {
-  padding: calc(var(--pico-spacing) * 0.25);
-  min-width: auto;
-}
-
-.document-history article footer {
-  margin-bottom: calc(var(--pico-spacing) * 0.5);
-}
-
-.document-history article details ul {
-  margin-top: calc(var(--pico-spacing) * 0.5);
-}
-
-.document-history article details li {
-  margin-bottom: calc(var(--pico-spacing) * 0.25);
-}
-
-.document-history article details li svg {
-  color: var(--pico-primary);
-  margin-left: 0.5rem;
 }
 
 /* Query Tester */
@@ -511,6 +447,34 @@ details > div {
 .app-header {
   border-bottom: 1px solid var(--pico-muted-border-color);
   padding: var(--pico-spacing) 0;
+  background: var(--pico-card-background-color);
+}
+
+.app-header .container {
+  max-width: none;
+  margin: 0;
+  padding: 0 var(--pico-spacing);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--pico-spacing);
+}
+
+.header-nav h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--pico-primary);
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--pico-spacing) * 0.5);
+  padding: calc(var(--pico-spacing) * 0.5) var(--pico-spacing);
+  font-size: 0.875rem;
+  white-space: nowrap;
 }
 
 /* Document editor styles */
@@ -648,76 +612,7 @@ button {
   margin-top: var(--pico-spacing);
 }
 
-/* Knowledge Base Manager */
-.knowledge-base-manager {
-  padding: var(--pico-spacing) 0;
-}
-
-.knowledge-base-manager > header {
-  margin-bottom: calc(var(--pico-spacing) * 2);
-}
-
-.knowledge-base-manager nav[aria-label*="actions"] {
-  display: flex;
-  gap: calc(var(--pico-spacing) * 0.5);
-}
-
-.knowledge-base-manager nav[aria-label*="actions"] button {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--pico-spacing) * 0.5);
-}
-
-.knowledge-base-manager article > form > footer {
-  display: flex;
-  gap: calc(var(--pico-spacing) * 0.5);
-  margin-top: var(--pico-spacing);
-}
-
-/* Knowledge base list using semantic selectors */
-.knowledge-base-manager > section > ul {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: var(--pico-spacing);
-}
-
-.knowledge-base-manager > section > ul > li > article {
-  background: var(--pico-card-background-color);
-  padding: var(--pico-spacing);
-  border-radius: var(--pico-border-radius);
-  border: 1px solid var(--pico-muted-border-color);
-}
-
-.knowledge-base-manager article h3 a {
-  text-decoration: none;
-  color: inherit;
-}
-
-.knowledge-base-manager article h3 a:hover {
-  text-decoration: underline;
-}
-
-.knowledge-base-manager > section > ul > li > article > header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: calc(var(--pico-spacing) * 0.5);
-}
-
-.knowledge-base-manager article h3 {
-  display: flex;
-  align-items: center;
-  gap: calc(var(--pico-spacing) * 0.5);
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.knowledge-base-manager article nav {
-  display: flex;
-  gap: calc(var(--pico-spacing) * 0.5);
-}
-
+/* Icon buttons for edit/delete actions */
 .icon-button {
   background: none;
   border: none;
@@ -735,14 +630,7 @@ button {
   color: var(--pico-del-color);
 }
 
-.knowledge-base-manager > section > ul > li > article > footer {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  color: var(--pico-muted-color);
-  margin-top: calc(var(--pico-spacing) * 0.5);
-}
-
+/* Empty state styling */
 .empty-state {
   text-align: center;
   color: var(--pico-muted-color);
@@ -754,22 +642,7 @@ button {
   margin-bottom: var(--pico-spacing);
 }
 
-/* Knowledge Base Details */
-.knowledge-base-details {
-  padding: var(--pico-spacing) 0;
-}
-
-.knowledge-base-details header {
-  margin-bottom: calc(var(--pico-spacing) * 2);
-}
-
-.knowledge-base-details nav[aria-label="Knowledge base navigation"] {
-  margin-bottom: var(--pico-spacing);
-}
-
-.knowledge-base-details h1 {
-  margin: var(--pico-spacing) 0 calc(var(--pico-spacing) * 0.5) 0;
-}
+/* Tab navigation component */
 
 .tabs {
   display: flex;

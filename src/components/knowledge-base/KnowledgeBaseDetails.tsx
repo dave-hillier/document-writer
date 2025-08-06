@@ -54,9 +54,24 @@ export function KnowledgeBaseDetails() {
     loadKnowledgeBase();
   }, [knowledgeBaseId, state.knowledgeBases, dispatch, navigate]);
 
+  useEffect(() => {
+    if (knowledgeBase) {
+      dispatch({
+        type: 'PAGE_NAVIGATION_SET',
+        payload: {
+          title: knowledgeBase.name,
+          backButton: {
+            text: 'Back',
+            action: () => navigate('/knowledge-bases')
+          }
+        }
+      });
+    }
+  }, [knowledgeBase, dispatch, navigate]);
+
   if (isLoading) {
     return (
-      <div className="knowledge-base-details">
+      <div>
         <div aria-busy="true">Loading knowledge base...</div>
       </div>
     );
@@ -64,24 +79,15 @@ export function KnowledgeBaseDetails() {
 
   if (!knowledgeBase) {
     return (
-      <div className="knowledge-base-details">
+      <div>
         <p>Knowledge base not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="knowledge-base-details">
+    <div>
       <header>
-        <nav aria-label="Knowledge base navigation">
-          <button
-            onClick={() => navigate('/knowledge-bases')}
-            className="secondary"
-          >
-            ← Back to Knowledge Bases
-          </button>
-        </nav>
-        <h1>{knowledgeBase.name}</h1>
         {knowledgeBase.description && <p>{knowledgeBase.description}</p>}
         
         <nav className="tabs" role="tablist">
