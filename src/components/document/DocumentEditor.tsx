@@ -71,7 +71,7 @@ export function DocumentEditor() {
   
 
   return (
-    <article className="document-editor" aria-label="Document editor">
+    <article aria-label="Document editor">
       <header>
         <hgroup>
           <EditableText
@@ -113,7 +113,7 @@ export function DocumentEditor() {
       <ol>
         {sections.map((section, index) => (
           <li key={section.id}>
-            <section className="document-section" aria-labelledby={`section-${section.id}-title`}>
+            <section aria-labelledby={`section-${section.id}-title`}>
               <header>
                 <div data-completed={section.content ? "true" : "false"} aria-hidden="true">
                   {section.content ? (
@@ -183,7 +183,7 @@ export function DocumentEditor() {
                   <pre>
                     {section.content}
                   </pre>
-                  <div className="section-footer">
+                  <div>
                     <CacheMetrics 
                       cacheMetrics={sectionCacheMetrics[section.id]} 
                       label="Section cache"

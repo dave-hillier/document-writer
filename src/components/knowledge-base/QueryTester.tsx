@@ -120,7 +120,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const latestResult = state.queryTestResults[0];
 
   return (
-    <article className="query-tester">
+    <article>
       <form onSubmit={handleSearch}>
         <aside data-search-container>
           <input

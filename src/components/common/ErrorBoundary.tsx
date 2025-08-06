@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <article className="error-boundary" role="alert">
+        <article role="alert">
           <header>
             <h2>Something went wrong</h2>
           </header>

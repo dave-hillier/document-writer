@@ -325,7 +325,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   };
 
   return (
-    <section className="file-uploader">
+    <section>
       {batchState?.isUploading && (
         <div className="upload-progress-summary">
           <div className="progress-header">
@@ -359,7 +359,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
       )}
 
       <div
-        className={`upload-zone ${isDragging ? 'dragging' : ''}`}
+        data-dragging={isDragging}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -384,20 +384,20 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
       {isLoadingFiles ? (
         <div aria-busy="true">Loading files...</div>
       ) : files.length === 0 ? (
-        <p className="empty-state">No files uploaded yet</p>
+        <p>No files uploaded yet</p>
       ) : (
         <>
           {files.filter(f => f.status === 'queued' || f.status === 'uploading').length > 0 && (
-            <div className="file-section">
+            <div>
               <h4>Uploading</h4>
-              <ul className="file-list">
+              <ul>
                 {files
                   .filter(f => f.status === 'queued' || f.status === 'uploading')
                   .map(file => (
-                    <li key={file.id} className={`file-item ${file.status}`}>
-                      <div className="file-info">
+                    <li key={file.id} data-status={file.status}>
+                      <div>
                         {getFileIcon(file.status)}
-                        <span className="filename">{file.filename}</span>
+                        <span>{file.filename}</span>
                         {file.status === 'uploading' && (
                           <output className="upload-status">
                             {file.progress !== undefined && (
@@ -422,16 +422,16 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
           )}
           
           {files.filter(f => f.status === 'completed' || f.status === 'failed').length > 0 && (
-            <div className="file-section">
+            <div>
               <h4>Uploaded Files</h4>
-              <ul className="file-list">
+              <ul>
                 {files
                   .filter(f => f.status === 'completed' || f.status === 'failed')
                   .map(file => (
-                    <li key={file.id} className={`file-item ${file.status}`}>
-                      <div className="file-info">
+                    <li key={file.id} data-status={file.status}>
+                      <div>
                         {getFileIcon(file.status)}
-                        <span className="filename">{file.filename}</span>
+                        <span>{file.filename}</span>
                         {file.status === 'failed' && file.error && (
                           <span className="file-error" title={file.error}>Failed</span>
                         )}
@@ -441,7 +441,6 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
                       </div>
                       <button
                         onClick={() => handleDelete(file)}
-                        className="delete-button"
                         aria-label={`Delete ${file.filename}`}
                         disabled={file.status === 'uploading' || file.status === 'processing' || deletingFiles.has(file.id)}
                       >

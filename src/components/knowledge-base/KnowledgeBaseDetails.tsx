@@ -90,12 +90,11 @@ export function KnowledgeBaseDetails() {
       <header>
         {knowledgeBase.description && <p>{knowledgeBase.description}</p>}
         
-        <nav className="tabs" role="tablist">
+        <nav role="tablist">
           <button
             role="tab"
             aria-selected={activeTab === 'files'}
             onClick={() => setActiveTab('files')}
-            className={activeTab === 'files' ? 'active' : ''}
           >
             <FileText size={20} aria-hidden="true" />
             Files
@@ -104,7 +103,6 @@ export function KnowledgeBaseDetails() {
             role="tab"
             aria-selected={activeTab === 'query'}
             onClick={() => setActiveTab('query')}
-            className={activeTab === 'query' ? 'active' : ''}
           >
             <Search size={20} aria-hidden="true" />
             Query Test
@@ -112,7 +110,7 @@ export function KnowledgeBaseDetails() {
         </nav>
       </header>
 
-      <main className="tab-content">
+      <div>
         {activeTab === 'files' ? (
           <FileUploader
             knowledgeBaseId={knowledgeBase.id}
@@ -124,7 +122,7 @@ export function KnowledgeBaseDetails() {
             knowledgeBaseService={knowledgeBaseService}
           />
         )}
-      </main>
+      </div>
     </div>
   );
 }

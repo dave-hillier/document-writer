@@ -154,11 +154,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   return (
-    <dialog open className="modal" role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
+    <dialog open role="dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
       <article>
         <header>
           <h3 id="settings-title">Settings</h3>
-          <button aria-label="Close settings" className="icon-button" onClick={onClose}>
+          <button aria-label="Close settings" onClick={onClose}>
             <X size={20} aria-hidden="true" />
           </button>
         </header>
@@ -174,7 +174,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             aria-describedby="api-key-hint"
             required
           />
-          <small id="api-key-hint" className="hint">
+          <small id="api-key-hint">
             Your API key is stored locally and never sent to any server except OpenAI.
           </small>
         </label>
@@ -201,7 +201,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               ))
             )}
           </select>
-          <small id="model-hint" className="hint">
+          <small id="model-hint">
             {isLoadingModels 
               ? 'Fetching available models...' 
               : modelsError 
@@ -222,7 +222,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             Advanced Model Settings
           </summary>
           
-          <p className="hint">Configure different models for each stage of document generation.</p>
+          <p>Configure different models for each stage of document generation.</p>
           
           <label htmlFor="preprocessing-model">
             Pre-processing Model
@@ -239,7 +239,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="preprocessing-hint" className="hint">
+            <small id="preprocessing-hint">
               Used for knowledge base search and query rewriting. Lighter models work well here.
             </small>
           </label>
@@ -259,7 +259,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="outline-hint" className="hint">
+            <small id="outline-hint">
               Creates the document structure. Benefits from good reasoning capabilities.
             </small>
           </label>
@@ -279,7 +279,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </option>
               ))}
             </select>
-            <small id="generation-hint" className="hint">
+            <small id="generation-hint">
               Writes the actual content for each section. Consider using your most capable model here.
             </small>
           </label>
@@ -307,7 +307,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </h4>
           </header>
           
-          <article className="danger-zone-item">
+          <article>
             <header>
               <h5>Delete All Files from OpenAI</h5>
             </header>
@@ -328,7 +328,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </footer>
           </article>
           
-          <article className="danger-zone-item">
+          <article>
             <header>
               <h5>Reset Database</h5>
             </header>

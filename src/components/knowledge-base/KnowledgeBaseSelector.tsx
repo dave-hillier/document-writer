@@ -37,9 +37,9 @@ export function KnowledgeBaseSelector({ selectedId, onChange }: KnowledgeBaseSel
   };
 
   return (
-    <div className="knowledge-base-selector">
+    <div>
       <label htmlFor="knowledge-base-select">
-        <span className="label-with-icon">
+        <span>
           <Database size={20} aria-hidden="true" />
           Knowledge Base (Optional)
         </span>
@@ -59,8 +59,8 @@ export function KnowledgeBaseSelector({ selectedId, onChange }: KnowledgeBaseSel
       </label>
       
       {selectedId && state.selectedKnowledgeBase && (
-        <div className="knowledge-base-info">
-          <p className="description">
+        <div>
+          <p>
             {state.selectedKnowledgeBase.description || 
              `This knowledge base contains ${state.selectedKnowledgeBase.fileCount} files that will be used to enhance document generation.`}
           </p>

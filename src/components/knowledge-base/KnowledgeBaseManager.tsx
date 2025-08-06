@@ -163,7 +163,7 @@ export function KnowledgeBaseManager() {
             )}
 
             {state.knowledgeBases.length === 0 ? (
-              <section className="empty-state">
+              <section>
                 <Database size={48} aria-hidden="true" />
                 <p>No knowledge bases yet. Create one to get started!</p>
               </section>
@@ -219,14 +219,12 @@ export function KnowledgeBaseManager() {
                               <button
                                 onClick={() => setEditingId(kb.id)}
                                 aria-label={`Edit ${kb.name}`}
-                                className="icon-button"
                               >
                                 <Edit size={16} aria-hidden="true" />
                               </button>
                               <button
                                 onClick={() => handleDelete(kb)}
                                 aria-label={`Delete ${kb.name}`}
-                                className="icon-button danger"
                               >
                                 <Trash2 size={16} aria-hidden="true" />
                               </button>

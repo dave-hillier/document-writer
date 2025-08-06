@@ -85,7 +85,7 @@ export function DocumentHistory() {
         </form>
 
         {filteredDocuments.length === 0 ? (
-          <section className="empty-state">
+          <section>
             <FileText size={48} aria-hidden="true" />
             <p>
               {searchQuery ? 'No documents match your search.' : 'No documents saved yet.'}
