@@ -1,7 +1,8 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../contexts/useAppContext';
 import { AppHeader } from './AppHeader';
-import { SettingsModal } from '../common/SettingsModal';
+import { AsideNavigation } from './AsideNavigation';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -9,22 +10,25 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { state } = useAppContext();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Check for API key on startup
+  // Check for API key on startup and redirect to settings if needed
   useEffect(() => {
     const apiKey = localStorage.getItem('openai-api-key');
-    if (!apiKey && !isSettingsOpen) {
-      setIsSettingsOpen(true);
+    if (!apiKey) {
+      navigate('/settings');
     }
-  }, [isSettingsOpen]);
+  }, [navigate]);
 
   return (
     <>
       <a href="#main-content" className="skip-link">Skip to main content</a>
-      <AppHeader onSettingsClick={() => setIsSettingsOpen(true)} />
       
-      <main id="main-content" className="container">
+      <AppHeader />
+      
+      <AsideNavigation />
+      
+      <main id="main-content">
         {state.error && (
           <section role="alert" aria-live="assertive">
             {state.error}
@@ -33,11 +37,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         
         {children}
       </main>
-
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
     </>
   );
 }

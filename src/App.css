@@ -12,11 +12,84 @@ body {
 }
 
 #root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  max-width: 800px;
   width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-areas: 
+    "header header"
+    "aside main";
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+/* Header spans both columns */
+header.app-header {
+  grid-area: header;
+}
+
+/* Aside navigation */
+aside[role="navigation"] {
+  grid-area: aside;
+  background: var(--pico-card-background-color);
+  border-right: 1px solid var(--pico-muted-border-color);
+  overflow-y: auto;
+}
+
+aside[role="navigation"] section h2 {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: var(--pico-muted-color);
+}
+
+aside[role="navigation"] ul {
+  list-style: none;
+  padding: 0;
+}
+
+aside[role="navigation"] a,
+aside[role="navigation"] button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+aside[role="navigation"] a:hover,
+aside[role="navigation"] button:hover {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary);
+}
+
+aside[role="navigation"] a[aria-current="page"] {
+  background: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+}
+
+/* Main content */
+main {
+  grid-area: main;
+  overflow-y: auto;
+  padding: var(--pico-spacing);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  #root {
+    grid-template-areas: 
+      "header"
+      "main";
+    grid-template-columns: 1fr;
+  }
+  
+  aside[role="navigation"] {
+    display: none;
+  }
 }
 
 /* Generation buttons */
