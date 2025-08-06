@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Copy, RotateCw, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useAppContext } from '../contexts/useAppContext';
@@ -25,23 +25,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const [availableNarrativeElements, setAvailableNarrativeElements] = useState<string[]>([]);
   const [customNarrativeElement, setCustomNarrativeElement] = useState('');
 
-  // Debounce the query value
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  // Auto-search when debounced query changes
-  useEffect(() => {
-    if (debouncedQuery.trim() && !isSearching) {
-      performSearch();
-    }
-  }, [debouncedQuery]);
-
-  const performSearch = async () => {
+  const performSearch = useCallback(async () => {
     if (!query.trim() || isSearching) return;
 
     setIsSearching(true);
@@ -75,7 +59,23 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [query, isSearching, selectedNarrativeElements, fuzzyMatchNarratives, knowledgeBaseId, knowledgeBaseService, maxResults, rewriteQuery, searchOutlines, dispatch]);
+
+  // Debounce the query value
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Auto-search when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery.trim() && !isSearching) {
+      performSearch();
+    }
+  }, [debouncedQuery, isSearching, performSearch]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +189,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
                   type="text"
                   value={customNarrativeElement}
                   onChange={(e) => setCustomNarrativeElement(e.target.value)}
-                  onKeyPress={handleCustomElementKeyPress}
+                  onKeyDown={handleCustomElementKeyPress}
                   placeholder="Enter single word (e.g., examples, statistics, stories)"
                 />
               </label>

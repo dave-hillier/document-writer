@@ -1,15 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import { Routes, Route, useParams, useNavigate, Link } from 'react-router-dom';
 import { Settings, History, FileText, Database } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppProvider } from './contexts/AppContext';
 import { useAppContext } from './contexts/useAppContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { SettingsModal } from './components/SettingsModal';
 import { DocumentConfig } from './components/DocumentConfig';
 import { DocumentEditor } from './components/DocumentEditor';
-import { DocumentHistory } from './components/DocumentHistory';
-import { KnowledgeBaseManager } from './components/KnowledgeBaseManager';
-import { KnowledgeBaseDetails } from './components/KnowledgeBaseDetails';
 import { DocumentPreview } from './components/DocumentPreview';
 import { LuckyGenerationDialog } from './components/LuckyGenerationDialog';
 import { generateOutline } from './business/documentOperations';
@@ -18,6 +16,11 @@ import { indexedDBService } from './services/indexeddb';
 import { migrateModelSettings } from './utils/migration';
 import type { DocumentConfig as IDocumentConfig, DocumentHistoryItem } from './types';
 import './App.css';
+
+// Lazy-loaded components for code splitting
+const LazyDocumentHistory = lazy(() => import('./components/DocumentHistory').then(module => ({ default: module.DocumentHistory })));
+const LazyKnowledgeBaseManager = lazy(() => import('./components/KnowledgeBaseManager').then(module => ({ default: module.KnowledgeBaseManager })));
+const LazyKnowledgeBaseDetails = lazy(() => import('./components/KnowledgeBaseDetails').then(module => ({ default: module.KnowledgeBaseDetails })));
 
 function HomePage() {
   const { state, dispatch } = useAppContext();
@@ -62,8 +65,9 @@ function HomePage() {
       try {
         await indexedDBService.saveDocument(documentItem);
         dispatch({ type: 'DOCUMENT_SAVED_TO_HISTORY', payload: { document: documentItem } });
-      } catch {
-        // Error saving document to history
+      } catch (error) {
+        console.error('Failed to save document to history:', error);
+        // Non-critical error - document generation can continue
       }
       
       navigate(`/document/${documentId}`);
@@ -179,7 +183,8 @@ function DocumentPage() {
           // Document not found, redirect to home
           navigate('/');
         }
-      } catch {
+      } catch (error) {
+        console.error('Failed to load document:', error);
         navigate('/');
       }
     };
@@ -258,8 +263,9 @@ function AppContent() {
         // Load document history
         const documents = await indexedDBService.getAllDocuments();
         dispatch({ type: 'HISTORY_LOADED', payload: { documents } });
-      } catch {
-        // Error loading documents from history
+      } catch (error) {
+        console.error('Failed to load documents from history:', error);
+        // Non-critical error - app can continue without history
       }
     };
 
@@ -311,13 +317,15 @@ function AppContent() {
           </section>
         )}
 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/document/:documentId" element={<DocumentPage />} />
-          <Route path="/history" element={<DocumentHistory />} />
-          <Route path="/knowledge-bases" element={<KnowledgeBaseManager />} />
-          <Route path="/knowledge-bases/:knowledgeBaseId" element={<KnowledgeBaseDetails />} />
-        </Routes>
+        <Suspense fallback={<div aria-busy="true">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/document/:documentId" element={<DocumentPage />} />
+            <Route path="/history" element={<LazyDocumentHistory />} />
+            <Route path="/knowledge-bases" element={<LazyKnowledgeBaseManager />} />
+            <Route path="/knowledge-bases/:knowledgeBaseId" element={<LazyKnowledgeBaseDetails />} />
+          </Routes>
+        </Suspense>
       </main>
 
       <SettingsModal
@@ -330,9 +338,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 
