@@ -14,14 +14,13 @@ export function AsideNavigation() {
   return (
     <aside role="navigation" aria-label="Main navigation">
       <nav>
-        <section>
-          <h2>Documents</h2>
+        <details open>
+          <summary>Documents</summary>
           <ul>
             <li>
               <Link 
                 to="/" 
                 aria-current={isActive('/') ? 'page' : undefined}
-                className={isActive('/') ? 'active' : undefined}
               >
                 <FileText size={18} aria-hidden="true" />
                 New Document
@@ -31,46 +30,43 @@ export function AsideNavigation() {
               <Link 
                 to="/history" 
                 aria-current={isActive('/history') ? 'page' : undefined}
-                className={isActive('/history') ? 'active' : undefined}
               >
                 <History size={18} aria-hidden="true" />
                 History
               </Link>
             </li>
           </ul>
-        </section>
+        </details>
 
-        <section>
-          <h2>Knowledge Base</h2>
+        <details open>
+          <summary>Knowledge Base</summary>
           <ul>
             <li>
               <Link 
                 to="/knowledge-bases" 
                 aria-current={isActive('/knowledge-bases') ? 'page' : undefined}
-                className={isActive('/knowledge-bases') ? 'active' : undefined}
               >
                 <Database size={18} aria-hidden="true" />
                 Knowledge Bases
               </Link>
             </li>
           </ul>
-        </section>
+        </details>
 
-        <section>
-          <h2>Settings</h2>
+        <details open>
+          <summary>Settings</summary>
           <ul>
             <li>
               <Link 
                 to="/settings" 
                 aria-current={isActive('/settings') ? 'page' : undefined}
-                className={isActive('/settings') ? 'active' : undefined}
               >
                 <Settings size={18} aria-hidden="true" />
                 Settings
               </Link>
             </li>
           </ul>
-        </section>
+        </details>
       </nav>
     </aside>
   );

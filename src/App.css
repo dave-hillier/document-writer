@@ -1,35 +1,126 @@
 @import '@picocss/pico/css/pico.min.css';
 
-/* App grid layout */
+/* Reset for full viewport */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
 #root {
   width: 100%;
   min-height: 100vh;
-  display: grid;
-  grid-template-areas: 
-    "header header"
-    "aside main";
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
 }
 
-header.app-header { grid-area: header; }
-aside[role="navigation"] { 
-  grid-area: aside; 
-  overflow-y: auto;
+/* App header always outside grid */
+header.app-header {
   padding: var(--pico-spacing);
-}
-main { 
-  grid-area: main; 
-  overflow-y: auto;
-  padding: var(--pico-spacing);
+  border-bottom: var(--pico-border-width) solid var(--pico-muted-border-color);
 }
 
-@media (max-width: 768px) {
-  #root {
-    grid-template-areas: "header" "main";
-    grid-template-columns: 1fr;
+/* Main grid layout following exact Pico docs approach */
+@media (min-width: 1024px) {
+  main {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 11rem 1fr;
+    grid-template-areas: "menu body";
+    column-gap: 3rem;
+    flex: 1;
   }
-  aside[role="navigation"] { display: none; }
+  
+  main > aside[role="navigation"] { 
+    grid-area: menu;
+    padding: var(--pico-spacing);
+    border-right: var(--pico-border-width) solid var(--pico-muted-border-color);
+    overflow-y: auto;
+    --pico-font-size: 16px;
+    font-size: var(--pico-font-size);
+  }
+  
+  main > div {
+    grid-area: body;
+    padding: var(--pico-spacing);
+    overflow-y: auto;
+  }
+
+  header.app-header {
+    border-bottom: var(--pico-border-width) solid var(--pico-muted-border-color);
+    padding: var(--pico-spacing) 3rem var(--pico-spacing) var(--pico-spacing);
+  }
+}
+
+/* Larger screens - adjust column widths */
+@media (min-width: 1280px) {
+  main {
+    grid-template-columns: 10.5rem 1fr;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1536px) {
+  main {
+    grid-template-columns: 10rem 1fr;
+  }
+}
+
+/* Mobile/Tablet layout */
+@media (max-width: 1023px) {
+  main {
+    flex: 1;
+    padding: var(--pico-spacing);
+  }
+  
+  main > aside[role="navigation"] {
+    display: none;
+  }
+}
+
+/* Navigation styling following Pico docs */
+main > aside[role="navigation"] details {
+  margin-bottom: calc(var(--pico-spacing) * 0.5);
+}
+
+main > aside[role="navigation"] details:first-child {
+  margin-top: 0;
+}
+
+main > aside[role="navigation"] summary {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: calc(var(--pico-spacing) * 0.5);
+  color: var(--pico-muted-color);
+  cursor: pointer;
+}
+
+main > aside[role="navigation"] nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+main > aside[role="navigation"] nav li {
+  margin-bottom: calc(var(--pico-spacing) * 0.25);
+}
+
+main > aside[role="navigation"] nav a {
+  display: block;
+  padding: calc(var(--pico-spacing) * 0.5) calc(var(--pico-spacing) * 0.75);
+  text-decoration: none;
+  border-radius: var(--pico-border-radius);
+  transition: background-color var(--pico-transition);
+  font-size: inherit;
+}
+
+main > aside[role="navigation"] nav a:hover {
+  background-color: var(--pico-secondary-background);
+}
+
+main > aside[role="navigation"] nav a[aria-current="page"] {
+  background-color: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
 }
 
 /* Essential layout components */

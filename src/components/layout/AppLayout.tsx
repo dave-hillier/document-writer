@@ -23,16 +23,17 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       <AppHeader />
-      <AsideNavigation />
-      
-      <main id="main-content">
-        {state.error && (
-          <section role="alert" aria-live="assertive">
-            {state.error}
-          </section>
-        )}
-        
-        {children}
+      <main>
+        <AsideNavigation />
+        <div>
+          {state.error && (
+            <section role="alert" aria-live="assertive">
+              {state.error}
+            </section>
+          )}
+          
+          {children}
+        </div>
       </main>
     </>
   );
