@@ -68,7 +68,7 @@ export function DocumentHistory() {
   };
 
   return (
-    <>
+    <div className="document-history">
       <header>
         <p>Manage your saved documents and continue working on them.</p>
       </header>
@@ -151,6 +151,6 @@ export function DocumentHistory() {
           </section>
         )}
       </section>
-    </>
+    </div>
   );
 }

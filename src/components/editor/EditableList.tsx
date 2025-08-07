@@ -74,7 +74,7 @@ export function EditableList({ items, onSave, ariaLabel }: EditableListProps) {
   };
 
   return (
-    <div role="group" aria-label={ariaLabel}>
+    <div role="group" aria-label={ariaLabel} className="editable-list">
       <ul>
         {localItems.map((item, index) => (
           <li>

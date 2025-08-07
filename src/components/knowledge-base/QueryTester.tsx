@@ -72,10 +72,10 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
 
   // Auto-search when debounced query changes
   useEffect(() => {
-    if (debouncedQuery.trim() && !isSearching) {
+    if (debouncedQuery.trim()) {
       performSearch();
     }
-  }, [debouncedQuery, isSearching, performSearch]);
+  }, [debouncedQuery]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +120,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
   const latestResult = state.queryTestResults[0];
 
   return (
-    <article>
+    <div className="query-tester">
       <form onSubmit={handleSearch}>
         <aside data-search-container>
           <input
@@ -261,7 +261,7 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
           </header>
 
           {latestResult && (
-            <article>
+            <>
               <section>
                 <p><strong>Query:</strong> {latestResult.query}</p>
                 {latestResult.rewrittenQuery && (
@@ -287,41 +287,31 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
                   {latestResult.results.length === 0 ? (
                     <p>No results found. Try a different query or upload more files.</p>
                   ) : (
-                    <ul>
-                      {latestResult.results.map((result, index) => (
-                        <li key={index}>
-                          <header>
-                            <span>{result.filename}</span>
-                            <span>Score: {(result.score * 100).toFixed(1)}%</span>
-                          </header>
-                          <div>
-                            {result.content.map((chunk, chunkIndex) => (
-                              <div key={chunkIndex}>
-                                {searchOutlines ? (
-                                  <ReactMarkdown>{chunk.text}</ReactMarkdown>
-                                ) : (
-                                  <p>{chunk.text}</p>
-                                )}
+                    latestResult.results.map((result, index) => (
+                      <article key={index}>
+                        <header>
+                          <span>{result.filename}</span>
+                          <span>Score: {(result.score * 100).toFixed(1)}%</span>
+                        </header>
+                        {result.content.map((chunk, chunkIndex) => (
+                          <ReactMarkdown key={chunkIndex}>{chunk.text}</ReactMarkdown>
+                        ))}
+                        {result.attributes && Object.keys(result.attributes).length > 0 && (
+                          <footer>
+                            <div><strong>Attributes:</strong> {JSON.stringify(result.attributes)}</div>
+                            {searchOutlines && result.attributes.narrativeElements && Array.isArray(result.attributes.narrativeElements) ? (
+                              <div>
+                                <strong>Narrative Elements:</strong> {(result.attributes.narrativeElements as string[]).filter(el => typeof el === 'string').join(', ')}
                               </div>
-                            ))}
-                          </div>
-                          {result.attributes && Object.keys(result.attributes).length > 0 && (
-                            <footer>
-                              <div><strong>Attributes:</strong> {JSON.stringify(result.attributes)}</div>
-                              {searchOutlines && result.attributes.narrativeElements && Array.isArray(result.attributes.narrativeElements) ? (
-                                <div>
-                                  <strong>Narrative Elements:</strong> {(result.attributes.narrativeElements as string[]).filter(el => typeof el === 'string').join(', ')}
-                                </div>
-                              ) : null}
-                            </footer>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+                            ) : null}
+                          </footer>
+                        )}
+                      </article>
+                    ))
                   )}
-                </section>
+                </section>              
               )}
-            </article>
+            </>
           )}
 
           {state.queryTestResults.length > 1 && (
@@ -342,6 +332,6 @@ export function QueryTester({ knowledgeBaseId, knowledgeBaseService }: QueryTest
         </section>
       )}
 
-    </article>
+    </div>
   );
 }

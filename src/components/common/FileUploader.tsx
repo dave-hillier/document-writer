@@ -325,7 +325,7 @@ export function FileUploader({ knowledgeBaseId, knowledgeBaseService }: FileUplo
   };
 
   return (
-    <section>
+    <section className="file-uploader">
       {batchState?.isUploading && (
         <div className="upload-progress-summary">
           <div className="progress-header">

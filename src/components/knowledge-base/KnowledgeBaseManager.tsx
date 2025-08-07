@@ -103,7 +103,7 @@ export function KnowledgeBaseManager() {
   };
 
   return (
-    <>
+    <div className="knowledge-base-manager">
       <header>
         <hgroup>
           <p>Manage knowledge bases to enhance document generation with domain-specific content.</p>
@@ -245,6 +245,6 @@ export function KnowledgeBaseManager() {
             )}
         </section>
       )}
-    </>
+    </div>
   );
 }
